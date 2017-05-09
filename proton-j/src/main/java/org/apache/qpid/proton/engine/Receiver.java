@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.proton.engine;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.proton.codec.WritableBuffer;
 
 /**
@@ -82,5 +84,10 @@ public interface Receiver extends Link
     public boolean draining();
 
     public void setDrain(boolean drain);
+
+    /**
+     * @return
+     */
+    ByteBuffer recvNoCopy();
 
 }

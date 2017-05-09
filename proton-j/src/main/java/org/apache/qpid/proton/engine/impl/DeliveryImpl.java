@@ -20,6 +20,7 @@
  */
 package org.apache.qpid.proton.engine.impl;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
@@ -223,6 +224,22 @@ public class DeliveryImpl implements Delivery
         _workPrev = workPrev;
     }
 
+    ByteBuffer recvNoCopy()
+    {
+        ByteBuffer result = null;
+
+        if (_data != null)
+        {
+            result = ByteBuffer.wrap(_data, _offset, _dataSize);
+        }
+
+        _dataSize = 0;
+        _data = null;
+        _offset = 0;
+
+        return result;
+    }
+
     int recv(final byte[] bytes, int offset, int size)
     {
         final int consumed;
@@ -314,6 +331,29 @@ public class DeliveryImpl implements Delivery
     public boolean isSettled()
     {
         return _settled;
+    }
+
+    int sendNoCopy(byte[] bytes, int offset, int length)
+    {
+        if(_data == null)
+        {
+            _data = bytes;
+            _offset = offset;
+        }
+        else if(_data.length - _dataSize < length)
+        {
+            byte[] oldData = _data;
+            _data = new byte[oldData.length + _dataSize];
+            System.arraycopy(oldData, _offset, _data, 0, _dataSize);
+            _offset = 0;
+        }
+        else
+        {
+            System.arraycopy(bytes, 0, _data, _dataSize + _offset, length);
+        }
+        _dataSize += length;
+        addToTransportWorkList();
+        return length;  //TODO - Implement.
     }
 
     int send(byte[] bytes, int offset, int length)

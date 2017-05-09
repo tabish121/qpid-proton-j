@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.proton.engine.impl;
 
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.engine.Receiver;
@@ -77,6 +79,24 @@ public class ReceiverImpl extends LinkImpl implements Receiver
         int credits = _unsentCredits;
         _unsentCredits = 0;
         return credits;
+    }
+
+    @Override
+    public ByteBuffer recvNoCopy()
+    {
+        if (_current == null) {
+            throw new IllegalStateException("no current delivery");
+        }
+
+        ByteBuffer result = _current.recvNoCopy();
+        if (result != null && result.hasRemaining()) {
+            getSession().incrementIncomingBytes(-result.remaining());
+            if (getSession().getTransportSession().getIncomingWindowSize().equals(UnsignedInteger.ZERO)) {
+                modified();
+            }
+        }
+
+        return result;
     }
 
     @Override

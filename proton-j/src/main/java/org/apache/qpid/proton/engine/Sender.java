@@ -37,6 +37,8 @@ public interface Sender extends Link
     //TODO is this absolute or cumulative?
     public void offer(int credits);
 
+    public int sendNoCopy(byte[] bytes, int offset, int length);
+
     /**
      * Sends some data for the current delivery.  The application may call this method multiple
      * times for the same delivery.
