@@ -26,6 +26,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 
+import org.apache.qpid.proton.codec.buffer.ProtonByteBufferAllocator;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Record;
 import org.junit.Test;
@@ -86,8 +87,7 @@ public class DeliveryImplTest
         byte[] myData = "myData".getBytes(StandardCharsets.UTF_8);
 
         DeliveryImpl deliveyImpl = new DeliveryImpl(null, Mockito.mock(LinkImpl.class), null);
-        deliveyImpl.setData(myData);
-        deliveyImpl.setDataLength(myData.length);
+        deliveyImpl.setData(ProtonByteBufferAllocator.DEFAULT.wrap(myData).setWriteIndex(myData.length));
 
         Delivery delivery = deliveyImpl;
 

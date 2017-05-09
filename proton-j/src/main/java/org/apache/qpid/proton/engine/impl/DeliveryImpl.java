@@ -23,8 +23,10 @@ package org.apache.qpid.proton.engine.impl;
 import java.util.Arrays;
 
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.codec.ProtonBuffer;
 import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
+import org.apache.qpid.proton.codec.buffer.ProtonByteBufferAllocator;
 import org.apache.qpid.proton.engine.Delivery;
 import org.apache.qpid.proton.engine.Record;
 import org.apache.qpid.proton.engine.Transport;
@@ -63,12 +65,10 @@ public class DeliveryImpl implements Delivery
     private int _flags = (byte) 0;
 
     private TransportDelivery _transportDelivery;
-    private byte[] _data;
-    private int _dataSize;
+    private ProtonBuffer data;
     private boolean _complete;
     private boolean _updated;
     private boolean _done;
-    private int _offset;
 
     DeliveryImpl(final byte[] tag, final LinkImpl link, DeliveryImpl previous)
     {
@@ -226,36 +226,34 @@ public class DeliveryImpl implements Delivery
     int recv(final byte[] bytes, int offset, int size)
     {
         final int consumed;
-        if (_data != null)
+        if (data != null)
         {
-            //TODO - should only be if no bytes left
-            consumed = Math.min(size, _dataSize);
-
-            System.arraycopy(_data, _offset, bytes, offset, consumed);
-            _offset += consumed;
-            _dataSize -= consumed;
+            consumed = Math.min(size, data.getReadableBytes());
+            data.readBytes(bytes, offset, consumed);
         }
         else
         {
-            _dataSize = consumed = 0;
+            consumed = 0;
         }
 
         return (_complete && consumed == 0) ? Transport.END_OF_STREAM : consumed;  //TODO - Implement
     }
 
+    // TODO - Hacked for now
     int recv(final WritableBuffer buffer) {
         final int consumed;
-        if (_data != null)
+        if (data != null)
         {
-            consumed = Math.min(buffer.remaining(), _dataSize);
+            consumed = Math.min(buffer.remaining(), data.getReadableBytes());
 
-            buffer.put(_data, _offset, consumed);
-            _offset += consumed;
-            _dataSize -= consumed;
+            while (data.getReadableBytes() > 0)
+            {
+                buffer.put(data.readByte());
+            }
         }
         else
         {
-            _dataSize = consumed = 0;
+            consumed = 0;
         }
 
         return (_complete && consumed == 0) ? Transport.END_OF_STREAM : consumed;
@@ -318,19 +316,13 @@ public class DeliveryImpl implements Delivery
 
     int send(byte[] bytes, int offset, int length)
     {
-        if(_data == null)
+        if (data == null)
         {
-            _data = new byte[length];
+            data = ProtonByteBufferAllocator.DEFAULT.allocate(length);
         }
-        else if(_data.length - _dataSize < length)
-        {
-            byte[] oldData = _data;
-            _data = new byte[oldData.length + _dataSize];
-            System.arraycopy(oldData, _offset, _data, 0, _dataSize);
-            _offset = 0;
-        }
-        System.arraycopy(bytes, offset, _data, _dataSize + _offset, length);
-        _dataSize += length;
+
+        data.writeBytes(bytes, offset, length);
+
         addToTransportWorkList();
         return length;  //TODO - Implement.
     }
@@ -339,57 +331,44 @@ public class DeliveryImpl implements Delivery
     {
         int length = buffer.remaining();
 
-        if(_data == null)
+        if (data == null)
         {
-            _data = new byte[length];
+            data = ProtonByteBufferAllocator.DEFAULT.allocate(length);
         }
-        else if(_data.length - _dataSize < length)
+
+        // TODO - Terrible hack for now
+        while (buffer.hasRemaining())
         {
-            byte[] oldData = _data;
-            _data = new byte[oldData.length + _dataSize];
-            System.arraycopy(oldData, _offset, _data, 0, _dataSize);
-            _offset = 0;
+            data.writeByte(buffer.get());
         }
-        buffer.get(_data, _offset, length);
-        _dataSize+=length;
-        addToTransportWorkList();
+
         return length;
     }
 
-    byte[] getData()
+    ProtonBuffer getData()
     {
-        return _data;
+        return data;
     }
 
-    int getDataOffset()
+    void setData(ProtonBuffer data)
     {
-        return _offset;
+        this.data = data;
     }
 
     int getDataLength()
     {
-        return _dataSize;  //TODO - Implement.
+        return data.getReadableBytes();
     }
 
-    void setData(byte[] data)
+    void reset()
     {
-        _data = data;
-    }
-
-    void setDataLength(int length)
-    {
-        _dataSize = length;
-    }
-
-    public void setDataOffset(int arrayOffset)
-    {
-        _offset = arrayOffset;
+        this.data = null;
     }
 
     @Override
     public int available()
     {
-        return _dataSize;
+        return data != null ? data.getReadableBytes() : 0;
     }
 
     @Override
@@ -462,7 +441,7 @@ public class DeliveryImpl implements Delivery
             if (isDone()) {
                 return false;
             } else {
-                return _complete || _dataSize > 0;
+                return _complete || data.getReadableBytes() > 0;
             }
         } else {
             return false;
@@ -505,18 +484,17 @@ public class DeliveryImpl implements Delivery
             .append(", _flags=").append(_flags)
             .append(", _defaultDeliveryState=").append(_defaultDeliveryState)
             .append(", _transportDelivery=").append(_transportDelivery)
-            .append(", _dataSize=").append(_dataSize)
+            .append(", _dataSize=").append(available())
             .append(", _complete=").append(_complete)
             .append(", _updated=").append(_updated)
-            .append(", _done=").append(_done)
-            .append(", _offset=").append(_offset).append("]");
+            .append(", _done=").append(_done).append("]");
         return builder.toString();
     }
 
     @Override
     public int pending()
     {
-        return _dataSize;
+        return data.getReadableBytes();
     }
 
     @Override
@@ -530,5 +508,4 @@ public class DeliveryImpl implements Delivery
     {
         return _defaultDeliveryState;
     }
-
 }

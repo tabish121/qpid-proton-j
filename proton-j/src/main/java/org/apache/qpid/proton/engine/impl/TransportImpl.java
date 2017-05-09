@@ -92,8 +92,8 @@ public class TransportImpl extends EndpointImpl
     private boolean _isCloseSent;
 
     private boolean _headerWritten;
-    private Map<Integer, TransportSession> _remoteSessions = new HashMap<Integer, TransportSession>();
-    private Map<Integer, TransportSession> _localSessions = new HashMap<Integer, TransportSession>();
+    private Map<Integer, TransportSession> _remoteSessions = new HashMap<>();
+    private Map<Integer, TransportSession> _localSessions = new HashMap<>();
 
     private TransportInput _inputProcessor;
     private TransportOutput _outputProcessor;
@@ -575,20 +575,17 @@ public class TransportImpl extends EndpointImpl
                 transfer.setMessageFormat(UnsignedInteger.valueOf(messageFormat));
             }
 
-            ByteBuffer payload = delivery.getData() ==  null ? null :
-                ByteBuffer.wrap(delivery.getData(), delivery.getDataOffset(),
-                                delivery.getDataLength());
+            ByteBuffer payload = delivery.getData() == null ? null : delivery.getData().toByteBuffer();
 
             writeFrame(tpSession.getLocalChannel(), transfer, payload,
                        new PartialTransfer(transfer));
             tpSession.incrementOutgoingId();
             tpSession.decrementRemoteIncomingWindow();
 
-            if(payload == null || !payload.hasRemaining())
+            if (payload == null || !payload.hasRemaining())
             {
                 session.incrementOutgoingBytes(-delivery.pending());
-                delivery.setData(null);
-                delivery.setDataLength(0);
+                delivery.reset();
 
                 if (!transfer.getMore()) {
                     // Clear the in-progress delivery marker
@@ -605,8 +602,7 @@ public class TransportImpl extends EndpointImpl
             else
             {
                 int delta = delivery.getDataLength() - payload.remaining();
-                delivery.setDataOffset(delivery.getDataOffset() + delta);
-                delivery.setDataLength(payload.remaining());
+                delivery.getData().setReadIndex(delivery.getData().getReadIndex() + delta);
                 session.incrementOutgoingBytes(-delta);
 
                 // Remember the delivery we are still processing
@@ -1723,7 +1719,7 @@ public class TransportImpl extends EndpointImpl
 
         if (_additionalTransportLayers == null)
         {
-            _additionalTransportLayers = new ArrayList<TransportLayer>();
+            _additionalTransportLayers = new ArrayList<>();
         }
 
         if (!_additionalTransportLayers.contains(layer))

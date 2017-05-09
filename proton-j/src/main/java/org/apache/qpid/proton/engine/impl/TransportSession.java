@@ -30,6 +30,8 @@ import org.apache.qpid.proton.amqp.transport.Disposition;
 import org.apache.qpid.proton.amqp.transport.Flow;
 import org.apache.qpid.proton.amqp.transport.Role;
 import org.apache.qpid.proton.amqp.transport.Transfer;
+import org.apache.qpid.proton.codec.ProtonBuffer;
+import org.apache.qpid.proton.codec.buffer.ProtonByteBufferAllocator;
 import org.apache.qpid.proton.engine.Event;
 
 class TransportSession
@@ -51,9 +53,9 @@ class TransportSession
     private UnsignedInteger _nextOutgoingId = UnsignedInteger.ONE;
     private UnsignedInteger _nextIncomingId = null;
 
-    private final Map<UnsignedInteger, TransportLink<?>> _remoteHandlesMap = new HashMap<UnsignedInteger, TransportLink<?>>();
-    private final Map<UnsignedInteger, TransportLink<?>> _localHandlesMap = new HashMap<UnsignedInteger, TransportLink<?>>();
-    private final Map<String, TransportLink> _halfOpenLinks = new HashMap<String, TransportLink>();
+    private final Map<UnsignedInteger, TransportLink<?>> _remoteHandlesMap = new HashMap<>();
+    private final Map<UnsignedInteger, TransportLink<?>> _localHandlesMap = new HashMap<>();
+    private final Map<String, TransportLink> _halfOpenLinks = new HashMap<>();
 
 
     private UnsignedInteger _incomingDeliveryId = null;
@@ -62,9 +64,9 @@ class TransportSession
     private UnsignedInteger _remoteNextIncomingId = _nextOutgoingId;
     private UnsignedInteger _remoteNextOutgoingId;
     private final Map<UnsignedInteger, DeliveryImpl>
-            _unsettledIncomingDeliveriesById = new HashMap<UnsignedInteger, DeliveryImpl>();
+            _unsettledIncomingDeliveriesById = new HashMap<>();
     private final Map<UnsignedInteger, DeliveryImpl>
-            _unsettledOutgoingDeliveriesById = new HashMap<UnsignedInteger, DeliveryImpl>();
+            _unsettledOutgoingDeliveriesById = new HashMap<>();
     private int _unsettledIncomingSize;
     private boolean _endReceived;
     private boolean _beginSent;
@@ -297,22 +299,17 @@ class TransportSession
         }
         _unsettledIncomingSize++;
         // TODO - should this be a copy?
-        if(payload != null)
+        if (payload != null)
         {
-            if(delivery.getDataLength() == 0)
+            if (delivery.getDataLength() == 0)
             {
-                delivery.setData(payload.getArray());
-                delivery.setDataLength(payload.getLength());
-                delivery.setDataOffset(payload.getArrayOffset());
+                // TODO - Might need to handle offset if the binary ever is non-zero offset or oversized
+                ProtonBuffer wrapped = ProtonByteBufferAllocator.DEFAULT.wrap(payload.getArray());
+                delivery.setData(wrapped);
             }
             else
             {
-                byte[] data = new byte[delivery.getDataLength() + payload.getLength()];
-                System.arraycopy(delivery.getData(), delivery.getDataOffset(), data, 0, delivery.getDataLength());
-                System.arraycopy(payload.getArray(), payload.getArrayOffset(), data, delivery.getDataLength(), payload.getLength());
-                delivery.setData(data);
-                delivery.setDataOffset(0);
-                delivery.setDataLength(data.length);
+                delivery.send(payload.getArray(), payload.getArrayOffset(), payload.getLength());
             }
             getSession().incrementIncomingBytes(payload.getLength());
         }
