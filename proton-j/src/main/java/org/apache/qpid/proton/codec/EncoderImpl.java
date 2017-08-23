@@ -38,16 +38,15 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 
-public final class EncoderImpl implements ByteBufferEncoder
-{
-    private static final byte DESCRIBED_TYPE_OP = (byte)0;
+public final class EncoderImpl implements ByteBufferEncoder {
 
+    private static final byte DESCRIBED_TYPE_OP = (byte)0;
 
     private WritableBuffer _buffer;
 
-    private final Map<Class, AMQPType> _typeRegistry = new HashMap<Class, AMQPType>();
-    private Map<Object, AMQPType> _describedDescriptorRegistry = new HashMap<Object, AMQPType>();
-    private Map<Class, AMQPType>  _describedTypesClassRegistry = new HashMap<Class, AMQPType>();
+    private final Map<Class<?>, AMQPType<?>> _typeRegistry = new HashMap<>();
+    private Map<Object, AMQPType<?>> _describedDescriptorRegistry = new HashMap<>();
+    private Map<Class<?>, AMQPType<?>>  _describedTypesClassRegistry = new HashMap<>();
 
     private final NullType              _nullType;
     private final BooleanType           _booleanType;
@@ -59,7 +58,6 @@ public final class EncoderImpl implements ByteBufferEncoder
     private final UnsignedIntegerType   _unsignedIntegerType;
     private final LongType              _longType;
     private final UnsignedLongType      _unsignedLongType;
-    private final BigIntegerType        _bigIntegerType;
 
     private final CharacterType         _characterType;
     private final FloatType             _floatType;
@@ -88,7 +86,6 @@ public final class EncoderImpl implements ByteBufferEncoder
 
     public EncoderImpl(DecoderImpl decoder)
     {
-
         _nullType               = new NullType(this, decoder);
         _booleanType            = new BooleanType(this, decoder);
         _byteType               = new ByteType(this, decoder);
@@ -99,7 +96,6 @@ public final class EncoderImpl implements ByteBufferEncoder
         _unsignedIntegerType    = new UnsignedIntegerType(this, decoder);
         _longType               = new LongType(this, decoder);
         _unsignedLongType       = new UnsignedLongType(this, decoder);
-        _bigIntegerType         = new BigIntegerType(this, decoder);
 
         _characterType          = new CharacterType(this, decoder);
         _floatType              = new FloatType(this, decoder);
@@ -110,7 +106,6 @@ public final class EncoderImpl implements ByteBufferEncoder
         _decimal32Type          = new Decimal32Type(this, decoder);
         _decimal64Type          = new Decimal64Type(this, decoder);
         _decimal128Type         = new Decimal128Type(this, decoder);
-
 
         _binaryType             = new BinaryType(this, decoder);
         _symbolType             = new SymbolType(this, decoder);
@@ -130,9 +125,9 @@ public final class EncoderImpl implements ByteBufferEncoder
                                                 _doubleType,
                                                 _characterType);
 
-
     }
 
+    @Override
     public void setByteBuffer(final ByteBuffer buf)
     {
         _buffer = new WritableBuffer.ByteBufferWrapper(buf);
@@ -143,7 +138,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         _buffer = buf;
     }
 
-
+    @SuppressWarnings("rawtypes")
     @Override
     public AMQPType getType(final Object element)
     {
@@ -159,7 +154,6 @@ public final class EncoderImpl implements ByteBufferEncoder
                 _describedDescriptorRegistry.put(descriptor, amqpType);
             }
             return amqpType;
-
         }
         else
         {
@@ -167,12 +161,12 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @SuppressWarnings("rawtypes")
     public AMQPType getTypeFromClass(final Class clazz)
     {
         AMQPType amqpType = _typeRegistry.get(clazz);
         if(amqpType == null)
         {
-
             if(clazz.isArray())
             {
                 amqpType = _arrayType;
@@ -208,6 +202,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         _typeRegistry.put(clazz, type);
     }
 
+    @SuppressWarnings("rawtypes")
     public void registerDescribedType(Class clazz, Object descriptor)
     {
         AMQPType type = _describedDescriptorRegistry.get(descriptor);
@@ -219,16 +214,19 @@ public final class EncoderImpl implements ByteBufferEncoder
         _describedTypesClassRegistry.put(clazz, type);
     }
 
+    @Override
     public void writeNull()
     {
         _nullType.write();
     }
 
+    @Override
     public void writeBoolean(final boolean bool)
     {
         _booleanType.writeValue(bool);
     }
 
+    @Override
     public void writeBoolean(final Boolean bool)
     {
         if(bool == null)
@@ -241,6 +239,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeUnsignedByte(final UnsignedByte ubyte)
     {
         if(ubyte == null)
@@ -253,6 +252,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeUnsignedShort(final UnsignedShort ushort)
     {
         if(ushort == null)
@@ -265,6 +265,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeUnsignedInteger(final UnsignedInteger uint)
     {
         if(uint == null)
@@ -277,6 +278,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeUnsignedLong(final UnsignedLong ulong)
     {
         if(ulong == null)
@@ -289,11 +291,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeByte(final byte b)
     {
         _byteType.write(b);
     }
 
+    @Override
     public void writeByte(final Byte b)
     {
         if(b == null)
@@ -306,11 +310,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeShort(final short s)
     {
         _shortType.write(s);
     }
 
+    @Override
     public void writeShort(final Short s)
     {
         if(s == null)
@@ -323,11 +329,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeInteger(final int i)
     {
         _integerType.write(i);
     }
 
+    @Override
     public void writeInteger(final Integer i)
     {
         if(i == null)
@@ -340,14 +348,15 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeLong(final long l)
     {
         _longType.write(l);
     }
 
+    @Override
     public void writeLong(final Long l)
     {
-
         if(l == null)
         {
             writeNull();
@@ -358,11 +367,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeFloat(final float f)
     {
         _floatType.write(f);
     }
 
+    @Override
     public void writeFloat(final Float f)
     {
         if(f == null)
@@ -375,11 +386,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeDouble(final double d)
     {
         _doubleType.write(d);
     }
 
+    @Override
     public void writeDouble(final Double d)
     {
         if(d == null)
@@ -392,6 +405,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeDecimal32(final Decimal32 d)
     {
         if(d == null)
@@ -404,6 +418,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeDecimal64(final Decimal64 d)
     {
         if(d == null)
@@ -416,6 +431,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeDecimal128(final Decimal128 d)
     {
         if(d == null)
@@ -428,12 +444,14 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeCharacter(final char c)
     {
         // TODO - java character may be half of a pair, should probably throw exception then
         _characterType.write(c);
     }
 
+    @Override
     public void writeCharacter(final Character c)
     {
         if(c == null)
@@ -446,11 +464,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeTimestamp(final long d)
     {
         _timestampType.write(d);
     }
 
+    @Override
     public void writeTimestamp(final Date d)
     {
         if(d == null)
@@ -463,6 +483,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeUUID(final UUID uuid)
     {
         if(uuid == null)
@@ -473,9 +494,9 @@ public final class EncoderImpl implements ByteBufferEncoder
         {
             _uuidType.write(uuid);
         }
-
     }
 
+    @Override
     public void writeBinary(final Binary b)
     {
         if(b == null)
@@ -488,6 +509,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeString(final String s)
     {
         if(s == null)
@@ -500,6 +522,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeSymbol(final Symbol s)
     {
         if(s == null)
@@ -510,9 +533,10 @@ public final class EncoderImpl implements ByteBufferEncoder
         {
             _symbolType.write(s);
         }
-
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
     public void writeList(final List l)
     {
         if(l == null)
@@ -525,6 +549,8 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
     public void writeMap(final Map m)
     {
 
@@ -538,6 +564,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeDescribedType(final DescribedType d)
     {
         if(d == null)
@@ -552,6 +579,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final boolean[] a)
     {
         if(a == null)
@@ -564,6 +592,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final byte[] a)
     {
         if(a == null)
@@ -576,6 +605,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final short[] a)
     {
         if(a == null)
@@ -588,6 +618,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final int[] a)
     {
         if(a == null)
@@ -600,6 +631,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final long[] a)
     {
         if(a == null)
@@ -612,6 +644,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final float[] a)
     {
         if(a == null)
@@ -624,6 +657,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final double[] a)
     {
         if(a == null)
@@ -636,6 +670,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final char[] a)
     {
         if(a == null)
@@ -648,6 +683,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @Override
     public void writeArray(final Object[] a)
     {
         if(a == null)
@@ -660,6 +696,8 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Override
     public void writeObject(final Object o)
     {
         AMQPType type = _typeRegistry.get(o == null ? Void.class : o.getClass());
@@ -668,50 +706,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         {
             if(o.getClass().isArray())
             {
-                Class<?> componentType = o.getClass().getComponentType();
-                if(componentType.isPrimitive())
-                {
-                    if(componentType == Boolean.TYPE)
-                    {
-                        writeArray((boolean[])o);
-                    }
-                    else if(componentType == Byte.TYPE)
-                    {
-                        writeArray((byte[])o);
-                    }
-                    else if(componentType == Short.TYPE)
-                    {
-                        writeArray((short[])o);
-                    }
-                    else if(componentType == Integer.TYPE)
-                    {
-                        writeArray((int[])o);
-                    }
-                    else if(componentType == Long.TYPE)
-                    {
-                        writeArray((long[])o);
-                    }
-                    else if(componentType == Float.TYPE)
-                    {
-                        writeArray((float[])o);
-                    }
-                    else if(componentType == Double.TYPE)
-                    {
-                        writeArray((double[])o);
-                    }
-                    else if(componentType == Character.TYPE)
-                    {
-                        writeArray((char[])o);
-                    }
-                    else
-                    {
-                        throw new IllegalArgumentException("Cannot write arrays of type " + componentType.getName());
-                    }
-                }
-                else
-                {
-                    writeArray((Object[]) o);
-                }
+                writeArrayType(o);
             }
             else if(o instanceof List)
             {
@@ -727,14 +722,60 @@ public final class EncoderImpl implements ByteBufferEncoder
             }
             else
             {
-                throw new IllegalArgumentException("Do not know how to write Objects of class " + o.getClass()
-                                                                                                       .getName());
-
+                throw new IllegalArgumentException(
+                    "Do not know how to write Objects of class " + o.getClass().getName());
             }
         }
         else
         {
             type.write(o);
+        }
+    }
+
+    private void writeArrayType(Object array) {
+        Class<?> componentType = array.getClass().getComponentType();
+        if(componentType.isPrimitive())
+        {
+            if(componentType == Boolean.TYPE)
+            {
+                writeArray((boolean[])array);
+            }
+            else if(componentType == Byte.TYPE)
+            {
+                writeArray((byte[])array);
+            }
+            else if(componentType == Short.TYPE)
+            {
+                writeArray((short[])array);
+            }
+            else if(componentType == Integer.TYPE)
+            {
+                writeArray((int[])array);
+            }
+            else if(componentType == Long.TYPE)
+            {
+                writeArray((long[])array);
+            }
+            else if(componentType == Float.TYPE)
+            {
+                writeArray((float[])array);
+            }
+            else if(componentType == Double.TYPE)
+            {
+                writeArray((double[])array);
+            }
+            else if(componentType == Character.TYPE)
+            {
+                writeArray((char[])array);
+            }
+            else
+            {
+                throw new IllegalArgumentException("Cannot write arrays of type " + componentType.getName());
+            }
+        }
+        else
+        {
+            writeArray((Object[]) array);
         }
     }
 
@@ -813,5 +854,10 @@ public final class EncoderImpl implements ByteBufferEncoder
                 _buffer.put((byte)(0x80 | (c & 0x3F)));
             }
         }
+    }
+
+    AMQPType getNullTypeEncoder()
+    {
+        return _nullType;
     }
 }

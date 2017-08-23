@@ -20,14 +20,14 @@
  */
 package org.apache.qpid.proton.codec;
 
-import org.apache.qpid.proton.amqp.Symbol;
-
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.qpid.proton.amqp.Symbol;
 
 public class SymbolType extends AbstractPrimitiveType<Symbol>
 {
@@ -37,26 +37,25 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
 
     private final Map<ByteBuffer, Symbol> _symbolCache = new HashMap<ByteBuffer, Symbol>();
     private DecoderImpl.TypeDecoder<Symbol> _symbolCreator =
-            new DecoderImpl.TypeDecoder<Symbol>()
+        new DecoderImpl.TypeDecoder<Symbol>()
+        {
+            @Override
+            public Symbol decode(final ByteBuffer buf)
             {
-
-                public Symbol decode(final ByteBuffer buf)
+                Symbol symbol = _symbolCache.get(buf);
+                if (symbol == null)
                 {
+                    byte[] bytes = new byte[buf.limit()];
+                    buf.get(bytes);
 
-                    Symbol symbol = _symbolCache.get(buf);
-                    if(symbol == null)
-                    {
-                        byte[] bytes = new byte[buf.limit()];
-                        buf.get(bytes);
+                    String str = new String(bytes, ASCII_CHARSET);
+                    symbol = Symbol.getSymbol(str);
 
-                        String str = new String(bytes, ASCII_CHARSET);
-                        symbol = Symbol.getSymbol(str);
-
-                        _symbolCache.put(ByteBuffer.wrap(bytes), symbol);
-                    }
-                    return symbol;
+                    _symbolCache.put(ByteBuffer.wrap(bytes), symbol);
                 }
-            };
+                return symbol;
+            }
+        };
 
     public static interface SymbolEncoding extends PrimitiveTypeEncoding<Symbol>
     {
@@ -71,22 +70,26 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
         decoder.register(this);
     }
 
+    @Override
     public Class<Symbol> getTypeClass()
     {
         return Symbol.class;
     }
 
+    @Override
     public SymbolEncoding getEncoding(final Symbol val)
     {
         return val.length() <= 255 ? _shortSymbolEncoding : _symbolEncoding;
     }
 
 
+    @Override
     public SymbolEncoding getCanonicalEncoding()
     {
         return _symbolEncoding;
     }
 
+    @Override
     public Collection<SymbolEncoding> getAllEncodings()
     {
         return Arrays.asList(_shortSymbolEncoding, _symbolEncoding);
@@ -127,16 +130,19 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             return EncodingCodes.SYM32;
         }
 
+        @Override
         public SymbolType getType()
         {
             return SymbolType.this;
         }
 
+        @Override
         public boolean encodesSuperset(final TypeEncoding<Symbol> encoding)
         {
             return (getType() == encoding.getType());
         }
 
+        @Override
         public Symbol readValue()
         {
             DecoderImpl decoder = getDecoder();
@@ -144,7 +150,7 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             return decoder.readRaw(_symbolCreator, size);
         }
     }
-    
+
     private class ShortSymbolEncoding
             extends SmallFloatingSizePrimitiveTypeEncoding<Symbol>
             implements SymbolEncoding
@@ -181,20 +187,23 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             return EncodingCodes.SYM8;
         }
 
+        @Override
         public SymbolType getType()
         {
             return SymbolType.this;
         }
 
+        @Override
         public boolean encodesSuperset(final TypeEncoding<Symbol> encoder)
         {
             return encoder == this;
         }
 
+        @Override
         public Symbol readValue()
         {
             DecoderImpl decoder = getDecoder();
-            int size = ((int)decoder.readRawByte()) & 0xff;
+            int size = (decoder.readRawByte()) & 0xff;
             return decoder.readRaw(_symbolCreator, size);
         }
     }

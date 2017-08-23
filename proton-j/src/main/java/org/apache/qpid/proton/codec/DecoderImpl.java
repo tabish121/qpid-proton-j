@@ -20,6 +20,15 @@
  */
 package org.apache.qpid.proton.codec;
 
+import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
 import org.apache.qpid.proton.amqp.Decimal32;
@@ -31,23 +40,16 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 
-import java.lang.reflect.Array;
-import java.nio.ByteBuffer;
-import java.util.*;
-
 public class DecoderImpl implements ByteBufferDecoder
 {
-
     private ByteBuffer _buffer;
     private PrimitiveTypeEncoding[] _constructors = new PrimitiveTypeEncoding[256];
     private Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
             new HashMap<Object, DescribedTypeConstructor>();
 
-
     public DecoderImpl()
     {
     }
-
 
     DecoderImpl(final ByteBuffer buffer)
     {
@@ -56,7 +58,7 @@ public class DecoderImpl implements ByteBufferDecoder
 
     TypeConstructor readConstructor()
     {
-        int code = ((int)readRawByte()) & 0xff;
+        int code = (readRawByte()) & 0xff;
         if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
         {
             final Object descriptor = readObject();
@@ -66,12 +68,13 @@ public class DecoderImpl implements ByteBufferDecoder
             {
                 dtc = new DescribedTypeConstructor()
                 {
-
+                    @Override
                     public DescribedType newInstance(final Object described)
                     {
                         return new UnknownDescribedType(descriptor, described);
                     }
 
+                    @Override
                     public Class getTypeClass()
                     {
                         return UnknownDescribedType.class;
@@ -87,6 +90,7 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public void register(final Object descriptor, final DescribedTypeConstructor dtc)
     {
         _dynamicTypeConstructors.put(descriptor, dtc);
@@ -100,12 +104,13 @@ public class DecoderImpl implements ByteBufferDecoder
                                       + clazz.getName() +".");
     }
 
-
+    @Override
     public Boolean readBoolean()
     {
         return readBoolean(null);
     }
 
+    @Override
     public Boolean readBoolean(final Boolean defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -121,6 +126,7 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Boolean.class);
     }
 
+    @Override
     public boolean readBoolean(final boolean defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -142,11 +148,13 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Byte readByte()
     {
         return readByte(null);
     }
 
+    @Override
     public Byte readByte(final Byte defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -162,6 +170,7 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Byte.class);
     }
 
+    @Override
     public byte readByte(final byte defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -183,11 +192,13 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Short readShort()
     {
         return readShort(null);
     }
 
+    @Override
     public Short readShort(final Short defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -201,12 +212,11 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Short) val;
         }
         throw unexpectedType(val, Short.class);
-
     }
 
+    @Override
     public short readShort(final short defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof ShortType.ShortEncoding)
         {
@@ -226,11 +236,13 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Integer readInteger()
     {
         return readInteger(null);
     }
 
+    @Override
     public Integer readInteger(final Integer defaultVal)
     {
         TypeConstructor constructor = readConstructor();
@@ -244,12 +256,11 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Integer) val;
         }
         throw unexpectedType(val, Integer.class);
-
     }
 
+    @Override
     public int readInteger(final int defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof IntegerType.IntegerEncoding)
         {
@@ -269,14 +280,15 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Long readLong()
     {
         return readLong(null);
     }
 
+    @Override
     public Long readLong(final Long defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -291,9 +303,9 @@ public class DecoderImpl implements ByteBufferDecoder
 
     }
 
+    @Override
     public long readLong(final long defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof LongType.LongEncoding)
         {
@@ -313,11 +325,13 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public UnsignedByte readUnsignedByte()
     {
         return readUnsignedByte(null);
     }
 
+    @Override
     public UnsignedByte readUnsignedByte(final UnsignedByte defaultVal)
     {
 
@@ -332,14 +346,15 @@ public class DecoderImpl implements ByteBufferDecoder
             return (UnsignedByte) val;
         }
         throw unexpectedType(val, UnsignedByte.class);
-
     }
 
+    @Override
     public UnsignedShort readUnsignedShort()
     {
         return readUnsignedShort(null);
     }
 
+    @Override
     public UnsignedShort readUnsignedShort(final UnsignedShort defaultVal)
     {
 
@@ -354,17 +369,17 @@ public class DecoderImpl implements ByteBufferDecoder
             return (UnsignedShort) val;
         }
         throw unexpectedType(val, UnsignedShort.class);
-
     }
 
+    @Override
     public UnsignedInteger readUnsignedInteger()
     {
         return readUnsignedInteger(null);
     }
 
+    @Override
     public UnsignedInteger readUnsignedInteger(final UnsignedInteger defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -376,17 +391,17 @@ public class DecoderImpl implements ByteBufferDecoder
             return (UnsignedInteger) val;
         }
         throw unexpectedType(val, UnsignedInteger.class);
-
     }
 
+    @Override
     public UnsignedLong readUnsignedLong()
     {
         return readUnsignedLong(null);
     }
 
+    @Override
     public UnsignedLong readUnsignedLong(final UnsignedLong defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -398,17 +413,17 @@ public class DecoderImpl implements ByteBufferDecoder
             return (UnsignedLong) val;
         }
         throw unexpectedType(val, UnsignedLong.class);
-
     }
 
+    @Override
     public Character readCharacter()
     {
         return readCharacter(null);
     }
 
+    @Override
     public Character readCharacter(final Character defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -420,12 +435,11 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Character) val;
         }
         throw unexpectedType(val, Character.class);
-
     }
 
+    @Override
     public char readCharacter(final char defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof CharacterType.CharacterEncoding)
         {
@@ -445,14 +459,15 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Float readFloat()
     {
         return readFloat(null);
     }
 
+    @Override
     public Float readFloat(final Float defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -464,12 +479,11 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Float) val;
         }
         throw unexpectedType(val, Float.class);
-
     }
 
+    @Override
     public float readFloat(final float defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof FloatType.FloatEncoding)
         {
@@ -489,14 +503,15 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Double readDouble()
     {
         return readDouble(null);
     }
 
+    @Override
     public Double readDouble(final Double defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -508,12 +523,11 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Double) val;
         }
         throw unexpectedType(val, Double.class);
-
     }
 
+    @Override
     public double readDouble(final double defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         if(constructor instanceof DoubleType.DoubleEncoding)
         {
@@ -533,14 +547,15 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public UUID readUUID()
     {
         return readUUID(null);
     }
 
+    @Override
     public UUID readUUID(final UUID defaultVal)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -552,17 +567,17 @@ public class DecoderImpl implements ByteBufferDecoder
             return (UUID) val;
         }
         throw unexpectedType(val, UUID.class);
-
     }
 
+    @Override
     public Decimal32 readDecimal32()
     {
         return readDecimal32(null);
     }
 
+    @Override
     public Decimal32 readDecimal32(final Decimal32 defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -574,17 +589,17 @@ public class DecoderImpl implements ByteBufferDecoder
             return (Decimal32) val;
         }
         throw unexpectedType(val, Decimal32.class);
-
     }
 
+    @Override
     public Decimal64 readDecimal64()
     {
         return readDecimal64(null);
     }
 
+    @Override
     public Decimal64 readDecimal64(final Decimal64 defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -598,14 +613,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Decimal64.class);
     }
 
+    @Override
     public Decimal128 readDecimal128()
     {
         return readDecimal128(null);
     }
 
+    @Override
     public Decimal128 readDecimal128(final Decimal128 defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -619,14 +635,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Decimal128.class);
     }
 
+    @Override
     public Date readTimestamp()
     {
         return readTimestamp(null);
     }
 
+    @Override
     public Date readTimestamp(final Date defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -640,14 +657,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Date.class);
     }
 
+    @Override
     public Binary readBinary()
     {
         return readBinary(null);
     }
 
+    @Override
     public Binary readBinary(final Binary defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -661,14 +679,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Binary.class);
     }
 
+    @Override
     public Symbol readSymbol()
     {
         return readSymbol(null);
     }
 
+    @Override
     public Symbol readSymbol(final Symbol defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -682,14 +701,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Symbol.class);
     }
 
+    @Override
     public String readString()
     {
         return readString(null);
     }
 
+    @Override
     public String readString(final String defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -703,9 +723,9 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, String.class);
     }
 
+    @Override
     public List readList()
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -719,14 +739,15 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, List.class);
     }
 
+    @Override
     public <T> void readList(final ListProcessor<T> processor)
     {
         //TODO.
     }
 
+    @Override
     public Map readMap()
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)
@@ -740,57 +761,67 @@ public class DecoderImpl implements ByteBufferDecoder
         throw unexpectedType(val, Map.class);
     }
 
+    @Override
     public <T> T[] readArray(final Class<T> clazz)
     {
         return null;  //TODO.
     }
 
+    @Override
     public Object[] readArray()
     {
         return (Object[]) readConstructor().readValue();
-
     }
 
+    @Override
     public boolean[] readBooleanArray()
     {
         return (boolean[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public byte[] readByteArray()
     {
         return (byte[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public short[] readShortArray()
     {
         return (short[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public int[] readIntegerArray()
     {
         return (int[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public long[] readLongArray()
     {
         return (long[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public float[] readFloatArray()
     {
         return (float[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public double[] readDoubleArray()
     {
         return (double[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public char[] readCharacterArray()
     {
         return (char[]) ((ArrayType.ArrayEncoding)readConstructor()).readValueArray();
     }
 
+    @Override
     public <T> T[] readMultiple(final Class<T> clazz)
     {
         Object val = readObject();
@@ -821,6 +852,7 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public Object[] readMultiple()
     {
         Object val = readObject();
@@ -840,41 +872,49 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    @Override
     public byte[] readByteMultiple()
     {
         return new byte[0];  //TODO.
     }
 
+    @Override
     public short[] readShortMultiple()
     {
         return new short[0];  //TODO.
     }
 
+    @Override
     public int[] readIntegerMultiple()
     {
         return new int[0];  //TODO.
     }
 
+    @Override
     public long[] readLongMultiple()
     {
         return new long[0];  //TODO.
     }
 
+    @Override
     public float[] readFloatMultiple()
     {
         return new float[0];  //TODO.
     }
 
+    @Override
     public double[] readDoubleMultiple()
     {
         return new double[0];  //TODO.
     }
 
+    @Override
     public char[] readCharacterMultiple()
     {
         return new char[0];  //TODO.
     }
 
+    @Override
     public Object readObject()
     {
         TypeConstructor constructor = readConstructor();
@@ -887,6 +927,7 @@ public class DecoderImpl implements ByteBufferDecoder
                : constructor.readValue();
     }
 
+    @Override
     public Object readObject(final Object defaultValue)
     {
         Object val = readObject();
@@ -899,9 +940,8 @@ public class DecoderImpl implements ByteBufferDecoder
 
         for(PrimitiveTypeEncoding<V> encoding : encodings)
         {
-            _constructors[((int) encoding.getEncodingCode()) & 0xFF ] = encoding;
+            _constructors[(encoding.getEncodingCode()) & 0xFF ] = encoding;
         }
-
     }
 
     byte readRawByte()
@@ -939,7 +979,6 @@ public class DecoderImpl implements ByteBufferDecoder
         _buffer.get(data, offset, length);
     }
 
-
     <V> V readRaw(TypeDecoder<V> decoder, int size)
     {
         V decode = decoder.decode((ByteBuffer) _buffer.slice().limit(size));
@@ -947,6 +986,7 @@ public class DecoderImpl implements ByteBufferDecoder
         return decode;
     }
 
+    @Override
     public void setByteBuffer(final ByteBuffer buffer)
     {
         _buffer = buffer;
@@ -968,16 +1008,17 @@ public class DecoderImpl implements ByteBufferDecoder
             _described = described;
         }
 
+        @Override
         public Object getDescriptor()
         {
             return _descriptor;
         }
 
+        @Override
         public Object getDescribed()
         {
             return _described;
         }
-
 
         @Override
         public boolean equals(Object obj)
@@ -990,9 +1031,9 @@ public class DecoderImpl implements ByteBufferDecoder
                                          : _described.equals(((DescribedType) obj).getDescribed());
 
         }
-
     }
 
+    @Override
     public int getByteBufferRemaining() {
         return _buffer.remaining();
     }
