@@ -59,7 +59,18 @@ public class DecoderImpl implements ByteBufferDecoder
         int code = ((int)readRawByte()) & 0xff;
         if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
         {
-            final Object descriptor = readObject();
+            byte encoding = _buffer.get(_buffer.position());
+
+            final Object descriptor;
+
+            if (EncodingCodes.SMALLULONG == encoding || EncodingCodes.ULONG == encoding) {
+                descriptor = readUnsignedLong();
+            } else if (EncodingCodes.SYM8 == encoding || EncodingCodes.SYM32 == encoding) {
+                descriptor = readSymbol();
+            } else {
+                descriptor = readObject();
+            }
+
             TypeConstructor nestedEncoding = readConstructor();
             DescribedTypeConstructor dtc = _dynamicTypeConstructors.get(descriptor);
             if(dtc == null)
@@ -950,6 +961,11 @@ public class DecoderImpl implements ByteBufferDecoder
     public void setByteBuffer(final ByteBuffer buffer)
     {
         _buffer = buffer;
+    }
+
+    public ByteBuffer getByteBuffer()
+    {
+        return _buffer;
     }
 
     interface TypeDecoder<V>

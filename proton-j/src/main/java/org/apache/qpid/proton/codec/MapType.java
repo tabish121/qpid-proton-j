@@ -20,7 +20,13 @@
  */
 package org.apache.qpid.proton.codec;
 
-import java.util.*;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class MapType extends AbstractPrimitiveType<Map>
 {
@@ -42,14 +48,15 @@ public class MapType extends AbstractPrimitiveType<Map>
         decoder.register(this);
     }
 
+    @Override
     public Class<Map> getTypeClass()
     {
         return Map.class;
     }
 
+    @Override
     public MapEncoding getEncoding(final Map val)
     {
-
         int calculatedSize = calculateSize(val, _encoder);
         MapEncoding encoding = (val.size() > 127 || calculatedSize >= 254)
                                     ? _mapEncoding
@@ -59,29 +66,51 @@ public class MapType extends AbstractPrimitiveType<Map>
         return encoding;
     }
 
-    private static int calculateSize(final Map val, EncoderImpl encoder)
+    private static int calculateSize(final Map map, EncoderImpl encoder)
     {
         int len = 0;
-        Iterator<Map.Entry> iter = val.entrySet().iterator();
+        Iterator<Map.Entry> iter = map.entrySet().iterator();
 
-        while(iter.hasNext())
+        AMQPType keyEncoder = null;
+        AMQPType valueEncoder = null;
+
+        while (iter.hasNext())
         {
-            Map.Entry element = iter.next();
-            TypeEncoding elementEncoding = encoder.getType(element.getKey()).getEncoding(element.getKey());
-            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getKey());
-            elementEncoding = encoder.getType(element.getValue()).getEncoding(element.getValue());
-            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getValue());
+            Entry entry = iter.next();
+
+            Object key = entry.getKey();
+            Object value = entry.getValue();
+
+            if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
+            {
+                keyEncoder = encoder.getType(key);
+            }
+
+            if (value == null)
+            {
+                valueEncoder = encoder.getNullTypeEncoder();
+            }
+            else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
+            {
+                valueEncoder = encoder.getType(value);
+            }
+
+            TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
+            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(key);
+            elementEncoding = valueEncoder.getEncoding(value);
+            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(value);
 
         }
         return len;
     }
 
-
+    @Override
     public MapEncoding getCanonicalEncoding()
     {
         return _mapEncoding;
     }
 
+    @Override
     public Collection<MapEncoding> getAllEncodings()
     {
         return Arrays.asList(_shortMapEncoding, _mapEncoding);
@@ -101,22 +130,42 @@ public class MapType extends AbstractPrimitiveType<Map>
         }
 
         @Override
-        protected void writeEncodedValue(final Map val)
+        protected void writeEncodedValue(final Map map)
         {
-            getEncoder().writeRaw(2 * val.size());
-            
+            getEncoder().writeRaw(2 * map.size());
 
-            Iterator<Map.Entry> iter = val.entrySet().iterator();
+            Iterator<Map.Entry> iter = map.entrySet().iterator();
 
-            while(iter.hasNext())
+            AMQPType keyEncoder = null;
+            AMQPType valueEncoder = null;
+
+            while (iter.hasNext())
             {
-                Map.Entry element = iter.next();
-                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
+                Entry entry = iter.next();
+
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
+                {
+                    keyEncoder = getEncoder().getType(key);
+                }
+
+                if (value == null)
+                {
+                    valueEncoder = getEncoder().getNullTypeEncoder();
+                }
+                else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
+                {
+                    valueEncoder = getEncoder().getType(value);
+                }
+
+                TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(element.getKey());
-                elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
+                elementEncoding.writeValue(key);
+                elementEncoding = valueEncoder.getEncoding(value);
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(element.getValue());
+                elementEncoding.writeValue(value);
             }
         }
 
@@ -133,20 +182,24 @@ public class MapType extends AbstractPrimitiveType<Map>
             return EncodingCodes.MAP32;
         }
 
+        @Override
         public MapType getType()
         {
             return MapType.this;
         }
 
+        @Override
         public boolean encodesSuperset(final TypeEncoding<Map> encoding)
         {
             return (getType() == encoding.getType());
         }
 
+        @Override
         public Map readValue()
         {
-
             DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+
             int size = decoder.readRawInt();
             // todo - limit the decoder with size
             int count = decoder.readRawInt();
@@ -154,21 +207,70 @@ public class MapType extends AbstractPrimitiveType<Map>
                 throw new IllegalArgumentException("Map element count "+count+" is specified to be greater than the amount of data available ("+
                                                    decoder.getByteBufferRemaining()+")");
             }
-            Map map = new LinkedHashMap(count);
-            for(int i = 0; i < count; i++)
+
+            TypeConstructor<?> keyConstructor = null;
+            TypeConstructor<?> valueConstructor = null;
+
+            Map<Object, Object> map = new LinkedHashMap<>(count);
+            for(int i = 0; i < count / 2; i++)
             {
-                Object key = decoder.readObject();
-                i++;
-                Object value = decoder.readObject();
+                keyConstructor = findNextDecoder(buffer, keyConstructor);
+                if(keyConstructor == null)
+                {
+                    throw new DecodeException("Unknown constructor");
+                }
+
+                Object key = keyConstructor.readValue();
+
+                valueConstructor = findNextDecoder(buffer, valueConstructor);
+                if(valueConstructor== null)
+                {
+                    throw new DecodeException("Unknown constructor");
+                }
+
+                Object value = valueConstructor instanceof ArrayType.ArrayEncoding
+                    ? ((ArrayType.ArrayEncoding)valueConstructor).readValueArray()
+                    : valueConstructor.readValue();
+
                 map.put(key, value);
             }
+
             return map;
         }
 
+        @Override
         public void setValue(final Map value, final int length)
         {
             _value = value;
             _length = length;
+        }
+
+        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor) {
+            if (prevoudConstructor == null)
+            {
+                return getDecoder().readConstructor();
+            }
+            else
+            {
+                buffer.mark();
+
+                byte encodingCode = buffer.get();
+                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(prevoudConstructor instanceof PrimitiveTypeEncoding<?>)) {
+                    buffer.reset();
+                    return getDecoder().readConstructor();
+                }
+                else
+                {
+                    PrimitiveTypeEncoding<?> primitiveConstructor = (PrimitiveTypeEncoding<?>) prevoudConstructor;
+                    if (encodingCode != primitiveConstructor.getEncodingCode())
+                    {
+                        buffer.reset();
+                        return getDecoder().readConstructor();
+                    }
+                }
+            }
+
+            return prevoudConstructor;
         }
     }
 
@@ -186,22 +288,40 @@ public class MapType extends AbstractPrimitiveType<Map>
         }
 
         @Override
-        protected void writeEncodedValue(final Map val)
+        protected void writeEncodedValue(final Map map)
         {
-            getEncoder().writeRaw((byte)(2*val.size()));
-                
+            getEncoder().writeRaw((byte)(2 * map.size()));
 
-            Iterator<Map.Entry> iter = val.entrySet().iterator();
+            AMQPType keyEncoder = null;
+            AMQPType valueEncoder = null;
 
-            while(iter.hasNext())
+            Iterator<Map.Entry> iter = map.entrySet().iterator();
+            while (iter.hasNext())
             {
-                Map.Entry element = iter.next();
-                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
+                Entry entry = iter.next();
+
+                Object key = entry.getKey();
+                Object value = entry.getValue();
+
+                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass())) {
+                    keyEncoder = getEncoder().getType(key);
+                }
+
+                if (value == null)
+                {
+                    valueEncoder = getEncoder().getNullTypeEncoder();
+                }
+                else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
+                {
+                    valueEncoder = getEncoder().getType(value);
+                }
+
+                TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(element.getKey());
-                elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
+                elementEncoding.writeValue(key);
+                elementEncoding = valueEncoder.getEncoding(value);
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(element.getValue());
+                elementEncoding.writeValue(value);
             }
         }
 
@@ -218,34 +338,88 @@ public class MapType extends AbstractPrimitiveType<Map>
             return EncodingCodes.MAP8;
         }
 
+        @Override
         public MapType getType()
         {
             return MapType.this;
         }
 
+        @Override
         public boolean encodesSuperset(final TypeEncoding<Map> encoder)
         {
             return encoder == this;
         }
 
+        @Override
         public Map readValue()
         {
             DecoderImpl decoder = getDecoder();
-            int size = ((int)decoder.readRawByte()) & 0xff;
-            // todo - limit the decoder with size
-            int count = ((int)decoder.readRawByte()) & 0xff;
+            ByteBuffer buffer = decoder.getByteBuffer();
 
-            Map map = new LinkedHashMap(count);
-            for(int i = 0; i < count; i++)
+            int size = (decoder.readRawByte()) & 0xff;
+            // todo - limit the decoder with size
+            int count = (decoder.readRawByte()) & 0xff;
+
+            TypeConstructor<?> keyConstructor = null;
+            TypeConstructor<?> valueConstructor = null;
+
+            Map<Object, Object> map = new LinkedHashMap<>(count);
+            for(int i = 0; i < count / 2; i++)
             {
-                Object key = decoder.readObject();
-                i++;
-                Object value = decoder.readObject();
+                keyConstructor = findNextDecoder(buffer, keyConstructor);
+                if(keyConstructor == null)
+                {
+                    throw new DecodeException("Unknown constructor");
+                }
+
+                Object key = keyConstructor.readValue();
+
+                valueConstructor = findNextDecoder(buffer, valueConstructor);
+                if(valueConstructor== null)
+                {
+                    throw new DecodeException("Unknown constructor");
+                }
+
+                Object value = valueConstructor instanceof ArrayType.ArrayEncoding
+                    ? ((ArrayType.ArrayEncoding)valueConstructor).readValueArray()
+                    : valueConstructor.readValue();
+
                 map.put(key, value);
             }
+
             return map;
         }
 
+        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor) {
+            if (prevoudConstructor == null)
+            {
+                return getDecoder().readConstructor();
+            }
+            else
+            {
+                buffer.mark();
+
+                byte encodingCode = buffer.get();
+                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(prevoudConstructor instanceof PrimitiveTypeEncoding<?>))
+                {
+                    buffer.reset();
+                    return getDecoder().readConstructor();
+                }
+                else
+                {
+                    PrimitiveTypeEncoding<?> primitiveConstructor = (PrimitiveTypeEncoding<?>) prevoudConstructor;
+                    if (encodingCode != primitiveConstructor.getEncodingCode())
+                    {
+                        buffer.reset();
+                        return getDecoder().readConstructor();
+                    }
+                }
+            }
+
+            return prevoudConstructor;
+        }
+
+        @Override
         public void setValue(final Map value, final int length)
         {
             _value = value;
