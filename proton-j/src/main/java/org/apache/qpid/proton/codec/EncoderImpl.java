@@ -38,13 +38,13 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 
-public final class EncoderImpl implements ByteBufferEncoder 
+public final class EncoderImpl implements ByteBufferEncoder
 {
     private static final byte DESCRIBED_TYPE_OP = (byte)0;
 
-
     private WritableBuffer _buffer;
 
+    private final DecoderImpl _decoder;
     private final Map<Class, AMQPType> _typeRegistry = new HashMap<Class, AMQPType>();
     private Map<Object, AMQPType> _describedDescriptorRegistry = new HashMap<Object, AMQPType>();
     private Map<Class, AMQPType>  _describedTypesClassRegistry = new HashMap<Class, AMQPType>();
@@ -88,7 +88,7 @@ public final class EncoderImpl implements ByteBufferEncoder
 
     public EncoderImpl(DecoderImpl decoder)
     {
-
+        _decoder                = decoder;
         _nullType               = new NullType(this, decoder);
         _booleanType            = new BooleanType(this, decoder);
         _byteType               = new ByteType(this, decoder);
@@ -143,6 +143,10 @@ public final class EncoderImpl implements ByteBufferEncoder
         _buffer = buf;
     }
 
+    public DecoderImpl getDecoder()
+    {
+        return _decoder;
+    }
 
     @Override
     public AMQPType getType(final Object element)

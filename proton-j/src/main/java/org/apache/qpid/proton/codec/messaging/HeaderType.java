@@ -30,13 +30,18 @@ import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Header;
+import org.apache.qpid.proton.amqp.transport.Flow;
+import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
+import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
+import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.EncodingCodes;
 
-
-public class HeaderType extends AbstractDescribedType<Header,List> implements DescribedTypeConstructor<Header>
+public class HeaderType extends AbstractDescribedType<Header,List> implements DescribedTypeConstructor<Header>, BuiltinDescribedTypeConstructor<Header>
 {
     private static final Object[] DESCRIPTORS =
     {
@@ -145,14 +150,73 @@ public class HeaderType extends AbstractDescribedType<Header,List> implements De
         return Header.class;
     }
 
+    @Override
+    public Header readValue() {
+        DecoderImpl decoder = getDecoder();
+        byte typeCode = decoder.getByteBuffer().get();
+
+        @SuppressWarnings("unused")
+        int size = 0;
+        int count = 0;
+
+        switch (typeCode)
+        {
+            case EncodingCodes.LIST0:
+                break;
+            case EncodingCodes.LIST8:
+                size = ((int)decoder.getByteBuffer().get()) & 0xff;
+                count = ((int)decoder.getByteBuffer().get()) & 0xff;
+                break;
+            case EncodingCodes.LIST32:
+                size = decoder.getByteBuffer().getInt();
+                count = decoder.getByteBuffer().getInt();
+                break;
+            default:
+                throw new DecodeException("Incorrect type found in Transfer encoding: " + typeCode);
+        }
+
+        Header header = new Header();
+
+        for (int index = 0; index < count; ++index)
+        {
+            switch (index)
+            {
+                case 0:
+                    header.setDurable(decoder.readBoolean());
+                    break;
+                case 1:
+                    header.setPriority(decoder.readUnsignedByte());
+                    break;
+                case 2:
+                    header.setTtl(decoder.readUnsignedInteger());
+                    break;
+                case 3:
+                    header.setFirstAcquirer(decoder.readBoolean());
+                    break;
+                case 4:
+                    header.setDeliveryCount(decoder.readUnsignedInteger());
+                    break;
+                default:
+                    throw new IllegalStateException("To many entries in Header encoding");
+            }
+        }
+
+        return header;
+    }
+
+    @Override
+    public boolean encodesJavaPrimitive()
+    {
+        return false;
+    }
+
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
         HeaderType type = new HeaderType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, type);
+            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }
-
 }

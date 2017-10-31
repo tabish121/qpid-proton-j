@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -84,11 +85,11 @@ public class Benchmark implements Runnable {
         benchmarkListOfInts();
         benchmarkUUIDs();
         benchmarkHeader();
-        benchmarkTransfer();
         benchmarkProperties();
         benchmarkMessageAnnotations();
         benchmarkApplicationProperties();
         benchmarkSymbols();
+        benchmarkTransfer();
         warming = false;
     }
 
@@ -183,6 +184,8 @@ public class Benchmark implements Runnable {
     private void benchmarkProperties() throws IOException {
         Properties properties = new Properties();
         properties.setTo("queue:1");
+        properties.setMessageId("ID:Message:1");
+        properties.setCreationTime(new Date(System.currentTimeMillis()));
 
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {

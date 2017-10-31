@@ -37,12 +37,13 @@ import java.util.*;
 
 public class DecoderImpl implements ByteBufferDecoder
 {
-
     private ByteBuffer _buffer;
     private PrimitiveTypeEncoding[] _constructors = new PrimitiveTypeEncoding[256];
     private Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
             new HashMap<Object, DescribedTypeConstructor>();
 
+    private Map<Object, BuiltinDescribedTypeConstructor<?>> _builtinTypeConstructors =
+        new HashMap<Object, BuiltinDescribedTypeConstructor<?>>();
 
     public DecoderImpl()
     {
@@ -54,6 +55,7 @@ public class DecoderImpl implements ByteBufferDecoder
         _buffer = buffer;
     }
 
+    @SuppressWarnings("rawtypes")
     TypeConstructor readConstructor()
     {
         int code = ((int)readRawByte()) & 0xff;
@@ -71,19 +73,24 @@ public class DecoderImpl implements ByteBufferDecoder
                 descriptor = readObject();
             }
 
-            TypeConstructor nestedEncoding = readConstructor();
-            DescribedTypeConstructor dtc = _dynamicTypeConstructors.get(descriptor);
+            TypeConstructor<?> builtinTypeConstructor = _builtinTypeConstructors.get(descriptor);
+            if (builtinTypeConstructor != null) 
+            {
+                return builtinTypeConstructor;
+            }
+
+            TypeConstructor<?> nestedEncoding = readConstructor();
+            DescribedTypeConstructor<?> dtc = _dynamicTypeConstructors.get(descriptor);
             if(dtc == null)
             {
                 dtc = new DescribedTypeConstructor()
                 {
-
                     public DescribedType newInstance(final Object described)
                     {
                         return new UnknownDescribedType(descriptor, described);
                     }
 
-                    public Class getTypeClass()
+                    public Class<?> getTypeClass()
                     {
                         return UnknownDescribedType.class;
                     }
@@ -98,8 +105,15 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
+    public void register(final Object descriptor, final BuiltinDescribedTypeConstructor<?> btc)
+    {
+        _builtinTypeConstructors.put(descriptor, btc);
+    }
+
     public void register(final Object descriptor, final DescribedTypeConstructor dtc)
     {
+        // Allow external type constructors to replace the built-in instances.
+        _builtinTypeConstructors.remove(descriptor);
         _dynamicTypeConstructors.put(descriptor, dtc);
     }
 
@@ -595,7 +609,6 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Decimal64 readDecimal64(final Decimal64 defaultValue)
     {
-
         TypeConstructor constructor = readConstructor();
         Object val = constructor.readValue();
         if(val == null)

@@ -34,13 +34,15 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
+import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
+import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.EncodingCodes;
 
-
-public final class TransferType extends AbstractDescribedType<Transfer,List> implements DescribedTypeConstructor<Transfer>
+public final class TransferType extends AbstractDescribedType<Transfer,List> implements DescribedTypeConstructor<Transfer>, BuiltinDescribedTypeConstructor<Transfer>
 {
     private static final Object[] DESCRIPTORS =
     {
@@ -190,18 +192,91 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             return Transfer.class;
         }
 
+    @Override
+    public Transfer readValue() {
+        DecoderImpl decoder = getDecoder();
+        byte typeCode = decoder.getByteBuffer().get();
 
+        @SuppressWarnings("unused")
+        int size = 0;
+        int count = 0;
 
+        switch (typeCode)
+        {
+            case EncodingCodes.LIST0:
+                break;
+            case EncodingCodes.LIST8:
+                size = ((int)decoder.getByteBuffer().get()) & 0xff;
+                count = ((int)decoder.getByteBuffer().get()) & 0xff;
+                break;
+            case EncodingCodes.LIST32:
+                size = decoder.getByteBuffer().getInt();
+                count = decoder.getByteBuffer().getInt();
+                break;
+            default:
+                throw new DecodeException("Incorrect type found in Transfer encoding: " + typeCode);
+        }
+
+        Transfer transfer = new Transfer();
+
+        for (int index = 0; index < count; ++index)
+        {
+            switch (index)
+            {
+                case 0:
+                    transfer.setHandle(decoder.readUnsignedInteger());
+                    break;
+                case 1:
+                    transfer.setDeliveryId(decoder.readUnsignedInteger());
+                    break;
+                case 2:
+                    transfer.setDeliveryTag(decoder.readBinary());
+                    break;
+                case 3:
+                    transfer.setMessageFormat(decoder.readUnsignedInteger());
+                    break;
+                case 4:
+                    transfer.setSettled(decoder.readBoolean());
+                    break;
+                case 5:
+                    transfer.setMore(Boolean.TRUE.equals(decoder.readBoolean()));
+                    break;
+                case 6:
+                    UnsignedByte rcvSettleMode = decoder.readUnsignedByte();
+                    transfer.setRcvSettleMode(rcvSettleMode == null ? null : ReceiverSettleMode.values()[rcvSettleMode.intValue()]);
+                    break;
+                case 7:
+                    transfer.setState((DeliveryState) decoder.readObject());
+                    break;
+                case 8:
+                    transfer.setResume(Boolean.TRUE.equals(decoder.readBoolean()));
+                    break;
+                case 9:
+                    transfer.setMore(Boolean.TRUE.equals(decoder.readBoolean()));
+                    break;
+                case 10:
+                    transfer.setBatchable(Boolean.TRUE.equals(decoder.readBoolean()));
+                    break;
+                default:
+                    throw new IllegalStateException("To many entries in Transfer encoding");
+            }
+        }
+
+        return transfer;
+    }
+
+    @Override
+    public boolean encodesJavaPrimitive() {
+        return false;
+    }
 
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
         TransferType type = new TransferType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, type);
+            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }
-
 }
-  
