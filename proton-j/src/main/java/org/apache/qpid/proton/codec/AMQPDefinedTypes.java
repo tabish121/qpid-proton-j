@@ -23,15 +23,6 @@
 
 package org.apache.qpid.proton.codec;
 
-import org.apache.qpid.proton.amqp.transport.Attach;
-import org.apache.qpid.proton.amqp.transport.Begin;
-import org.apache.qpid.proton.amqp.transport.Close;
-import org.apache.qpid.proton.amqp.transport.Detach;
-import org.apache.qpid.proton.amqp.transport.Disposition;
-import org.apache.qpid.proton.amqp.transport.End;
-import org.apache.qpid.proton.amqp.transport.Flow;
-import org.apache.qpid.proton.amqp.transport.Open;
-import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.messaging.*;
 import org.apache.qpid.proton.codec.security.*;
 import org.apache.qpid.proton.codec.transaction.*;
@@ -53,9 +44,9 @@ public class AMQPDefinedTypes
         OpenType.register(decoder, encoder);
         BeginType.register(decoder, encoder);
         AttachType.register(decoder, encoder);
-        FlowType.register(decoder, encoder);
-        TransferType.register(decoder, encoder);
-        DispositionType.register(decoder, encoder);
+        BuiltinFlowType.register(decoder, encoder);
+        BuiltinTransferType.register(decoder, encoder);
+        BuiltinDispositionType.register(decoder, encoder);
         DetachType.register(decoder, encoder);
         EndType.register(decoder, encoder);
         CloseType.register(decoder, encoder);
@@ -64,17 +55,17 @@ public class AMQPDefinedTypes
 
     public static void registerMessagingTypes(Decoder decoder, EncoderImpl encoder)
     {
-        HeaderType.register(decoder, encoder);
+        BuiltinHeaderType.register(decoder, encoder);
+        BuiltinAcceptedType.register(decoder , encoder);
+        BuiltinPropertiesType.register( decoder, encoder );
         DeliveryAnnotationsType.register(decoder, encoder);
         MessageAnnotationsType.register(decoder, encoder);
-        PropertiesType.register( decoder, encoder );
         ApplicationPropertiesType.register(decoder, encoder);
         DataType.register(decoder, encoder);
         AmqpSequenceType.register(decoder, encoder);
         AmqpValueType.register(decoder, encoder);
         FooterType.register(decoder, encoder);
         ReceivedType.register(decoder, encoder);
-        AcceptedType.register(decoder , encoder);
         RejectedType.register(decoder, encoder);
         ReleasedType.register(decoder, encoder);
         ModifiedType.register(decoder, encoder);

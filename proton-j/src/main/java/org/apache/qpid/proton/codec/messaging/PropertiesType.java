@@ -50,7 +50,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000073L);
 
-    private PropertiesType(EncoderImpl encoder)
+    PropertiesType(EncoderImpl encoder)
     {
         super(encoder);
     }

@@ -18,8 +18,6 @@ package org.apache.qpid.proton.codec;
 
 import static org.junit.Assert.*;
 
-import java.nio.ByteBuffer;
-
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
@@ -29,17 +27,10 @@ import org.junit.Test;
 /**
  * Tests for encode / decode of Transfer types
  */
-public class TransferTypeTest {
+public class TransferTypeTest extends CodecTestSupport {
 
     @Test
-    public void testEncodeDecodeTransfers()
-    {
-        final DecoderImpl decoder = new DecoderImpl();
-        final EncoderImpl encoder = new EncoderImpl(decoder);
-
-        AMQPDefinedTypes.registerAllTypes(decoder, encoder);
-        final ByteBuffer bb = ByteBuffer.allocate(64);
-
+    public void testEncodeDecodeTransfers() {
         Transfer transfer = new Transfer();
         transfer.setHandle(UnsignedInteger.ONE);
         transfer.setDeliveryTag(new Binary(new byte[] {0, 1}));
@@ -49,11 +40,8 @@ public class TransferTypeTest {
         transfer.setBatchable(true);
         transfer.setRcvSettleMode(ReceiverSettleMode.SECOND);
 
-        bb.clear();
-        encoder.setByteBuffer(bb);
         encoder.writeObject(transfer);
-        bb.clear();
-        decoder.setByteBuffer(bb);
+        buffer.clear();
         final Transfer outputValue = (Transfer) decoder.readObject();
 
         assertEquals(transfer.getHandle(), outputValue.getHandle());

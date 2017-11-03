@@ -53,7 +53,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000013L);
 
-    private FlowType(EncoderImpl encoder)
+    FlowType(EncoderImpl encoder)
     {
         super(encoder);
     }

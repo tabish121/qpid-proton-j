@@ -34,10 +34,14 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedShort;
+import org.apache.qpid.proton.amqp.messaging.Accepted;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.amqp.messaging.Properties;
+import org.apache.qpid.proton.amqp.transport.Disposition;
+import org.apache.qpid.proton.amqp.transport.Flow;
+import org.apache.qpid.proton.amqp.transport.Role;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 
 public class Benchmark implements Runnable {
@@ -90,6 +94,9 @@ public class Benchmark implements Runnable {
         benchmarkApplicationProperties();
         benchmarkSymbols();
         benchmarkTransfer();
+        benchmarkFlow();
+        benchmarkDisposition();
+        benchmarkString();
         warming = false;
     }
 
@@ -179,6 +186,33 @@ public class Benchmark implements Runnable {
         resultSet.decodesComplete();
 
         time("Transfer", resultSet);
+    }
+
+    private void benchmarkFlow() throws IOException {
+        Flow flow = new Flow();
+        flow.setNextIncomingId(UnsignedInteger.valueOf(1));
+        flow.setIncomingWindow(UnsignedInteger.valueOf(2047));
+        flow.setNextOutgoingId(UnsignedInteger.valueOf(1));
+        flow.setOutgoingWindow(UnsignedInteger.MAX_VALUE);
+        flow.setHandle(UnsignedInteger.ZERO);
+        flow.setDeliveryCount(UnsignedInteger.valueOf(10));
+        flow.setLinkCredit(UnsignedInteger.valueOf(1000));
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.clear();
+            encoder.writeObject(flow);
+        }
+        resultSet.encodesComplete();
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.flip();
+            decoder.readObject();
+        }
+        resultSet.decodesComplete();
+
+        time("Flow", resultSet);
     }
 
     private void benchmarkProperties() throws IOException {
@@ -275,6 +309,57 @@ public class Benchmark implements Runnable {
         resultSet.decodesComplete();
 
         time("Symbol", resultSet);
+    }
+
+    private void benchmarkDisposition() throws IOException {
+        Disposition disposition = new Disposition();
+        disposition.setRole(Role.RECEIVER);
+        disposition.setSettled(true);
+        disposition.setState(Accepted.getInstance());
+        disposition.setFirst(UnsignedInteger.valueOf(2));
+        disposition.setLast(UnsignedInteger.valueOf(2));
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.clear();
+            encoder.writeObject(disposition);
+        }
+        resultSet.encodesComplete();
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.flip();
+            decoder.readObject();
+        }
+        resultSet.decodesComplete();
+
+        time("Disposition", resultSet);
+    }
+
+    private void benchmarkString() throws IOException {
+        String string1 = new String("String-1");
+        String string2 = new String("String-2");
+        String string3 = new String("String-3");
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.clear();
+            encoder.writeString(string1);
+            encoder.writeString(string2);
+            encoder.writeString(string3);
+        }
+        resultSet.encodesComplete();
+
+        resultSet.start();
+        for (int i = 0; i < ITERATIONS; i++) {
+            byteBuf.flip();
+            decoder.readString();
+            decoder.readString();
+            decoder.readString();
+        }
+        resultSet.decodesComplete();
+
+        time("String", resultSet);
     }
 
     private static class BenchmarkResult {

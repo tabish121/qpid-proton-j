@@ -56,7 +56,6 @@ public class ListType extends AbstractPrimitiveType<List>
 
     public ListEncoding getEncoding(final List val)
     {
-
         int calculatedSize = calculateSize(val, _encoder);
         ListEncoding encoding = val.isEmpty()
                                     ? _zeroListEncoding

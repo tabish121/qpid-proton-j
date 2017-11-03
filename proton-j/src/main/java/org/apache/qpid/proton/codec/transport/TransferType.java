@@ -51,7 +51,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000014L);
 
-    private TransferType(EncoderImpl encoder)
+    TransferType(EncoderImpl encoder)
     {
         super(encoder);
     }

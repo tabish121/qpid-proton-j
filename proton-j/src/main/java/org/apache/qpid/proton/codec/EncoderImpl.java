@@ -143,6 +143,11 @@ public final class EncoderImpl implements ByteBufferEncoder
         _buffer = buf;
     }
 
+    public WritableBuffer getBuffer()
+    {
+        return _buffer;
+    }
+
     public DecoderImpl getDecoder()
     {
         return _decoder;
