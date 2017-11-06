@@ -33,16 +33,21 @@ import org.apache.qpid.proton.amqp.UnsignedShort;
 
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class DecoderImpl implements ByteBufferDecoder
 {
     private ByteBuffer _buffer;
-    private PrimitiveTypeEncoding[] _constructors = new PrimitiveTypeEncoding[256];
-    private Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
+
+    private final CharsetDecoder _charsetDecoder = StandardCharsets.UTF_8.newDecoder();
+
+    private final PrimitiveTypeEncoding[] _constructors = new PrimitiveTypeEncoding[256];
+    private final Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
             new HashMap<Object, DescribedTypeConstructor>();
 
-    private Map<Object, BuiltinDescribedTypeConstructor<?>> _builtinTypeConstructors =
+    private final Map<Object, BuiltinDescribedTypeConstructor<?>> _builtinTypeConstructors =
         new HashMap<Object, BuiltinDescribedTypeConstructor<?>>();
 
     public DecoderImpl()
@@ -74,7 +79,7 @@ public class DecoderImpl implements ByteBufferDecoder
             }
 
             TypeConstructor<?> builtinTypeConstructor = _builtinTypeConstructors.get(descriptor);
-            if (builtinTypeConstructor != null) 
+            if (builtinTypeConstructor != null)
             {
                 return builtinTypeConstructor;
             }
@@ -966,7 +971,7 @@ public class DecoderImpl implements ByteBufferDecoder
 
     <V> V readRaw(TypeDecoder<V> decoder, int size)
     {
-        V decode = decoder.decode((ByteBuffer) _buffer.slice().limit(size));
+        V decode = decoder.decode(this, (ByteBuffer) _buffer.slice().limit(size));
         _buffer.position(_buffer.position()+size);
         return decode;
     }
@@ -981,9 +986,14 @@ public class DecoderImpl implements ByteBufferDecoder
         return _buffer;
     }
 
+    public CharsetDecoder getCharsetDecoder()
+    {
+        return _charsetDecoder;
+    }
+
     interface TypeDecoder<V>
     {
-        V decode(ByteBuffer buf);
+        V decode(DecoderImpl decoder, ByteBuffer buf);
     }
 
     private static class UnknownDescribedType implements DescribedType

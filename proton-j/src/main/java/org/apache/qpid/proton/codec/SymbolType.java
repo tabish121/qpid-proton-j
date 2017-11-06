@@ -39,10 +39,9 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
     private DecoderImpl.TypeDecoder<Symbol> _symbolCreator =
             new DecoderImpl.TypeDecoder<Symbol>()
             {
-
-                public Symbol decode(final ByteBuffer buf)
+                @Override
+                public Symbol decode(DecoderImpl decoder, ByteBuffer buf)
                 {
-
                     Symbol symbol = _symbolCache.get(buf);
                     if(symbol == null)
                     {
@@ -144,7 +143,7 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             return decoder.readRaw(_symbolCreator, size);
         }
     }
-    
+
     private class ShortSymbolEncoding
             extends SmallFloatingSizePrimitiveTypeEncoding<Symbol>
             implements SymbolEncoding
