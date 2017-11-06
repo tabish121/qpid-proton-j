@@ -59,8 +59,8 @@ public class AMQPDefinedTypes
         BuiltinAcceptedType.register(decoder , encoder);
         BuiltinPropertiesType.register( decoder, encoder );
         DeliveryAnnotationsType.register(decoder, encoder);
-        MessageAnnotationsType.register(decoder, encoder);
-        ApplicationPropertiesType.register(decoder, encoder);
+        BuiltinMessageAnnotationsType.register(decoder, encoder);
+        BuiltinApplicationPropertiesType.register(decoder, encoder);
         DataType.register(decoder, encoder);
         AmqpSequenceType.register(decoder, encoder);
         AmqpValueType.register(decoder, encoder);
