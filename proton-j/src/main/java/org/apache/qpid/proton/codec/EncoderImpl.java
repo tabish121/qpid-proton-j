@@ -230,7 +230,7 @@ public final class EncoderImpl implements ByteBufferEncoder
 
     public void writeNull()
     {
-        _nullType.write();
+        _buffer.put(EncodingCodes.NULL);
     }
 
     public void writeBoolean(final boolean bool)
