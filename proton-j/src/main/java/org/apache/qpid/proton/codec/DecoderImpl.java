@@ -20,6 +20,7 @@
  */
 package org.apache.qpid.proton.codec;
 
+import org.apache.qpid.proton.ProtonException;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Decimal128;
 import org.apache.qpid.proton.amqp.Decimal32;
@@ -31,6 +32,7 @@ import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharsetDecoder;
@@ -138,37 +140,39 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Boolean readBoolean(final Boolean defaultVal)
     {
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        byte encodingCode = _buffer.get();
+
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.BOOLEAN_TRUE:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN_TRUE & 0xff].readValue();
+            case EncodingCodes.BOOLEAN_FALSE:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN_FALSE & 0xff].readValue();
+            case EncodingCodes.BOOLEAN:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected boolean type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Boolean)
-        {
-            return (Boolean) val;
-        }
-        throw unexpectedType(val, Boolean.class);
     }
 
     public boolean readBoolean(final boolean defaultVal)
     {
-        TypeConstructor constructor = readConstructor();
-        if(constructor instanceof BooleanType.BooleanEncoding)
+        byte encodingCode = _buffer.get();
+
+        switch (encodingCode)
         {
-            return ((BooleanType.BooleanEncoding)constructor).readPrimitiveValue();
-        }
-        else
-        {
-            Object val = constructor.readValue();
-            if(val == null)
-            {
+            case EncodingCodes.BOOLEAN_TRUE:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN_TRUE & 0xff].readValue();
+            case EncodingCodes.BOOLEAN_FALSE:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN_FALSE & 0xff].readValue();
+            case EncodingCodes.BOOLEAN:
+                return (Boolean) _constructors[EncodingCodes.BOOLEAN & 0xff].readValue();
+            case EncodingCodes.NULL:
                 return defaultVal;
-            }
-            else
-            {
-                throw unexpectedType(val, Boolean.class);
-            }
+            default:
+                throw new DecodeException("Expected boolean type but found encoding: " + encodingCode);
         }
     }
 
@@ -179,17 +183,16 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Byte readByte(final Byte defaultVal)
     {
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
-        {
-            return defaultVal;
+        byte encodingCode = _buffer.get();
+
+        switch (encodingCode) {
+            case EncodingCodes.BYTE:
+                return (Byte) _constructors[EncodingCodes.BYTE & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected byte type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Byte)
-        {
-            return (Byte) val;
-        }
-        throw unexpectedType(val, Byte.class);
     }
 
     public byte readByte(final byte defaultVal)
@@ -220,18 +223,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Short readShort(final Short defaultVal)
     {
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
-        {
-            return defaultVal;
-        }
-        else if(val instanceof Short)
-        {
-            return (Short) val;
-        }
-        throw unexpectedType(val, Short.class);
+        byte encodingCode = _buffer.get();
 
+        switch (encodingCode)
+        {
+            case EncodingCodes.SHORT:
+                return (Short) _constructors[EncodingCodes.SHORT & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected Short type but found encoding: " + encodingCode);
+        }
     }
 
     public short readShort(final short defaultVal)
@@ -263,18 +265,19 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Integer readInteger(final Integer defaultVal)
     {
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
-        {
-            return defaultVal;
-        }
-        else if(val instanceof Integer)
-        {
-            return (Integer) val;
-        }
-        throw unexpectedType(val, Integer.class);
+        byte encodingCode = _buffer.get();
 
+        switch (encodingCode)
+        {
+            case EncodingCodes.SMALLINT:
+                return (Integer) _constructors[EncodingCodes.SMALLINT & 0xff].readValue();
+            case EncodingCodes.INT:
+                return (Integer) _constructors[EncodingCodes.INT & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected Integer type but found encoding: " + encodingCode);
+        }
     }
 
     public int readInteger(final int defaultVal)
@@ -306,19 +309,19 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Long readLong(final Long defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.SMALLLONG:
+                return (Long) _constructors[EncodingCodes.SMALLLONG & 0xff].readValue();
+            case EncodingCodes.LONG:
+                return (Long) _constructors[EncodingCodes.LONG & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected Long type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Long)
-        {
-            return (Long) val;
-        }
-        throw unexpectedType(val, Long.class);
-
     }
 
     public long readLong(final long defaultVal)
@@ -350,19 +353,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public UnsignedByte readUnsignedByte(final UnsignedByte defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.UBYTE:
+                return (UnsignedByte) _constructors[EncodingCodes.UBYTE & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected unsigned byte type but found encoding: " + encodingCode);
         }
-        else if(val instanceof UnsignedByte)
-        {
-            return (UnsignedByte) val;
-        }
-        throw unexpectedType(val, UnsignedByte.class);
-
     }
 
     public UnsignedShort readUnsignedShort()
@@ -372,19 +373,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public UnsignedShort readUnsignedShort(final UnsignedShort defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.USHORT:
+                return (UnsignedShort) _constructors[EncodingCodes.USHORT & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected UnsignedShort type but found encoding: " + encodingCode);
         }
-        else if(val instanceof UnsignedShort)
-        {
-            return (UnsignedShort) val;
-        }
-        throw unexpectedType(val, UnsignedShort.class);
-
     }
 
     public UnsignedInteger readUnsignedInteger()
@@ -394,19 +393,21 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public UnsignedInteger readUnsignedInteger(final UnsignedInteger defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.UINT0:
+                return (UnsignedInteger) _constructors[EncodingCodes.UINT0 & 0xff].readValue();
+            case EncodingCodes.SMALLUINT:
+                return (UnsignedInteger) _constructors[EncodingCodes.SMALLUINT & 0xff].readValue();
+            case EncodingCodes.UINT:
+                return (UnsignedInteger) _constructors[EncodingCodes.UINT & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected UnsignedInteger type but found encoding: " + encodingCode);
         }
-        else if(val instanceof UnsignedInteger)
-        {
-            return (UnsignedInteger) val;
-        }
-        throw unexpectedType(val, UnsignedInteger.class);
-
     }
 
     public UnsignedLong readUnsignedLong()
@@ -416,19 +417,21 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public UnsignedLong readUnsignedLong(final UnsignedLong defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.ULONG0:
+                return (UnsignedLong) _constructors[EncodingCodes.ULONG0 & 0xff].readValue();
+            case EncodingCodes.SMALLULONG:
+                return (UnsignedLong) _constructors[EncodingCodes.SMALLULONG & 0xff].readValue();
+            case EncodingCodes.ULONG:
+                return (UnsignedLong) _constructors[EncodingCodes.ULONG & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected UnsignedLong type but found encoding: " + encodingCode);
         }
-        else if(val instanceof UnsignedLong)
-        {
-            return (UnsignedLong) val;
-        }
-        throw unexpectedType(val, UnsignedLong.class);
-
     }
 
     public Character readCharacter()
@@ -438,40 +441,31 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Character readCharacter(final Character defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.CHAR:
+                return (Character) _constructors[EncodingCodes.CHAR & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new DecodeException("Expected Character type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Character)
-        {
-            return (Character) val;
-        }
-        throw unexpectedType(val, Character.class);
-
     }
 
     public char readCharacter(final char defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        if(constructor instanceof CharacterType.CharacterEncoding)
+        switch (encodingCode)
         {
-            return ((CharacterType.CharacterEncoding)constructor).readPrimitiveValue();
-        }
-        else
-        {
-            Object val = constructor.readValue();
-            if(val == null)
-            {
+            case EncodingCodes.CHAR:
+                return (Character) _constructors[EncodingCodes.CHAR & 0xff].readValue();
+            case EncodingCodes.NULL:
                 return defaultVal;
-            }
-            else
-            {
-                throw unexpectedType(val, Character.class);
-            }
+            default:
+                throw new DecodeException("Expected Character type but found encoding: " + encodingCode);
         }
     }
 
@@ -482,19 +476,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Float readFloat(final Float defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.FLOAT:
+                return (Float) _constructors[EncodingCodes.FLOAT & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new ProtonException("Expected Float type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Float)
-        {
-            return (Float) val;
-        }
-        throw unexpectedType(val, Float.class);
-
     }
 
     public float readFloat(final float defaultVal)
@@ -526,19 +518,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Double readDouble(final Double defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.DOUBLE:
+                return (Double) _constructors[EncodingCodes.DOUBLE & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new ProtonException("Expected Double type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Double)
-        {
-            return (Double) val;
-        }
-        throw unexpectedType(val, Double.class);
-
     }
 
     public double readDouble(final double defaultVal)
@@ -570,19 +560,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public UUID readUUID(final UUID defaultVal)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultVal;
+            case EncodingCodes.UUID:
+                return (UUID) _constructors[EncodingCodes.UUID & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultVal;
+            default:
+                throw new ProtonException("Expected UUID type but found encoding: " + encodingCode);
         }
-        else if(val instanceof UUID)
-        {
-            return (UUID) val;
-        }
-        throw unexpectedType(val, UUID.class);
-
     }
 
     public Decimal32 readDecimal32()
@@ -592,19 +580,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Decimal32 readDecimal32(final Decimal32 defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.DECIMAL32:
+                return (Decimal32) _constructors[EncodingCodes.DECIMAL32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Decimal32 type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Decimal32)
-        {
-            return (Decimal32) val;
-        }
-        throw unexpectedType(val, Decimal32.class);
-
     }
 
     public Decimal64 readDecimal64()
@@ -614,17 +600,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Decimal64 readDecimal64(final Decimal64 defaultValue)
     {
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        byte encodingCode = _buffer.get();
+
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.DECIMAL64:
+                return (Decimal64) _constructors[EncodingCodes.DECIMAL64 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Decimal64 type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Decimal64)
-        {
-            return (Decimal64) val;
-        }
-        throw unexpectedType(val, Decimal64.class);
     }
 
     public Decimal128 readDecimal128()
@@ -634,18 +620,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Decimal128 readDecimal128(final Decimal128 defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.DECIMAL128:
+                return (Decimal128) _constructors[EncodingCodes.DECIMAL128 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Decimal128 type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Decimal128)
-        {
-            return (Decimal128) val;
-        }
-        throw unexpectedType(val, Decimal128.class);
     }
 
     public Date readTimestamp()
@@ -655,18 +640,17 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Date readTimestamp(final Date defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.TIMESTAMP:
+                return (Date) _constructors[EncodingCodes.TIMESTAMP & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Timestamp type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Date)
-        {
-            return (Date) val;
-        }
-        throw unexpectedType(val, Date.class);
     }
 
     public Binary readBinary()
@@ -676,18 +660,19 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Binary readBinary(final Binary defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.VBIN8:
+                return (Binary) _constructors[EncodingCodes.VBIN8 & 0xff].readValue();
+            case EncodingCodes.VBIN32:
+                return (Binary) _constructors[EncodingCodes.VBIN32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Binary type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Binary)
-        {
-            return (Binary) val;
-        }
-        throw unexpectedType(val, Binary.class);
     }
 
     public Symbol readSymbol()
@@ -697,18 +682,19 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Symbol readSymbol(final Symbol defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.SYM8:
+                return (Symbol) _constructors[EncodingCodes.SYM8 & 0xff].readValue();
+            case EncodingCodes.SYM32:
+                return (Symbol) _constructors[EncodingCodes.SYM32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected Symbol type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Symbol)
-        {
-            return (Symbol) val;
-        }
-        throw unexpectedType(val, Symbol.class);
     }
 
     public String readString()
@@ -718,34 +704,39 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public String readString(final String defaultValue)
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return defaultValue;
+            case EncodingCodes.STR8:
+                return (String) _constructors[EncodingCodes.STR8 & 0xff].readValue();
+            case EncodingCodes.STR32:
+                return (String) _constructors[EncodingCodes.STR32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return defaultValue;
+            default:
+                throw new ProtonException("Expected String type but found encoding: " + encodingCode);
         }
-        else if(val instanceof String)
-        {
-            return (String) val;
-        }
-        throw unexpectedType(val, String.class);
     }
 
+    @SuppressWarnings("rawtypes")
     public List readList()
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return null;
+            case EncodingCodes.LIST0:
+                return (List) _constructors[EncodingCodes.LIST0 & 0xff].readValue();
+            case EncodingCodes.LIST8:
+                return (List) _constructors[EncodingCodes.LIST8 & 0xff].readValue();
+            case EncodingCodes.LIST32:
+                return (List) _constructors[EncodingCodes.LIST32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return null;
+            default:
+                throw new ProtonException("Expected List type but found encoding: " + encodingCode);
         }
-        else if(val instanceof List)
-        {
-            return (List) val;
-        }
-        throw unexpectedType(val, List.class);
     }
 
     public <T> void readList(final ListProcessor<T> processor)
@@ -753,20 +744,22 @@ public class DecoderImpl implements ByteBufferDecoder
         //TODO.
     }
 
+    @SuppressWarnings("rawtypes")
     public Map readMap()
     {
+        byte encodingCode = _buffer.get();
 
-        TypeConstructor constructor = readConstructor();
-        Object val = constructor.readValue();
-        if(val == null)
+        switch (encodingCode)
         {
-            return null;
+            case EncodingCodes.MAP8:
+                return (Map) _constructors[EncodingCodes.MAP8 & 0xff].readValue();
+            case EncodingCodes.MAP32:
+                return (Map) _constructors[EncodingCodes.MAP32 & 0xff].readValue();
+            case EncodingCodes.NULL:
+                return null;
+            default:
+                throw new ProtonException("Expected Map type but found encoding: " + encodingCode);
         }
-        else if(val instanceof Map)
-        {
-            return (Map) val;
-        }
-        throw unexpectedType(val, Map.class);
     }
 
     public <T> T[] readArray(final Class<T> clazz)
