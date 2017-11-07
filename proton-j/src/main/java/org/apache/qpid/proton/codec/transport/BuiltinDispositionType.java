@@ -198,7 +198,7 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
                 getEncoder().writeUnsignedInteger(disposition.getFirst());
                 break;
             case 2:
-                getEncoder().writeObject(disposition.getLast());
+                getEncoder().writeUnsignedInteger(disposition.getLast());
                 break;
             case 3:
                 getEncoder().writeBoolean(disposition.getSettled());
