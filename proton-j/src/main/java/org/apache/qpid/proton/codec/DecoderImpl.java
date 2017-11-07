@@ -56,7 +56,6 @@ public class DecoderImpl implements ByteBufferDecoder
     {
     }
 
-
     DecoderImpl(final ByteBuffer buffer)
     {
         _buffer = buffer;
@@ -68,8 +67,7 @@ public class DecoderImpl implements ByteBufferDecoder
         int code = ((int)readRawByte()) & 0xff;
         if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
         {
-            byte encoding = _buffer.get(_buffer.position());
-
+            final byte encoding = _buffer.get(_buffer.position());
             final Object descriptor;
 
             if (EncodingCodes.SMALLULONG == encoding || EncodingCodes.ULONG == encoding) {
@@ -899,14 +897,26 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public Object readObject()
     {
+        boolean arrayType = false;
+        byte code = _buffer.get(_buffer.position());
+        switch (code)
+        {
+            case EncodingCodes.ARRAY8:
+            case EncodingCodes.ARRAY32:
+                arrayType = true;
+        }
+
         TypeConstructor constructor = readConstructor();
         if(constructor== null)
         {
             throw new DecodeException("Unknown constructor");
         }
-        return constructor instanceof ArrayType.ArrayEncoding
-               ? ((ArrayType.ArrayEncoding)constructor).readValueArray()
-               : constructor.readValue();
+
+        if (arrayType) {
+            return ((ArrayType.ArrayEncoding)constructor).readValueArray();
+        } else {
+            return constructor.readValue();
+        }
     }
 
     public Object readObject(final Object defaultValue)
