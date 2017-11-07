@@ -130,10 +130,10 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
                     flow.setAvailable(decoder.readUnsignedInteger());
                     break;
                 case 8:
-                    flow.setDrain(Boolean.TRUE.equals(decoder.readBoolean()));
+                    flow.setDrain(decoder.readBoolean(false));
                     break;
                 case 9:
-                    flow.setEcho(Boolean.TRUE.equals(decoder.readBoolean()));
+                    flow.setDrain(decoder.readBoolean(false));
                     break;
                 case 10:
                     flow.setProperties(decoder.readMap());
