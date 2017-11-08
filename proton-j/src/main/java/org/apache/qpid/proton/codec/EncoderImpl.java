@@ -269,7 +269,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _unsignedByteType.write(ubyte);
+            _unsignedByteType.fastWrite(this, ubyte);
         }
     }
 
@@ -281,7 +281,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _unsignedShortType.write(ushort);
+            _unsignedShortType.fastWrite(this, ushort);
         }
     }
 
@@ -293,7 +293,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _unsignedIntegerType.write(uint);
+            _unsignedIntegerType.fastWrite(this, uint);
         }
     }
 
@@ -305,7 +305,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _unsignedLongType.write(ulong);
+            _unsignedLongType.fastWrite(this, ulong);
         }
     }
 
@@ -466,9 +466,9 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
     }
 
-    public void writeTimestamp(final long d)
+    public void writeTimestamp(final long timestamp)
     {
-        _timestampType.write(d);
+        _timestampType.fastWrite(this, timestamp);
     }
 
     public void writeTimestamp(final Date d)
@@ -479,7 +479,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            writeTimestamp(d.getTime());
+            _timestampType.fastWrite(this, d.getTime());
         }
     }
 
@@ -491,7 +491,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _uuidType.write(uuid);
+            _uuidType.fastWrite(this, uuid);
         }
 
     }
