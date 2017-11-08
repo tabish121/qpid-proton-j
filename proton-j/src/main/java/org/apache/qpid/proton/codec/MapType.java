@@ -104,6 +104,36 @@ public class MapType extends AbstractPrimitiveType<Map>
         return len;
     }
 
+    private static TypeConstructor<?> findNextDecoder(DecoderImpl decoder, ByteBuffer buffer, TypeConstructor<?> previousConstructor)
+    {
+        if (previousConstructor == null)
+        {
+            return decoder.readConstructor();
+        }
+        else
+        {
+            buffer.mark();
+
+            byte encodingCode = buffer.get();
+            if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(previousConstructor instanceof PrimitiveTypeEncoding<?>))
+            {
+                buffer.reset();
+                return decoder.readConstructor();
+            }
+            else
+            {
+                PrimitiveTypeEncoding<?> primitiveConstructor = (PrimitiveTypeEncoding<?>) previousConstructor;
+                if (encodingCode != primitiveConstructor.getEncodingCode())
+                {
+                    buffer.reset();
+                    return decoder.readConstructor();
+                }
+            }
+        }
+
+        return previousConstructor;
+    }
+
     @Override
     public MapEncoding getCanonicalEncoding()
     {
@@ -175,7 +205,6 @@ public class MapType extends AbstractPrimitiveType<Map>
             return 4 + ((val == _value) ? _length : calculateSize(val, getEncoder()));
         }
 
-
         @Override
         public byte getEncodingCode()
         {
@@ -214,7 +243,7 @@ public class MapType extends AbstractPrimitiveType<Map>
             Map<Object, Object> map = new LinkedHashMap<>(count);
             for(int i = 0; i < count / 2; i++)
             {
-                keyConstructor = findNextDecoder(buffer, keyConstructor);
+                keyConstructor = findNextDecoder(decoder, buffer, keyConstructor);
                 if(keyConstructor == null)
                 {
                     throw new DecodeException("Unknown constructor");
@@ -231,7 +260,7 @@ public class MapType extends AbstractPrimitiveType<Map>
                         arrayType = true;
                 }
 
-                valueConstructor = findNextDecoder(buffer, valueConstructor);
+                valueConstructor = findNextDecoder(decoder, buffer, valueConstructor);
                 if (valueConstructor == null)
                 {
                     throw new DecodeException("Unknown constructor");
@@ -259,36 +288,6 @@ public class MapType extends AbstractPrimitiveType<Map>
         {
             _value = value;
             _length = length;
-        }
-
-        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> previousConstructor)
-        {
-            if (previousConstructor == null)
-            {
-                return getDecoder().readConstructor();
-            }
-            else
-            {
-                buffer.mark();
-
-                byte encodingCode = buffer.get();
-                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(previousConstructor instanceof PrimitiveTypeEncoding<?>))
-                {
-                    buffer.reset();
-                    return getDecoder().readConstructor();
-                }
-                else
-                {
-                    PrimitiveTypeEncoding<?> primitiveConstructor = (PrimitiveTypeEncoding<?>) previousConstructor;
-                    if (encodingCode != primitiveConstructor.getEncodingCode())
-                    {
-                        buffer.reset();
-                        return getDecoder().readConstructor();
-                    }
-                }
-            }
-
-            return previousConstructor;
         }
     }
 
@@ -350,7 +349,6 @@ public class MapType extends AbstractPrimitiveType<Map>
             return 1 + ((val == _value) ? _length : calculateSize(val, getEncoder()));
         }
 
-
         @Override
         public byte getEncodingCode()
         {
@@ -385,7 +383,7 @@ public class MapType extends AbstractPrimitiveType<Map>
             Map<Object, Object> map = new LinkedHashMap<>(count);
             for(int i = 0; i < count / 2; i++)
             {
-                keyConstructor = findNextDecoder(buffer, keyConstructor);
+                keyConstructor = findNextDecoder(decoder, buffer, keyConstructor);
                 if(keyConstructor == null)
                 {
                     throw new DecodeException("Unknown constructor");
@@ -402,7 +400,7 @@ public class MapType extends AbstractPrimitiveType<Map>
                         arrayType = true;
                 }
 
-                valueConstructor = findNextDecoder(buffer, valueConstructor);
+                valueConstructor = findNextDecoder(decoder, buffer, valueConstructor);
                 if(valueConstructor== null)
                 {
                     throw new DecodeException("Unknown constructor");
@@ -423,36 +421,6 @@ public class MapType extends AbstractPrimitiveType<Map>
             }
 
             return map;
-        }
-
-        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> previousConstructor)
-        {
-            if (previousConstructor == null)
-            {
-                return getDecoder().readConstructor();
-            }
-            else
-            {
-                buffer.mark();
-
-                byte encodingCode = buffer.get();
-                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(previousConstructor instanceof PrimitiveTypeEncoding<?>))
-                {
-                    buffer.reset();
-                    return getDecoder().readConstructor();
-                }
-                else
-                {
-                    PrimitiveTypeEncoding<?> primitiveConstructor = (PrimitiveTypeEncoding<?>) previousConstructor;
-                    if (encodingCode != primitiveConstructor.getEncodingCode())
-                    {
-                        buffer.reset();
-                        return getDecoder().readConstructor();
-                    }
-                }
-            }
-
-            return previousConstructor;
         }
 
         @Override
