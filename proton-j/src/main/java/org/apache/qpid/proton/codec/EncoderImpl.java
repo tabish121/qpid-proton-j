@@ -235,7 +235,14 @@ public final class EncoderImpl implements ByteBufferEncoder
 
     public void writeBoolean(final boolean bool)
     {
-        _booleanType.writeValue(bool);
+        if (bool)
+        {
+            _buffer.put(EncodingCodes.BOOLEAN_TRUE);
+        }
+        else
+        {
+            _buffer.put(EncodingCodes.BOOLEAN_FALSE);
+        }
     }
 
     public void writeBoolean(final Boolean bool)
@@ -244,9 +251,13 @@ public final class EncoderImpl implements ByteBufferEncoder
         {
             writeNull();
         }
+        else if (Boolean.TRUE.equals(bool))
+        {
+            _buffer.put(EncodingCodes.BOOLEAN_TRUE);
+        }
         else
         {
-            _booleanType.write(bool);
+            _buffer.put(EncodingCodes.BOOLEAN_FALSE);
         }
     }
 
