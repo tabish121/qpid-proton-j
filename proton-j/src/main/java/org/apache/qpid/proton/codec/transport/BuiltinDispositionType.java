@@ -92,6 +92,7 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
 
         switch (typeCode) {
             case EncodingCodes.LIST0:
+                // TODO - Technically invalid however old decoder also allowed this.
                 break;
             case EncodingCodes.LIST8:
                 size = ((int)decoder.getByteBuffer().get()) & 0xff;
@@ -119,13 +120,13 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
                     disposition.setLast(decoder.readUnsignedInteger());
                     break;
                 case 3:
-                    disposition.setSettled(Boolean.TRUE.equals(decoder.readBoolean()));
+                    disposition.setSettled(decoder.readBoolean(false));
                     break;
                 case 4:
                     disposition.setState((DeliveryState) decoder.readObject());
                     break;
                 case 5:
-                    disposition.setBatchable(Boolean.TRUE.equals(decoder.readBoolean()));
+                    disposition.setBatchable(decoder.readBoolean(false));
                     break;
                 default:
                     throw new IllegalStateException("To many entries in Disposition encoding");
@@ -143,12 +144,6 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
 
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
         getEncoder().writeUnsignedLong(dispositionType.getDescriptor());
-
-        // Optimized step, no other data to be written.
-        if (count == 0 || encodingCode == EncodingCodes.LIST0) {
-            buffer.put(EncodingCodes.LIST0);
-            return;
-        }
 
         final int fieldWidth;
 
@@ -229,11 +224,9 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
     }
 
     private byte deduceEncodingCode(Disposition value, int elementCount) {
-        if (elementCount == 0) {
-            return EncodingCodes.LIST0;
-        } else if (value.getState() == null) {
+        if (value.getState() == null) {
             return EncodingCodes.LIST8;
-        } else if (value.getState() instanceof Accepted || value.getState() instanceof Released) {
+        } else if (value.getState() == Accepted.getInstance() || value.getState() == Released.getInstance()) {
             return EncodingCodes.LIST8;
         } else {
             return EncodingCodes.LIST32;

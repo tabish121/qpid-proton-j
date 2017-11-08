@@ -88,6 +88,7 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
 
         switch (typeCode) {
             case EncodingCodes.LIST0:
+                // TODO - Technically invalid however old decoder also allowed this.
                 break;
             case EncodingCodes.LIST8:
                 size = ((int)decoder.getByteBuffer().get()) & 0xff;
@@ -133,7 +134,7 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
                     flow.setDrain(decoder.readBoolean(false));
                     break;
                 case 9:
-                    flow.setDrain(decoder.readBoolean(false));
+                    flow.setEcho(decoder.readBoolean(false));
                     break;
                 case 10:
                     flow.setProperties(decoder.readMap());
@@ -154,12 +155,6 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
 
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
         getEncoder().writeUnsignedLong(flowType.getDescriptor());
-
-        // Optimized step, no other data to be written.
-        if (count == 0 || encodingCode == EncodingCodes.LIST0) {
-            buffer.put(EncodingCodes.LIST0);
-            return;
-        }
 
         final int fieldWidth;
 
@@ -261,9 +256,7 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
     }
 
     private byte deduceEncodingCode(Flow value, int elementCount) {
-        if (elementCount == 0) {
-            return EncodingCodes.LIST0;
-        } else if (value.getProperties() == null) {
+        if (value.getProperties() == null) {
             return EncodingCodes.LIST8;
         } else {
             return EncodingCodes.LIST32;

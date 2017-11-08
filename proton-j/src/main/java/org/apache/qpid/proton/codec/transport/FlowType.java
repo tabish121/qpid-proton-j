@@ -27,24 +27,16 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
 import org.apache.qpid.proton.amqp.Symbol;
-import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.Flow;
-import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
-import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
-import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.apache.qpid.proton.codec.EncodingCodes;
 
-
-public final class FlowType extends AbstractDescribedType<Flow,List> implements DescribedTypeConstructor<Flow>, BuiltinDescribedTypeConstructor<Flow>
+public final class FlowType extends AbstractDescribedType<Flow,List> implements DescribedTypeConstructor<Flow>
 {
     private static final Object[] DESCRIPTORS =
     {
@@ -183,90 +175,12 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
         return Flow.class;
     }
 
-    @Override
-    public Flow readValue() {
-        DecoderImpl decoder = getDecoder();
-        byte typeCode = decoder.getByteBuffer().get();
-
-        @SuppressWarnings("unused")
-        int size = 0;
-        int count = 0;
-
-        switch (typeCode)
-        {
-            case EncodingCodes.LIST0:
-                break;
-            case EncodingCodes.LIST8:
-                size = ((int)decoder.getByteBuffer().get()) & 0xff;
-                count = ((int)decoder.getByteBuffer().get()) & 0xff;
-                break;
-            case EncodingCodes.LIST32:
-                size = decoder.getByteBuffer().getInt();
-                count = decoder.getByteBuffer().getInt();
-                break;
-            default:
-                throw new DecodeException("Incorrect type found in Transfer encoding: " + typeCode);
-        }
-
-        Flow flow = new Flow();
-
-        for (int index = 0; index < count; ++index)
-        {
-            switch (index)
-            {
-                case 0:
-                    flow.setNextIncomingId(decoder.readUnsignedInteger());
-                    break;
-                case 1:
-                    flow.setIncomingWindow(decoder.readUnsignedInteger());
-                    break;
-                case 2:
-                    flow.setNextOutgoingId(decoder.readUnsignedInteger());
-                    break;
-                case 3:
-                    flow.setOutgoingWindow(decoder.readUnsignedInteger());
-                    break;
-                case 4:
-                    flow.setHandle(decoder.readUnsignedInteger());
-                    break;
-                case 5:
-                    flow.setDeliveryCount(decoder.readUnsignedInteger());
-                    break;
-                case 6:
-                    flow.setLinkCredit(decoder.readUnsignedInteger());
-                    break;
-                case 7:
-                    flow.setAvailable(decoder.readUnsignedInteger());
-                    break;
-                case 8:
-                    flow.setDrain(Boolean.TRUE.equals(decoder.readBoolean()));
-                    break;
-                case 9:
-                    flow.setEcho(Boolean.TRUE.equals(decoder.readBoolean()));
-                    break;
-                case 10:
-                    flow.setProperties(decoder.readMap());
-                    break;
-                default:
-                    throw new IllegalStateException("To many entries in Flow encoding");
-            }
-        }
-
-        return flow;
-    }
-
-    @Override
-    public boolean encodesJavaPrimitive()
-    {
-        return false;
-    }
-
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
         FlowType type = new FlowType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, type);
         }
         encoder.register(type);
     }

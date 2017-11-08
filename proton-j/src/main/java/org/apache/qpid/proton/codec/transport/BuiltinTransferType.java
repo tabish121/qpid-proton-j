@@ -70,6 +70,7 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
         switch (typeCode)
         {
             case EncodingCodes.LIST0:
+                // TODO - Technically invalid however old decoder also allowed this.
                 break;
             case EncodingCodes.LIST8:
                 size = ((int)decoder.getByteBuffer().get()) & 0xff;
@@ -105,7 +106,7 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
                     transfer.setSettled(decoder.readBoolean());
                     break;
                 case 5:
-                    transfer.setMore(Boolean.TRUE.equals(decoder.readBoolean()));
+                    transfer.setMore(decoder.readBoolean(false));
                     break;
                 case 6:
                     UnsignedByte rcvSettleMode = decoder.readUnsignedByte();
@@ -115,13 +116,13 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
                     transfer.setState((DeliveryState) decoder.readObject());
                     break;
                 case 8:
-                    transfer.setResume(Boolean.TRUE.equals(decoder.readBoolean()));
+                    transfer.setResume(decoder.readBoolean(false));
                     break;
                 case 9:
-                    transfer.setMore(Boolean.TRUE.equals(decoder.readBoolean()));
+                    transfer.setAborted(decoder.readBoolean(false));
                     break;
                 case 10:
-                    transfer.setBatchable(Boolean.TRUE.equals(decoder.readBoolean()));
+                    transfer.setBatchable(decoder.readBoolean(false));
                     break;
                 default:
                     throw new IllegalStateException("To many entries in Transfer encoding");
@@ -164,12 +165,6 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
 
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
         getEncoder().writeUnsignedLong(transferType.getDescriptor());
-
-        // Optimized step, no other data to be written.
-        if (count == 0 || encodingCode == EncodingCodes.LIST0) {
-            buffer.put(EncodingCodes.LIST0);
-            return;
-        }
 
         final int fieldWidth;
 
@@ -252,9 +247,7 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
     }
 
     private byte deduceEncodingCode(Transfer value, int elementCount) {
-        if (elementCount == 0) {
-            return EncodingCodes.LIST0;
-        } else if (value.getState() != null) {
+        if (value.getState() != null) {
             return EncodingCodes.LIST32;
         } else if (value.getDeliveryTag() != null && value.getDeliveryTag().getLength() > 200) {
             return EncodingCodes.LIST32;

@@ -30,18 +30,13 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
-import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
-import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.apache.qpid.proton.codec.EncodingCodes;
 
-public class PropertiesType  extends AbstractDescribedType<Properties,List> implements DescribedTypeConstructor<Properties>, BuiltinDescribedTypeConstructor<Properties>
+public class PropertiesType  extends AbstractDescribedType<Properties,List> implements DescribedTypeConstructor<Properties>
 {
     private static final Object[] DESCRIPTORS =
     {
@@ -194,96 +189,12 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
             return Properties.class;
         }
 
-    @Override
-    public Properties readValue() {
-        DecoderImpl decoder = getDecoder();
-        byte typeCode = decoder.getByteBuffer().get();
-
-        @SuppressWarnings("unused")
-        int size = 0;
-        int count = 0;
-
-        switch (typeCode)
-        {
-            case EncodingCodes.LIST0:
-                break;
-            case EncodingCodes.LIST8:
-                size = ((int)decoder.getByteBuffer().get()) & 0xff;
-                count = ((int)decoder.getByteBuffer().get()) & 0xff;
-                break;
-            case EncodingCodes.LIST32:
-                size = decoder.getByteBuffer().getInt();
-                count = decoder.getByteBuffer().getInt();
-                break;
-            default:
-                throw new DecodeException("Incorrect type found in Transfer encoding: " + typeCode);
-        }
-
-        Properties properties = new Properties();
-
-        for (int index = 0; index < count; ++index)
-        {
-            switch (index)
-            {
-                case 0:
-                    properties.setMessageId(decoder.readObject());
-                    break;
-                case 1:
-                    properties.setUserId(decoder.readBinary());
-                    break;
-                case 2:
-                    properties.setTo(decoder.readString());
-                    break;
-                case 3:
-                    properties.setSubject(decoder.readString());
-                    break;
-                case 4:
-                    properties.setReplyTo(decoder.readString());
-                    break;
-                case 5:
-                    properties.setCorrelationId(decoder.readObject());
-                    break;
-                case 6:
-                    properties.setContentType(decoder.readSymbol());
-                    break;
-                case 7:
-                    properties.setContentEncoding(decoder.readSymbol());
-                    break;
-                case 8:
-                    properties.setAbsoluteExpiryTime(decoder.readTimestamp());
-                    break;
-                case 9:
-                    properties.setCreationTime(decoder.readTimestamp());
-                    break;
-                case 10:
-                    properties.setGroupId(decoder.readString());
-                    break;
-                case 11:
-                    properties.setGroupSequence(decoder.readUnsignedInteger());
-                    break;
-                case 12:
-                    properties.setReplyToGroupId(decoder.readString());
-                    break;
-                default:
-                    throw new IllegalStateException("To many entries in Properties encoding");
-            }
-        }
-
-        return properties;
-    }
-
-    @Override
-    public boolean encodesJavaPrimitive()
-    {
-        return false;
-    }
-
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
         PropertiesType type = new PropertiesType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, type);
         }
         encoder.register(type);
     }

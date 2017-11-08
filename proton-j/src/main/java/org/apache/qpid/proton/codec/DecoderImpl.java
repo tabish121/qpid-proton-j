@@ -989,7 +989,7 @@ public class DecoderImpl implements ByteBufferDecoder
         return _buffer;
     }
 
-    public CharsetDecoder getCharsetDecoder()
+    CharsetDecoder getCharsetDecoder()
     {
         return _charsetDecoder;
     }
