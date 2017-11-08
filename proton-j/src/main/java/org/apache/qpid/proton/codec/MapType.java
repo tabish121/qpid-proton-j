@@ -222,15 +222,31 @@ public class MapType extends AbstractPrimitiveType<Map>
 
                 Object key = keyConstructor.readValue();
 
+                boolean arrayType = false;
+                byte code = buffer.get(buffer.position());
+                switch (code)
+                {
+                    case EncodingCodes.ARRAY8:
+                    case EncodingCodes.ARRAY32:
+                        arrayType = true;
+                }
+
                 valueConstructor = findNextDecoder(buffer, valueConstructor);
-                if(valueConstructor== null)
+                if (valueConstructor == null)
                 {
                     throw new DecodeException("Unknown constructor");
                 }
 
-                Object value = valueConstructor instanceof ArrayType.ArrayEncoding
-                    ? ((ArrayType.ArrayEncoding)valueConstructor).readValueArray()
-                    : valueConstructor.readValue();
+                final Object value;
+
+                if (arrayType)
+                {
+                    value = ((ArrayType.ArrayEncoding) valueConstructor).readValueArray();
+                }
+                else
+                {
+                    value = valueConstructor.readValue();
+                }
 
                 map.put(key, value);
             }
@@ -245,7 +261,8 @@ public class MapType extends AbstractPrimitiveType<Map>
             _length = length;
         }
 
-        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor) {
+        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor)
+        {
             if (prevoudConstructor == null)
             {
                 return getDecoder().readConstructor();
@@ -255,7 +272,8 @@ public class MapType extends AbstractPrimitiveType<Map>
                 buffer.mark();
 
                 byte encodingCode = buffer.get();
-                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(prevoudConstructor instanceof PrimitiveTypeEncoding<?>)) {
+                if (encodingCode == EncodingCodes.DESCRIBED_TYPE_INDICATOR || !(prevoudConstructor instanceof PrimitiveTypeEncoding<?>))
+                {
                     buffer.reset();
                     return getDecoder().readConstructor();
                 }
@@ -303,7 +321,8 @@ public class MapType extends AbstractPrimitiveType<Map>
                 Object key = entry.getKey();
                 Object value = entry.getValue();
 
-                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass())) {
+                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
+                {
                     keyEncoder = getEncoder().getType(key);
                 }
 
@@ -374,15 +393,31 @@ public class MapType extends AbstractPrimitiveType<Map>
 
                 Object key = keyConstructor.readValue();
 
+                boolean arrayType = false;
+                byte code = buffer.get(buffer.position());
+                switch (code)
+                {
+                    case EncodingCodes.ARRAY8:
+                    case EncodingCodes.ARRAY32:
+                        arrayType = true;
+                }
+
                 valueConstructor = findNextDecoder(buffer, valueConstructor);
                 if(valueConstructor== null)
                 {
                     throw new DecodeException("Unknown constructor");
                 }
 
-                Object value = valueConstructor instanceof ArrayType.ArrayEncoding
-                    ? ((ArrayType.ArrayEncoding)valueConstructor).readValueArray()
-                    : valueConstructor.readValue();
+                final Object value;
+
+                if (arrayType)
+                {
+                    value = ((ArrayType.ArrayEncoding) valueConstructor).readValueArray();
+                }
+                else
+                {
+                    value = valueConstructor.readValue();
+                }
 
                 map.put(key, value);
             }
@@ -390,7 +425,8 @@ public class MapType extends AbstractPrimitiveType<Map>
             return map;
         }
 
-        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor) {
+        private TypeConstructor<?> findNextDecoder(ByteBuffer buffer, TypeConstructor<?> prevoudConstructor)
+        {
             if (prevoudConstructor == null)
             {
                 return getDecoder().readConstructor();

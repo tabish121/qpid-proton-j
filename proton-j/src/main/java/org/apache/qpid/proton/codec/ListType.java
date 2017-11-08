@@ -186,7 +186,17 @@ public class ListType extends AbstractPrimitiveType<List>
             TypeConstructor<?> typeConstructor = null;
 
             List<Object> list = new ArrayList<>(count);
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
+                boolean arrayType = false;
+                byte code = buffer.get(buffer.position());
+                switch (code)
+                {
+                    case EncodingCodes.ARRAY8:
+                    case EncodingCodes.ARRAY32:
+                        arrayType = true;
+                }
+
                 // Whenever we can just reuse the previously used TypeDecoder instead
                 // of spending time looking up the same one again.
                 if (typeConstructor == null)
@@ -219,7 +229,18 @@ public class ListType extends AbstractPrimitiveType<List>
                     throw new DecodeException("Unknown constructor");
                 }
 
-                list.add(typeConstructor.readValue());
+                final Object value;
+
+                if (arrayType)
+                {
+                    value = ((ArrayType.ArrayEncoding) typeConstructor).readValueArray();
+                }
+                else
+                {
+                    value = typeConstructor.readValue();
+                }
+
+                list.add(value);
             }
 
             return list;
@@ -307,7 +328,17 @@ public class ListType extends AbstractPrimitiveType<List>
             TypeConstructor<?> typeConstructor = null;
 
             List<Object> list = new ArrayList<>(count);
-            for (int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++)
+            {
+                boolean arrayType = false;
+                byte code = buffer.get(buffer.position());
+                switch (code)
+                {
+                    case EncodingCodes.ARRAY8:
+                    case EncodingCodes.ARRAY32:
+                        arrayType = true;
+                }
+
                 // Whenever we can just reuse the previously used TypeDecoder instead
                 // of spending time looking up the same one again.
                 if (typeConstructor == null)
@@ -335,12 +366,23 @@ public class ListType extends AbstractPrimitiveType<List>
                     }
                 }
 
-                if(typeConstructor == null)
+                if (typeConstructor == null)
                 {
                     throw new DecodeException("Unknown constructor");
                 }
 
-                list.add(typeConstructor.readValue());
+                final Object value;
+
+                if (arrayType)
+                {
+                    value = ((ArrayType.ArrayEncoding) typeConstructor).readValueArray();
+                }
+                else
+                {
+                    value = typeConstructor.readValue();
+                }
+
+                list.add(value);
             }
 
             return list;
