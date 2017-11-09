@@ -53,7 +53,6 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
         return val.getLength() <= 255 ? _shortBinaryEncoding : _binaryEncoding;
     }
 
-
     public BinaryEncoding getCanonicalEncoding()
     {
         return _binaryEncoding;
@@ -62,6 +61,22 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
     public Collection<BinaryEncoding> getAllEncodings()
     {
         return Arrays.asList(_shortBinaryEncoding, _binaryEncoding);
+    }
+
+    public void fastWrite(EncoderImpl encoder, Binary binary)
+    {
+        if (binary.getLength() <= 255)
+        {
+            encoder.writeRaw(EncodingCodes.VBIN8);
+            encoder.writeRaw((byte) binary.getLength());
+            encoder.writeRaw(binary.getArray(), binary.getArrayOffset(), binary.getLength());
+        }
+        else
+        {
+            encoder.writeRaw(EncodingCodes.VBIN32);
+            encoder.writeRaw(binary.getLength());
+            encoder.writeRaw(binary.getArray(), binary.getArrayOffset(), binary.getLength());
+        }
     }
 
     private class LongBinaryEncoding

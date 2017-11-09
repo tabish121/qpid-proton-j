@@ -504,7 +504,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _binaryType.write(b);
+            _binaryType.fastWrite(this, b);
         }
     }
 
