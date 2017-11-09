@@ -66,7 +66,7 @@ public class UnsignedLongType extends AbstractPrimitiveType<UnsignedLong>
         {
             encoder.writeRaw(EncodingCodes.ULONG0);
         }
-        else if (longValue >= 0 && longValue <= 255)
+        else if (longValue > 0 && longValue <= 255)
         {
             encoder.writeRaw(EncodingCodes.SMALLULONG);
             encoder.writeRaw((byte)longValue);

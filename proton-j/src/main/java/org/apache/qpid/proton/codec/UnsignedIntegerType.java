@@ -66,7 +66,7 @@ public class UnsignedIntegerType extends AbstractPrimitiveType<UnsignedInteger>
         {
             encoder.writeRaw(EncodingCodes.UINT0);
         }
-        else if (intValue >= 0 && intValue <= 255)
+        else if (intValue > 0 && intValue <= 255)
         {
             encoder.writeRaw(EncodingCodes.SMALLUINT);
             encoder.writeRaw((byte)intValue);
