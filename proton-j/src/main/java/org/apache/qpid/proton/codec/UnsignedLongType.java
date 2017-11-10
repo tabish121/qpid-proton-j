@@ -61,7 +61,7 @@ public class UnsignedLongType extends AbstractPrimitiveType<UnsignedLong>
 
     public void fastWrite(EncoderImpl encoder, UnsignedLong value)
     {
-        long longValue = value.intValue();
+        long longValue = value.longValue();
         if (longValue == 0)
         {
             encoder.writeRaw(EncodingCodes.ULONG0);
