@@ -156,32 +156,19 @@ public final class EncoderImpl implements ByteBufferEncoder
     @Override
     public AMQPType getType(final Object element)
     {
-        if(element instanceof DescribedType)
-        {
-            AMQPType amqpType;
-
-            Object descriptor = ((DescribedType)element).getDescriptor();
-            amqpType = _describedDescriptorRegistry.get(descriptor);
-            if(amqpType == null)
-            {
-                amqpType = new DynamicDescribedType(this, descriptor);
-                _describedDescriptorRegistry.put(descriptor, amqpType);
-            }
-            return amqpType;
-
-        }
-        else
-        {
-            return getTypeFromClass(element == null ? Void.class : element.getClass());
-        }
+        return getTypeFromClass(element == null ? Void.class : element.getClass(), element);
     }
 
     public AMQPType getTypeFromClass(final Class clazz)
     {
+        return getTypeFromClass(clazz, null);
+    }
+
+    private AMQPType getTypeFromClass(final Class clazz, Object instance)
+    {
         AMQPType amqpType = _typeRegistry.get(clazz);
         if(amqpType == null)
         {
-
             if(clazz.isArray())
             {
                 amqpType = _arrayType;
@@ -199,10 +186,22 @@ public final class EncoderImpl implements ByteBufferEncoder
                 else if(DescribedType.class.isAssignableFrom(clazz))
                 {
                     amqpType = _describedTypesClassRegistry.get(clazz);
+                    if(amqpType == null && instance != null)
+                    {
+                        Object descriptor = ((DescribedType) instance).getDescriptor();
+                        amqpType = _describedDescriptorRegistry.get(descriptor);
+                        if(amqpType == null)
+                        {
+                            amqpType = new DynamicDescribedType(this, descriptor);
+                            _describedDescriptorRegistry.put(descriptor, amqpType);
+                        }
+                        _describedTypesClassRegistry.put(clazz, amqpType);
+                    }
                 }
             }
             _typeRegistry.put(clazz, amqpType);
         }
+
         return amqpType;
     }
 
