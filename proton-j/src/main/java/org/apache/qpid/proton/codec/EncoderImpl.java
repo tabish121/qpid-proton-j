@@ -527,7 +527,7 @@ public final class EncoderImpl implements ByteBufferEncoder
         }
         else
         {
-            _symbolType.write(s);
+            _symbolType.fastWrite(this, s);
         }
 
     }

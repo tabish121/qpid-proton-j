@@ -75,11 +75,26 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
         return Symbol.class;
     }
 
+    public void fastWrite(EncoderImpl encoder, Symbol symbol)
+    {
+        if (symbol.length() <= 255)
+        {
+            encoder.writeRaw(EncodingCodes.SYM8);
+            encoder.writeRaw((byte) symbol.length());
+            symbol.writeTo(encoder.getBuffer());
+        }
+        else
+        {
+            encoder.writeRaw(EncodingCodes.SYM32);
+            encoder.writeRaw(symbol.length());
+            symbol.writeTo(encoder.getBuffer());
+        }
+    }
+
     public SymbolEncoding getEncoding(final Symbol val)
     {
         return val.length() <= 255 ? _shortSymbolEncoding : _symbolEncoding;
     }
-
 
     public SymbolEncoding getCanonicalEncoding()
     {
@@ -104,13 +119,7 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
         @Override
         protected void writeEncodedValue(final Symbol val)
         {
-            final int length = val.length();
-            final EncoderImpl encoder = getEncoder();
-
-            for(int i = 0; i < length; i++)
-            {
-                encoder.writeRaw((byte)val.charAt(i));
-            }
+            val.writeTo(getEncoder().getBuffer());
         }
 
         @Override
@@ -157,14 +166,7 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
         @Override
         protected void writeEncodedValue(final Symbol val)
         {
-
-            final int length = val.length();
-            final EncoderImpl encoder = getEncoder();
-
-            for(int i = 0; i < length; i++)
-            {
-                encoder.writeRaw((byte)val.charAt(i));
-            }
+            val.writeTo(getEncoder().getBuffer());
         }
 
         @Override
