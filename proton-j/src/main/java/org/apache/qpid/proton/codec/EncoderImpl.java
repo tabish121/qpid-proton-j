@@ -195,7 +195,6 @@ public final class EncoderImpl implements ByteBufferEncoder
                             amqpType = new DynamicDescribedType(this, descriptor);
                             _describedDescriptorRegistry.put(descriptor, amqpType);
                         }
-                        _describedTypesClassRegistry.put(clazz, amqpType);
                     }
                 }
             }
