@@ -72,26 +72,16 @@ public class ListType extends AbstractPrimitiveType<List>
         int len = 0;
         final int count = val.size();
 
-        AMQPType lastType = null;
-
         for(int i = 0; i < count; i++)
         {
             Object element = val.get(i);
-            if (element == null)
-            {
-                lastType = encoder.getNullTypeEncoder();
-            }
-            else if (lastType == null || !lastType.getTypeClass().equals(element.getClass()))
-            {
-                lastType = encoder.getType(element);
-            }
-
-            if (lastType == null)
+            AMQPType type = encoder.getType(element);
+            if(type == null)
             {
                 throw new IllegalArgumentException("No encoding defined for type: " + element.getClass());
             }
-            TypeEncoding elementEncoding = lastType.getEncoding(element);
-            len += elementEncoding.getConstructorSize() + elementEncoding.getValueSize(element);
+            TypeEncoding elementEncoding = type.getEncoding(element);
+            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element);
         }
         return len;
     }
@@ -131,16 +121,7 @@ public class ListType extends AbstractPrimitiveType<List>
             for(int i = 0; i < count; i++)
             {
                 Object element = val.get(i);
-                if (element == null)
-                {
-                    lastType = getEncoder().getNullTypeEncoder();
-                }
-                else if (lastType == null || !lastType.getTypeClass().equals(element.getClass()))
-                {
-                    lastType = getEncoder().getType(element);
-                }
-
-                TypeEncoding elementEncoding = lastType.getEncoding(element);
+                TypeEncoding elementEncoding = getEncoder().getType(element).getEncoding(element);
                 elementEncoding.writeConstructor();
                 elementEncoding.writeValue(element);
             }
@@ -278,16 +259,7 @@ public class ListType extends AbstractPrimitiveType<List>
             for(int i = 0; i < count; i++)
             {
                 Object element = val.get(i);
-                if (element == null)
-                {
-                    lastType = getEncoder().getNullTypeEncoder();
-                }
-                else if (lastType == null || !lastType.getTypeClass().equals(element.getClass()))
-                {
-                    lastType = getEncoder().getType(element);
-                }
-
-                TypeEncoding elementEncoding = lastType.getEncoding(element);
+                TypeEncoding elementEncoding = getEncoder().getType(element).getEncoding(element);
                 elementEncoding.writeConstructor();
                 elementEncoding.writeValue(element);
             }

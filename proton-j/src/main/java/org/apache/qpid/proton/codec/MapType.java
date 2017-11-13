@@ -76,30 +76,11 @@ public class MapType extends AbstractPrimitiveType<Map>
 
         while (iter.hasNext())
         {
-            Entry entry = iter.next();
-
-            Object key = entry.getKey();
-            Object value = entry.getValue();
-
-            if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
-            {
-                keyEncoder = encoder.getType(key);
-            }
-
-            if (value == null)
-            {
-                valueEncoder = encoder.getNullTypeEncoder();
-            }
-            else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
-            {
-                valueEncoder = encoder.getType(value);
-            }
-
-            TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
-            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(key);
-            elementEncoding = valueEncoder.getEncoding(value);
-            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(value);
-
+            Map.Entry element = iter.next();
+            TypeEncoding elementEncoding = encoder.getType(element.getKey()).getEncoding(element.getKey());
+            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getKey());
+            elementEncoding = encoder.getType(element.getValue()).getEncoding(element.getValue());
+            len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getValue());
         }
         return len;
     }
@@ -171,31 +152,13 @@ public class MapType extends AbstractPrimitiveType<Map>
 
             while (iter.hasNext())
             {
-                Entry entry = iter.next();
-
-                Object key = entry.getKey();
-                Object value = entry.getValue();
-
-                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
-                {
-                    keyEncoder = getEncoder().getType(key);
-                }
-
-                if (value == null)
-                {
-                    valueEncoder = getEncoder().getNullTypeEncoder();
-                }
-                else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
-                {
-                    valueEncoder = getEncoder().getType(value);
-                }
-
-                TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
+                Map.Entry element = iter.next();
+                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(key);
-                elementEncoding = valueEncoder.getEncoding(value);
+                elementEncoding.writeValue(element.getKey());
+                elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(value);
+                elementEncoding.writeValue(element.getValue());
             }
         }
 
@@ -315,31 +278,13 @@ public class MapType extends AbstractPrimitiveType<Map>
             Iterator<Map.Entry> iter = map.entrySet().iterator();
             while (iter.hasNext())
             {
-                Entry entry = iter.next();
-
-                Object key = entry.getKey();
-                Object value = entry.getValue();
-
-                if (keyEncoder == null || !keyEncoder.getTypeClass().equals(key.getClass()))
-                {
-                    keyEncoder = getEncoder().getType(key);
-                }
-
-                if (value == null)
-                {
-                    valueEncoder = getEncoder().getNullTypeEncoder();
-                }
-                else if (valueEncoder == null || !valueEncoder.getTypeClass().equals(value.getClass()))
-                {
-                    valueEncoder = getEncoder().getType(value);
-                }
-
-                TypeEncoding elementEncoding = keyEncoder.getEncoding(key);
+                Map.Entry element = iter.next();
+                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(key);
-                elementEncoding = valueEncoder.getEncoding(value);
+                elementEncoding.writeValue(element.getKey());
+                elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
                 elementEncoding.writeConstructor();
-                elementEncoding.writeValue(value);
+                elementEncoding.writeValue(element.getValue());
             }
         }
 
