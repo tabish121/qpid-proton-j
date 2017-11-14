@@ -680,7 +680,13 @@ public final class EncoderImpl implements ByteBufferEncoder
 
     public void writeObject(final Object o)
     {
-        AMQPType type = _typeRegistry.get(o == null ? Void.class : o.getClass());
+        if (o == null)
+        {
+            getBuffer().put(EncodingCodes.NULL);
+            return;
+        }
+
+        AMQPType type = _typeRegistry.get(o.getClass());
 
         if(type == null)
         {
