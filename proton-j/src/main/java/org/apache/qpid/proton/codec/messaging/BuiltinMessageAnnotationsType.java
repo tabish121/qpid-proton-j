@@ -27,6 +27,7 @@ import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.EncodingCodes;
+import org.apache.qpid.proton.codec.MapType;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
@@ -88,7 +89,12 @@ public class BuiltinMessageAnnotationsType implements AMQPType<MessageAnnotation
 
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
         getEncoder().writeUnsignedLong(annotationsType.getDescriptor());
-        getEncoder().writeMap(val.getValue());
+
+        MapType mapType = (MapType) getEncoder().getType(val.getValue());
+
+        mapType.setKeyEncoding(getEncoder().getTypeFromClass(Symbol.class));
+        mapType.write(val.getValue());
+        mapType.setKeyEncoding(null);
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {

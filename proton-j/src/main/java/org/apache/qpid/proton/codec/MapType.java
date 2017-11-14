@@ -34,6 +34,8 @@ public class MapType extends AbstractPrimitiveType<Map>
     private final MapEncoding _shortMapEncoding;
     private EncoderImpl _encoder;
 
+    private AMQPType fixedKeyType;
+
     private static interface MapEncoding extends PrimitiveTypeEncoding<Map>
     {
         void setValue(Map value, int length);
@@ -54,10 +56,15 @@ public class MapType extends AbstractPrimitiveType<Map>
         return Map.class;
     }
 
+    public void setKeyEncoding(AMQPType<?> keyType)
+    {
+        this.fixedKeyType = keyType;
+    }
+
     @Override
     public MapEncoding getEncoding(final Map val)
     {
-        int calculatedSize = calculateSize(val, _encoder);
+        int calculatedSize = calculateSize(val, _encoder, fixedKeyType);
         MapEncoding encoding = (val.size() > 127 || calculatedSize >= 254)
                                     ? _mapEncoding
                                     : _shortMapEncoding;
@@ -66,23 +73,39 @@ public class MapType extends AbstractPrimitiveType<Map>
         return encoding;
     }
 
-    private static int calculateSize(final Map map, EncoderImpl encoder)
+    private static int calculateSize(final Map map, EncoderImpl encoder, AMQPType<?> fixedKeyType)
     {
         int len = 0;
         Iterator<Map.Entry> iter = map.entrySet().iterator();
 
-        AMQPType keyEncoder = null;
-        AMQPType valueEncoder = null;
-
         while (iter.hasNext())
         {
             Map.Entry element = iter.next();
-            TypeEncoding elementEncoding = encoder.getType(element.getKey()).getEncoding(element.getKey());
+
+            AMQPType keyType = fixedKeyType;
+            if (fixedKeyType == null)
+            {
+                keyType = encoder.getType(element.getKey());
+            }
+
+            TypeEncoding elementEncoding = keyType.getEncoding(element.getKey());
             len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getKey());
             elementEncoding = encoder.getType(element.getValue()).getEncoding(element.getValue());
             len += elementEncoding.getConstructorSize()+elementEncoding.getValueSize(element.getValue());
         }
         return len;
+    }
+
+    private AMQPType<?> getKeyEncoding(EncoderImpl encoder, Object key)
+    {
+        if (fixedKeyType != null)
+        {
+            return fixedKeyType;
+        }
+        else
+        {
+            return encoder.getType(key);
+        }
     }
 
     private static TypeConstructor<?> findNextDecoder(DecoderImpl decoder, ByteBuffer buffer, TypeConstructor<?> previousConstructor)
@@ -147,13 +170,17 @@ public class MapType extends AbstractPrimitiveType<Map>
 
             Iterator<Map.Entry> iter = map.entrySet().iterator();
 
-            AMQPType keyEncoder = null;
-            AMQPType valueEncoder = null;
-
             while (iter.hasNext())
             {
                 Map.Entry element = iter.next();
-                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
+
+                AMQPType keyType = fixedKeyType;
+                if (keyType == null)
+                {
+                    keyType = getEncoder().getType(element.getKey());
+                }
+
+                TypeEncoding elementEncoding = keyType.getEncoding(element.getKey());
                 elementEncoding.writeConstructor();
                 elementEncoding.writeValue(element.getKey());
                 elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
@@ -165,7 +192,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         @Override
         protected int getEncodedValueSize(final Map val)
         {
-            return 4 + ((val == _value) ? _length : calculateSize(val, getEncoder()));
+            return 4 + ((val == _value) ? _length : calculateSize(val, getEncoder(), fixedKeyType));
         }
 
         @Override
@@ -272,14 +299,18 @@ public class MapType extends AbstractPrimitiveType<Map>
         {
             getEncoder().writeRaw((byte)(2 * map.size()));
 
-            AMQPType keyEncoder = null;
-            AMQPType valueEncoder = null;
-
             Iterator<Map.Entry> iter = map.entrySet().iterator();
             while (iter.hasNext())
             {
                 Map.Entry element = iter.next();
-                TypeEncoding elementEncoding = getEncoder().getType(element.getKey()).getEncoding(element.getKey());
+
+                AMQPType keyType = fixedKeyType;
+                if (keyType == null)
+                {
+                    keyType = getEncoder().getType(element.getKey());
+                }
+
+                TypeEncoding elementEncoding = keyType.getEncoding(element.getKey());
                 elementEncoding.writeConstructor();
                 elementEncoding.writeValue(element.getKey());
                 elementEncoding = getEncoder().getType(element.getValue()).getEncoding(element.getValue());
@@ -291,7 +322,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         @Override
         protected int getEncodedValueSize(final Map val)
         {
-            return 1 + ((val == _value) ? _length : calculateSize(val, getEncoder()));
+            return 1 + ((val == _value) ? _length : calculateSize(val, getEncoder(), fixedKeyType));
         }
 
         @Override
