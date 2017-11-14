@@ -61,8 +61,18 @@ public class DecoderImpl implements ByteBufferDecoder
         _buffer = buffer;
     }
 
+    public TypeConstructor<?> peekConstructor()
+    {
+        _buffer.mark();
+        try {
+            return readConstructor();
+        } finally {
+            _buffer.reset();
+        }
+    }
+
     @SuppressWarnings("rawtypes")
-    TypeConstructor readConstructor()
+    public TypeConstructor readConstructor()
     {
         int code = ((int)readRawByte()) & 0xff;
         if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
