@@ -22,7 +22,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Properties;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
@@ -31,7 +31,7 @@ import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinPropertiesType implements AMQPType<Properties>, BuiltinDescribedTypeConstructor<Properties> {
+public class FastPathPropertiesType implements AMQPType<Properties>, FastPathDescribedTypeConstructor<Properties> {
 
     private static final Object[] DESCRIPTORS =
     {
@@ -40,7 +40,7 @@ public class BuiltinPropertiesType implements AMQPType<Properties>, BuiltinDescr
 
     private final PropertiesType propertiesType;
 
-    public BuiltinPropertiesType(EncoderImpl encoder) {
+    public FastPathPropertiesType(EncoderImpl encoder) {
         this.propertiesType = new PropertiesType(encoder);
     }
 
@@ -296,10 +296,10 @@ public class BuiltinPropertiesType implements AMQPType<Properties>, BuiltinDescr
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinPropertiesType type = new BuiltinPropertiesType(encoder);
+        FastPathPropertiesType type = new FastPathPropertiesType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

@@ -20,9 +20,9 @@ import java.util.Collection;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.messaging.Data;
+import org.apache.qpid.proton.amqp.messaging.AmqpValue;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
@@ -30,25 +30,25 @@ import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinDataType implements AMQPType<Data>, BuiltinDescribedTypeConstructor<Data> {
+public class FastPathAmqpValueType implements AMQPType<AmqpValue>, FastPathDescribedTypeConstructor<AmqpValue> {
 
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000075L), Symbol.valueOf("amqp:data:binary"),
+        UnsignedLong.valueOf(0x0000000000000077L), Symbol.valueOf("amqp:amqp-value:*"),
     };
 
-    private final DataType dataType;
+    private final AmqpValueType valueType;
 
-    public BuiltinDataType(EncoderImpl encoder) {
-        this.dataType = new DataType(encoder);
+    public FastPathAmqpValueType(EncoderImpl encoder) {
+        this.valueType = new AmqpValueType(encoder);
     }
 
     public EncoderImpl getEncoder() {
-        return dataType.getEncoder();
+        return valueType.getEncoder();
     }
 
     public DecoderImpl getDecoder() {
-        return dataType.getDecoder();
+        return valueType.getDecoder();
     }
 
     @Override
@@ -57,42 +57,42 @@ public class BuiltinDataType implements AMQPType<Data>, BuiltinDescribedTypeCons
     }
 
     @Override
-    public Class<Data> getTypeClass() {
-        return dataType.getTypeClass();
+    public Class<AmqpValue> getTypeClass() {
+        return AmqpValue.class;
     }
 
     @Override
-    public TypeEncoding<Data> getEncoding(Data val) {
-        return dataType.getEncoding(val);
+    public TypeEncoding<AmqpValue> getEncoding(AmqpValue value) {
+        return valueType.getEncoding(value);
     }
 
     @Override
-    public TypeEncoding<Data> getCanonicalEncoding() {
-        return dataType.getCanonicalEncoding();
+    public TypeEncoding<AmqpValue> getCanonicalEncoding() {
+        return valueType.getCanonicalEncoding();
     }
 
     @Override
-    public Collection<? extends TypeEncoding<Data>> getAllEncodings() {
-        return dataType.getAllEncodings();
+    public Collection<? extends TypeEncoding<AmqpValue>> getAllEncodings() {
+        return valueType.getAllEncodings();
     }
 
     @Override
-    public Data readValue() {
-        return new Data(getDecoder().readBinary());
+    public AmqpValue readValue() {
+        return new AmqpValue(getDecoder().readObject());
     }
 
     @Override
-    public void write(Data data) {
+    public void write(AmqpValue value) {
         WritableBuffer buffer = getEncoder().getBuffer();
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
-        getEncoder().writeUnsignedLong(dataType.getDescriptor());
-        getEncoder().writeBinary(data.getValue());
+        getEncoder().writeUnsignedLong(valueType.getDescriptor());
+        getEncoder().writeObject(value.getValue());
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinDataType type = new BuiltinDataType(encoder);
+        FastPathAmqpValueType type = new FastPathAmqpValueType(encoder);
         for(Object descriptor : DESCRIPTORS) {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

@@ -26,7 +26,7 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.Disposition;
 import org.apache.qpid.proton.amqp.transport.Role;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
@@ -35,7 +35,7 @@ import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDescribedTypeConstructor<Disposition> {
+public class FastPathDispositionType implements AMQPType<Disposition>, FastPathDescribedTypeConstructor<Disposition> {
 
     private static final Object[] DESCRIPTORS =
     {
@@ -44,7 +44,7 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
 
     private final DispositionType dispositionType;
 
-    public BuiltinDispositionType(EncoderImpl encoder) {
+    public FastPathDispositionType(EncoderImpl encoder) {
         this.dispositionType = new DispositionType(encoder);
     }
 
@@ -234,9 +234,9 @@ public class BuiltinDispositionType implements AMQPType<Disposition>, BuiltinDes
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinDispositionType type = new BuiltinDispositionType(encoder);
+        FastPathDispositionType type = new FastPathDispositionType(encoder);
         for(Object descriptor : DESCRIPTORS) {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

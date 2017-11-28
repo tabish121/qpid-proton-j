@@ -22,7 +22,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.Flow;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
@@ -31,7 +31,7 @@ import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeConstructor<Flow> {
+public class FastPathFlowType implements AMQPType<Flow>, FastPathDescribedTypeConstructor<Flow> {
 
     private static final Object[] DESCRIPTORS =
     {
@@ -40,7 +40,7 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
 
     private final FlowType flowType;
 
-    public BuiltinFlowType(EncoderImpl encoder) {
+    public FastPathFlowType(EncoderImpl encoder) {
         this.flowType = new FlowType(encoder);
     }
 
@@ -264,10 +264,10 @@ public class BuiltinFlowType implements AMQPType<Flow>, BuiltinDescribedTypeCons
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinFlowType type = new BuiltinFlowType(encoder);
+        FastPathFlowType type = new FastPathFlowType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

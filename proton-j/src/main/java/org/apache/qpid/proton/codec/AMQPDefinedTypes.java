@@ -44,9 +44,9 @@ public class AMQPDefinedTypes
         OpenType.register(decoder, encoder);
         BeginType.register(decoder, encoder);
         AttachType.register(decoder, encoder);
-        BuiltinFlowType.register(decoder, encoder);
-        BuiltinTransferType.register(decoder, encoder);
-        BuiltinDispositionType.register(decoder, encoder);
+        FastPathFlowType.register(decoder, encoder);
+        FastPathTransferType.register(decoder, encoder);
+        FastPathDispositionType.register(decoder, encoder);
         DetachType.register(decoder, encoder);
         EndType.register(decoder, encoder);
         CloseType.register(decoder, encoder);
@@ -55,15 +55,15 @@ public class AMQPDefinedTypes
 
     public static void registerMessagingTypes(Decoder decoder, EncoderImpl encoder)
     {
-        BuiltinHeaderType.register(decoder, encoder);
-        BuiltinAcceptedType.register(decoder , encoder);
-        BuiltinPropertiesType.register( decoder, encoder );
+        FastPathHeaderType.register(decoder, encoder);
+        FastPathAcceptedType.register(decoder , encoder);
+        FastPathPropertiesType.register( decoder, encoder );
         DeliveryAnnotationsType.register(decoder, encoder);
-        BuiltinMessageAnnotationsType.register(decoder, encoder);
-        BuiltinApplicationPropertiesType.register(decoder, encoder);
-        BuiltinDataType.register(decoder, encoder);
-        BuiltinAmqpSequenceType.register(decoder, encoder);
-        BuiltinAmqpValueType.register(decoder, encoder);
+        FastPathMessageAnnotationsType.register(decoder, encoder);
+        FastPathApplicationPropertiesType.register(decoder, encoder);
+        FastPathDataType.register(decoder, encoder);
+        FastPathAmqpSequenceType.register(decoder, encoder);
+        FastPathAmqpValueType.register(decoder, encoder);
         FooterType.register(decoder, encoder);
         ReceivedType.register(decoder, encoder);
         RejectedType.register(decoder, encoder);

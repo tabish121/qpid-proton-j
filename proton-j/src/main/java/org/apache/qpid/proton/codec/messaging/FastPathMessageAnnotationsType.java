@@ -20,9 +20,9 @@ import java.util.Collection;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
+import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
@@ -31,25 +31,25 @@ import org.apache.qpid.proton.codec.MapType;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinApplicationPropertiesType implements AMQPType<ApplicationProperties>, BuiltinDescribedTypeConstructor<ApplicationProperties> {
+public class FastPathMessageAnnotationsType implements AMQPType<MessageAnnotations>, FastPathDescribedTypeConstructor<MessageAnnotations> {
 
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000074L), Symbol.valueOf("amqp:application-properties:map"),
+        UnsignedLong.valueOf(0x0000000000000072L), Symbol.valueOf("amqp:message-annotations:map"),
     };
 
-    private final ApplicationPropertiesType propertiesType;
+    private final MessageAnnotationsType annotationsType;
 
-    public BuiltinApplicationPropertiesType(EncoderImpl encoder) {
-        this.propertiesType = new ApplicationPropertiesType(encoder);
+    public FastPathMessageAnnotationsType(EncoderImpl encoder) {
+        this.annotationsType = new MessageAnnotationsType(encoder);
     }
 
     public EncoderImpl getEncoder() {
-        return propertiesType.getEncoder();
+        return annotationsType.getEncoder();
     }
 
     public DecoderImpl getDecoder() {
-        return propertiesType.getDecoder();
+        return annotationsType.getDecoder();
     }
 
     @Override
@@ -58,46 +58,47 @@ public class BuiltinApplicationPropertiesType implements AMQPType<ApplicationPro
     }
 
     @Override
-    public Class<ApplicationProperties> getTypeClass() {
-        return ApplicationProperties.class;
+    public Class<MessageAnnotations> getTypeClass() {
+        return MessageAnnotations.class;
     }
 
     @Override
-    public TypeEncoding<ApplicationProperties> getEncoding(ApplicationProperties val) {
-        return propertiesType.getEncoding(val);
+    public TypeEncoding<MessageAnnotations> getEncoding(MessageAnnotations val) {
+        return annotationsType.getEncoding(val);
     }
 
     @Override
-    public TypeEncoding<ApplicationProperties> getCanonicalEncoding() {
-        return propertiesType.getCanonicalEncoding();
+    public TypeEncoding<MessageAnnotations> getCanonicalEncoding() {
+        return annotationsType.getCanonicalEncoding();
     }
 
     @Override
-    public Collection<? extends TypeEncoding<ApplicationProperties>> getAllEncodings() {
-        return propertiesType.getAllEncodings();
+    public Collection<? extends TypeEncoding<MessageAnnotations>> getAllEncodings() {
+        return annotationsType.getAllEncodings();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public MessageAnnotations readValue() {
+        return new MessageAnnotations(getDecoder().readMap());
     }
 
     @Override
-    public ApplicationProperties readValue() {
-        return new ApplicationProperties(getDecoder().readMap());
-    }
-
-    @Override
-    public void write(ApplicationProperties val) {
+    public void write(MessageAnnotations val) {
         WritableBuffer buffer = getEncoder().getBuffer();
 
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
-        getEncoder().writeUnsignedLong(propertiesType.getDescriptor());
+        getEncoder().writeUnsignedLong(annotationsType.getDescriptor());
 
         MapType mapType = (MapType) getEncoder().getType(val.getValue());
 
-        mapType.setKeyEncoding(getEncoder().getTypeFromClass(String.class));
+        mapType.setKeyEncoding(getEncoder().getTypeFromClass(Symbol.class));
         mapType.write(val.getValue());
         mapType.setKeyEncoding(null);
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinApplicationPropertiesType type = new BuiltinApplicationPropertiesType(encoder);
+        FastPathMessageAnnotationsType type = new FastPathMessageAnnotationsType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
             decoder.register(descriptor, type);

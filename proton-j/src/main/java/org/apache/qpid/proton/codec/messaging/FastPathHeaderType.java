@@ -22,7 +22,7 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Header;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
@@ -31,7 +31,7 @@ import org.apache.qpid.proton.codec.EncodingCodes;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinHeaderType implements AMQPType<Header>, BuiltinDescribedTypeConstructor<Header> {
+public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTypeConstructor<Header> {
 
     private static final Object[] DESCRIPTORS =
     {
@@ -40,7 +40,7 @@ public class BuiltinHeaderType implements AMQPType<Header>, BuiltinDescribedType
 
     private final HeaderType headerType;
 
-    public BuiltinHeaderType(EncoderImpl encoder) {
+    public FastPathHeaderType(EncoderImpl encoder) {
         this.headerType = new HeaderType(encoder);
     }
 
@@ -232,10 +232,10 @@ public class BuiltinHeaderType implements AMQPType<Header>, BuiltinDescribedType
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinHeaderType type = new BuiltinHeaderType(encoder);
+        FastPathHeaderType type = new FastPathHeaderType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

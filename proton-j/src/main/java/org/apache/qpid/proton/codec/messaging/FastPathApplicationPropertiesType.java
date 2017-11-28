@@ -20,35 +20,36 @@ import java.util.Collection;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
-import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
+import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.EncodingCodes;
+import org.apache.qpid.proton.codec.MapType;
 import org.apache.qpid.proton.codec.TypeEncoding;
 import org.apache.qpid.proton.codec.WritableBuffer;
 
-public class BuiltinAmqpSequenceType implements AMQPType<AmqpSequence>, BuiltinDescribedTypeConstructor<AmqpSequence> {
+public class FastPathApplicationPropertiesType implements AMQPType<ApplicationProperties>, FastPathDescribedTypeConstructor<ApplicationProperties> {
 
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000076L), Symbol.valueOf("amqp:amqp-sequence:list"),
+        UnsignedLong.valueOf(0x0000000000000074L), Symbol.valueOf("amqp:application-properties:map"),
     };
 
-    private final AmqpSequenceType sequenceType;
+    private final ApplicationPropertiesType propertiesType;
 
-    public BuiltinAmqpSequenceType(EncoderImpl encoder) {
-        this.sequenceType = new AmqpSequenceType(encoder);
+    public FastPathApplicationPropertiesType(EncoderImpl encoder) {
+        this.propertiesType = new ApplicationPropertiesType(encoder);
     }
 
     public EncoderImpl getEncoder() {
-        return sequenceType.getEncoder();
+        return propertiesType.getEncoder();
     }
 
     public DecoderImpl getDecoder() {
-        return sequenceType.getDecoder();
+        return propertiesType.getDecoder();
     }
 
     @Override
@@ -57,42 +58,49 @@ public class BuiltinAmqpSequenceType implements AMQPType<AmqpSequence>, BuiltinD
     }
 
     @Override
-    public Class<AmqpSequence> getTypeClass() {
-        return AmqpSequence.class;
+    public Class<ApplicationProperties> getTypeClass() {
+        return ApplicationProperties.class;
     }
 
     @Override
-    public TypeEncoding<AmqpSequence> getEncoding(AmqpSequence val) {
-        return sequenceType.getEncoding(val);
+    public TypeEncoding<ApplicationProperties> getEncoding(ApplicationProperties val) {
+        return propertiesType.getEncoding(val);
     }
 
     @Override
-    public TypeEncoding<AmqpSequence> getCanonicalEncoding() {
-        return sequenceType.getCanonicalEncoding();
+    public TypeEncoding<ApplicationProperties> getCanonicalEncoding() {
+        return propertiesType.getCanonicalEncoding();
     }
 
     @Override
-    public Collection<? extends TypeEncoding<AmqpSequence>> getAllEncodings() {
-        return sequenceType.getAllEncodings();
+    public Collection<? extends TypeEncoding<ApplicationProperties>> getAllEncodings() {
+        return propertiesType.getAllEncodings();
     }
 
     @Override
-    public AmqpSequence readValue() {
-        return new AmqpSequence(getDecoder().readList());
+    public ApplicationProperties readValue() {
+        return new ApplicationProperties(getDecoder().readMap());
     }
 
     @Override
-    public void write(AmqpSequence sequence) {
+    public void write(ApplicationProperties val) {
         WritableBuffer buffer = getEncoder().getBuffer();
+
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
-        getEncoder().writeUnsignedLong(sequenceType.getDescriptor());
-        getEncoder().writeObject(sequence.getValue());
+        getEncoder().writeUnsignedLong(propertiesType.getDescriptor());
+
+        MapType mapType = (MapType) getEncoder().getType(val.getValue());
+
+        mapType.setKeyEncoding(getEncoder().getTypeFromClass(String.class));
+        mapType.write(val.getValue());
+        mapType.setKeyEncoding(null);
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinAmqpSequenceType type = new BuiltinAmqpSequenceType(encoder);
-        for (Object descriptor : DESCRIPTORS) {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+        FastPathApplicationPropertiesType type = new FastPathApplicationPropertiesType(encoder);
+        for(Object descriptor : DESCRIPTORS)
+        {
+            decoder.register(descriptor, type);
         }
         encoder.register(type);
     }

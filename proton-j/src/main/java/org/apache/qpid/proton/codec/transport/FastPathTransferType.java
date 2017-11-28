@@ -25,7 +25,7 @@ import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ReceiverSettleMode;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AMQPType;
-import org.apache.qpid.proton.codec.BuiltinDescribedTypeConstructor;
+import org.apache.qpid.proton.codec.FastPathDescribedTypeConstructor;
 import org.apache.qpid.proton.codec.DecodeException;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DecoderImpl;
@@ -37,7 +37,7 @@ import org.apache.qpid.proton.codec.WritableBuffer;
 /**
  * Fast TrasnferType encoder
  */
-public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribedTypeConstructor<Transfer> {
+public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescribedTypeConstructor<Transfer> {
 
     private static final Object[] DESCRIPTORS =
     {
@@ -46,7 +46,7 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
 
     private final TransferType transferType;
 
-    public BuiltinTransferType(EncoderImpl encoder) {
+    public FastPathTransferType(EncoderImpl encoder) {
         this.transferType = new TransferType(encoder);
     }
 
@@ -283,10 +283,10 @@ public class BuiltinTransferType implements AMQPType<Transfer>, BuiltinDescribed
     }
 
     public static void register(Decoder decoder, EncoderImpl encoder) {
-        BuiltinTransferType type = new BuiltinTransferType(encoder);
+        FastPathTransferType type = new FastPathTransferType(encoder);
         for(Object descriptor : DESCRIPTORS)
         {
-            decoder.register(descriptor, (BuiltinDescribedTypeConstructor<?>) type);
+            decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
     }

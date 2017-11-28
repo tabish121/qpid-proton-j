@@ -49,8 +49,8 @@ public class DecoderImpl implements ByteBufferDecoder
     private final Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
             new HashMap<Object, DescribedTypeConstructor>();
 
-    private final Map<Object, BuiltinDescribedTypeConstructor<?>> _builtinTypeConstructors =
-        new HashMap<Object, BuiltinDescribedTypeConstructor<?>>();
+    private final Map<Object, FastPathDescribedTypeConstructor<?>> _builtinTypeConstructors =
+        new HashMap<Object, FastPathDescribedTypeConstructor<?>>();
 
     public DecoderImpl()
     {
@@ -120,7 +120,7 @@ public class DecoderImpl implements ByteBufferDecoder
         }
     }
 
-    public void register(final Object descriptor, final BuiltinDescribedTypeConstructor<?> btc)
+    public void register(final Object descriptor, final FastPathDescribedTypeConstructor<?> btc)
     {
         _builtinTypeConstructors.put(descriptor, btc);
     }
