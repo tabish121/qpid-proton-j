@@ -273,6 +273,14 @@ public class MapType extends AbstractPrimitiveType<Map>
             return map;
         }
 
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = decoder.readRawInt();
+            buffer.position(buffer.position() + size);
+        }
+
         @Override
         public void setValue(final Map value, final int length)
         {
@@ -397,6 +405,14 @@ public class MapType extends AbstractPrimitiveType<Map>
             }
 
             return map;
+        }
+
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = ((int)decoder.readRawByte()) & 0xff;
+            buffer.position(buffer.position() + size);
         }
 
         @Override

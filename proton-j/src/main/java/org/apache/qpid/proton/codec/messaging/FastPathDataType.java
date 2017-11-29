@@ -82,6 +82,11 @@ public class FastPathDataType implements AMQPType<Data>, FastPathDescribedTypeCo
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(Data data) {
         WritableBuffer buffer = getEncoder().getBuffer();
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);

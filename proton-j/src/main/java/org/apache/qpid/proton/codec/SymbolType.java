@@ -151,6 +151,14 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             int size = decoder.readRawInt();
             return decoder.readRaw(_symbolCreator, size);
         }
+
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = decoder.readRawInt();
+            buffer.position(buffer.position() + size);
+        }
     }
 
     private class ShortSymbolEncoding
@@ -197,6 +205,14 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
             DecoderImpl decoder = getDecoder();
             int size = ((int)decoder.readRawByte()) & 0xff;
             return decoder.readRaw(_symbolCreator, size);
+        }
+
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = ((int)decoder.readRawByte()) & 0xff;
+            buffer.position(buffer.position() + size);
         }
     }
 }

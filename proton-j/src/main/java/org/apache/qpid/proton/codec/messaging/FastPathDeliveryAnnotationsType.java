@@ -84,6 +84,11 @@ public class FastPathDeliveryAnnotationsType implements AMQPType<DeliveryAnnotat
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(DeliveryAnnotations val) {
         WritableBuffer buffer = getEncoder().getBuffer();
 

@@ -21,6 +21,7 @@
 package org.apache.qpid.proton.codec;
 
 import java.lang.reflect.Array;
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -631,8 +632,13 @@ public class ArrayType implements PrimitiveType<Object[]>
             return decodeArrayAsObject(decoder, count);
         }
 
-
-
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = decoder.readRawInt();
+            buffer.position(buffer.position() + size);
+        }
     }
 
 
@@ -891,6 +897,13 @@ public class ArrayType implements PrimitiveType<Object[]>
             return decodeArrayAsObject(decoder, count);
         }
 
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = ((int)decoder.readRawByte()) & 0xFF;
+            buffer.position(buffer.position() + size);
+        }
     }
 
     private BooleanType.BooleanEncoding getUnderlyingEncoding(final boolean[] a)

@@ -131,6 +131,11 @@ public class FastPathPropertiesType implements AMQPType<Properties>, FastPathDes
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public boolean encodesJavaPrimitive() {
         return false;
     }

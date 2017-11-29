@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.proton.codec;
 
+import java.nio.ByteBuffer;
+
 public class DynamicTypeConstructor implements TypeConstructor
 {
     private final DescribedTypeConstructor _describedTypeConstructor;
@@ -51,6 +53,11 @@ public class DynamicTypeConstructor implements TypeConstructor
     public boolean encodesJavaPrimitive()
     {
         return false;
+    }
+
+    public void skipValue()
+    {
+        _underlyingEncoding.skipValue();
     }
 
     public Class getTypeClass()

@@ -101,6 +101,11 @@ public class FastPathAcceptedType implements AMQPType<Accepted>, FastPathDescrib
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(Accepted accepted) {
         WritableBuffer buffer = getEncoder().getBuffer();
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);

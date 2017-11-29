@@ -83,6 +83,11 @@ public class FastPathFooterType implements AMQPType<Footer>, FastPathDescribedTy
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(Footer val) {
         WritableBuffer buffer = getEncoder().getBuffer();
 

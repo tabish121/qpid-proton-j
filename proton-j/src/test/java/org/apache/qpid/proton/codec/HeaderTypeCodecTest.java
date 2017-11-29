@@ -84,6 +84,32 @@ public class HeaderTypeCodecTest extends CodecTestSupport {
         }
     }
 
+    @Test
+    public void testSkipHeader() throws IOException {
+        Header header1 = new Header();
+        Header header2 = new Header();
+
+        header1.setDurable(Boolean.FALSE);
+        header2.setDurable(Boolean.TRUE);
+
+        encoder.writeObject(header1);
+        encoder.writeObject(header2);
+
+        buffer.clear();
+
+        TypeConstructor<?> headerType = decoder.readConstructor();
+        assertEquals(Header.class, headerType.getTypeClass());
+        headerType.skipValue();
+
+        final Object result = decoder.readObject();
+
+        assertNotNull(result);
+        assertTrue(result instanceof Header);
+
+        Header decoded = (Header) result;
+        assertTrue(decoded.getDurable().booleanValue());
+    }
+
     @Ignore
     @Test
     public void testDecodeHeaderArray() throws IOException {

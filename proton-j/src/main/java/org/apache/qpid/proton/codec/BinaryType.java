@@ -22,6 +22,7 @@ package org.apache.qpid.proton.codec;
 
 import org.apache.qpid.proton.amqp.Binary;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Collection;
 
@@ -130,6 +131,14 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
             decoder.readRaw(data, 0, size);
             return new Binary(data);
         }
+
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = decoder.readRawInt();
+            buffer.position(buffer.position() + size);
+        }
     }
 
     private class ShortBinaryEncoding
@@ -177,6 +186,13 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
             byte[] data = new byte[size];
             getDecoder().readRaw(data, 0, size);
             return new Binary(data);
+        }
+
+        public void skipValue()
+        {
+            ByteBuffer buffer = getDecoder().getByteBuffer();
+            int size = ((int)getDecoder().readRawByte()) & 0xff;
+            buffer.position(buffer.position() + size);
         }
     }
 }

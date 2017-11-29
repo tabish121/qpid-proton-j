@@ -107,6 +107,11 @@ public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTy
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public boolean encodesJavaPrimitive() {
         return false;
     }

@@ -133,6 +133,11 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public boolean encodesJavaPrimitive() {
         return false;
     }

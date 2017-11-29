@@ -148,6 +148,11 @@ public class FastPathFlowType implements AMQPType<Flow>, FastPathDescribedTypeCo
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(Flow flow) {
         WritableBuffer buffer = getEncoder().getBuffer();
         int count = getElementCount(flow);

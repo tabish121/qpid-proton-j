@@ -137,6 +137,11 @@ public class FastPathDispositionType implements AMQPType<Disposition>, FastPathD
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(Disposition disposition) {
         WritableBuffer buffer = getEncoder().getBuffer();
         int count = getElementCount(disposition);

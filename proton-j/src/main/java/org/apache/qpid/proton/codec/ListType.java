@@ -227,6 +227,14 @@ public class ListType extends AbstractPrimitiveType<List>
             return list;
         }
 
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = decoder.readRawInt();
+            buffer.position(buffer.position() + size);
+        }
+
         public void setValue(final List value, final int length)
         {
             _value = value;
@@ -358,6 +366,14 @@ public class ListType extends AbstractPrimitiveType<List>
             }
 
             return list;
+        }
+
+        public void skipValue()
+        {
+            DecoderImpl decoder = getDecoder();
+            ByteBuffer buffer = decoder.getByteBuffer();
+            int size = ((int)decoder.readRawByte()) & 0xff;
+            buffer.position(buffer.position() + size);
         }
 
         public void setValue(final List value, final int length)

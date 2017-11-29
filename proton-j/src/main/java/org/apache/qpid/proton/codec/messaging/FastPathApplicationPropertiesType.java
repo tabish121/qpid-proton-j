@@ -83,6 +83,11 @@ public class FastPathApplicationPropertiesType implements AMQPType<ApplicationPr
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(ApplicationProperties val) {
         WritableBuffer buffer = getEncoder().getBuffer();
 

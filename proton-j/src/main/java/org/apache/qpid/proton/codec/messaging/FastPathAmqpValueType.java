@@ -82,6 +82,11 @@ public class FastPathAmqpValueType implements AMQPType<AmqpValue>, FastPathDescr
     }
 
     @Override
+    public void skipValue() {
+        getDecoder().readConstructor().skipValue();
+    }
+
+    @Override
     public void write(AmqpValue value) {
         WritableBuffer buffer = getEncoder().getBuffer();
         buffer.put(EncodingCodes.DESCRIBED_TYPE_INDICATOR);
