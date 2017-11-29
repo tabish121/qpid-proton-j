@@ -58,13 +58,13 @@ public class AMQPDefinedTypes
         FastPathHeaderType.register(decoder, encoder);
         FastPathAcceptedType.register(decoder , encoder);
         FastPathPropertiesType.register( decoder, encoder );
-        DeliveryAnnotationsType.register(decoder, encoder);
+        FastPathDeliveryAnnotationsType.register(decoder, encoder);
         FastPathMessageAnnotationsType.register(decoder, encoder);
         FastPathApplicationPropertiesType.register(decoder, encoder);
         FastPathDataType.register(decoder, encoder);
         FastPathAmqpSequenceType.register(decoder, encoder);
         FastPathAmqpValueType.register(decoder, encoder);
-        FooterType.register(decoder, encoder);
+        FastPathFooterType.register(decoder, encoder);
         ReceivedType.register(decoder, encoder);
         RejectedType.register(decoder, encoder);
         ReleasedType.register(decoder, encoder);
