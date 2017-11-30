@@ -64,9 +64,12 @@ public class DecoderImpl implements ByteBufferDecoder
     public TypeConstructor<?> peekConstructor()
     {
         _buffer.mark();
-        try {
+        try
+        {
             return readConstructor();
-        } finally {
+        }
+        finally
+        {
             _buffer.reset();
         }
     }
@@ -80,11 +83,16 @@ public class DecoderImpl implements ByteBufferDecoder
             final byte encoding = _buffer.get(_buffer.position());
             final Object descriptor;
 
-            if (EncodingCodes.SMALLULONG == encoding || EncodingCodes.ULONG == encoding) {
+            if (EncodingCodes.SMALLULONG == encoding || EncodingCodes.ULONG == encoding)
+            {
                 descriptor = readUnsignedLong();
-            } else if (EncodingCodes.SYM8 == encoding || EncodingCodes.SYM32 == encoding) {
+            }
+            else if (EncodingCodes.SYM8 == encoding || EncodingCodes.SYM32 == encoding)
+            {
                 descriptor = readSymbol();
-            } else {
+            }
+            else
+            {
                 descriptor = readObject();
             }
 

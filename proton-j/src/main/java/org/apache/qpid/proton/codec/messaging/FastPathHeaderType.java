@@ -61,8 +61,7 @@ public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTy
         int size = 0;
         int count = 0;
 
-        switch (typeCode)
-        {
+        switch (typeCode) {
             case EncodingCodes.LIST0:
                 break;
             case EncodingCodes.LIST8:
@@ -79,10 +78,8 @@ public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTy
 
         Header header = new Header();
 
-        for (int index = 0; index < count; ++index)
-        {
-            switch (index)
-            {
+        for (int index = 0; index < count; ++index) {
+            switch (index) {
                 case 0:
                     header.setDurable(decoder.readBoolean());
                     break;

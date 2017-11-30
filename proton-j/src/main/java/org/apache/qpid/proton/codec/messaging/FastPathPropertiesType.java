@@ -61,8 +61,7 @@ public class FastPathPropertiesType implements AMQPType<Properties>, FastPathDes
         int size = 0;
         int count = 0;
 
-        switch (typeCode)
-        {
+        switch (typeCode) {
             case EncodingCodes.LIST0:
                 break;
             case EncodingCodes.LIST8:
@@ -79,10 +78,8 @@ public class FastPathPropertiesType implements AMQPType<Properties>, FastPathDes
 
         Properties properties = new Properties();
 
-        for (int index = 0; index < count; ++index)
-        {
-            switch (index)
-            {
+        for (int index = 0; index < count; ++index) {
+            switch (index) {
                 case 0:
                     properties.setMessageId(decoder.readObject());
                     break;

@@ -67,8 +67,7 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
         int size = 0;
         int count = 0;
 
-        switch (typeCode)
-        {
+        switch (typeCode) {
             case EncodingCodes.LIST0:
                 // TODO - Technically invalid however old decoder also allowed this.
                 break;
@@ -86,10 +85,8 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
 
         Transfer transfer = new Transfer();
 
-        for (int index = 0; index < count; ++index)
-        {
-            switch (index)
-            {
+        for (int index = 0; index < count; ++index) {
+            switch (index) {
                 case 0:
                     transfer.setHandle(decoder.readUnsignedInteger());
                     break;
