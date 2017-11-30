@@ -116,8 +116,6 @@ public class ListType extends AbstractPrimitiveType<List>
 
             final int count = val.size();
 
-            AMQPType lastType = null;
-
             for(int i = 0; i < count; i++)
             {
                 Object element = val.get(i);
@@ -262,8 +260,6 @@ public class ListType extends AbstractPrimitiveType<List>
 
             final int count = val.size();
 
-            AMQPType lastType = null;
-
             for(int i = 0; i < count; i++)
             {
                 Object element = val.get(i);
@@ -405,7 +401,6 @@ public class ListType extends AbstractPrimitiveType<List>
             return 0;
         }
 
-
         public ListType getType()
         {
            return ListType.this;
@@ -428,7 +423,5 @@ public class ListType extends AbstractPrimitiveType<List>
         {
             return Collections.EMPTY_LIST;
         }
-
-
     }
 }

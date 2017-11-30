@@ -20,8 +20,6 @@
  */
 package org.apache.qpid.proton.codec;
 
-import java.nio.ByteBuffer;
-
 public class DynamicTypeConstructor implements TypeConstructor
 {
     private final DescribedTypeConstructor _describedTypeConstructor;
