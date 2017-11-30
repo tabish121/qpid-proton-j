@@ -49,7 +49,7 @@ public class DecoderImpl implements ByteBufferDecoder
     private final Map<Object, DescribedTypeConstructor> _dynamicTypeConstructors =
             new HashMap<Object, DescribedTypeConstructor>();
 
-    private final Map<Object, FastPathDescribedTypeConstructor<?>> _builtinTypeConstructors =
+    private final Map<Object, FastPathDescribedTypeConstructor<?>> _fastPathTypeConstructors =
         new HashMap<Object, FastPathDescribedTypeConstructor<?>>();
 
     public DecoderImpl()
@@ -77,6 +77,12 @@ public class DecoderImpl implements ByteBufferDecoder
     @SuppressWarnings("rawtypes")
     public TypeConstructor readConstructor()
     {
+        return readConstructor(false);
+    }
+
+    @SuppressWarnings("rawtypes")
+    public TypeConstructor readConstructor(boolean excludeFastPathConstructors)
+    {
         int code = ((int)readRawByte()) & 0xff;
         if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
         {
@@ -96,10 +102,13 @@ public class DecoderImpl implements ByteBufferDecoder
                 descriptor = readObject();
             }
 
-            TypeConstructor<?> builtinTypeConstructor = _builtinTypeConstructors.get(descriptor);
-            if (builtinTypeConstructor != null)
+            if (!excludeFastPathConstructors)
             {
-                return builtinTypeConstructor;
+                TypeConstructor<?> fastPathTypeConstructor = _fastPathTypeConstructors.get(descriptor);
+                if (fastPathTypeConstructor != null)
+                {
+                    return fastPathTypeConstructor;
+                }
             }
 
             TypeConstructor<?> nestedEncoding = readConstructor();
@@ -130,13 +139,13 @@ public class DecoderImpl implements ByteBufferDecoder
 
     public void register(final Object descriptor, final FastPathDescribedTypeConstructor<?> btc)
     {
-        _builtinTypeConstructors.put(descriptor, btc);
+        _fastPathTypeConstructors.put(descriptor, btc);
     }
 
     public void register(final Object descriptor, final DescribedTypeConstructor dtc)
     {
         // Allow external type constructors to replace the built-in instances.
-        _builtinTypeConstructors.remove(descriptor);
+        _fastPathTypeConstructors.remove(descriptor);
         _dynamicTypeConstructors.put(descriptor, dtc);
     }
 

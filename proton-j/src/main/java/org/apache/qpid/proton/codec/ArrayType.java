@@ -982,7 +982,7 @@ public class ArrayType implements PrimitiveType<Object[]>
 
     private static Object[] decodeArray(final DecoderImpl decoder, final int count)
     {
-        TypeConstructor constructor = decoder.readConstructor();
+        TypeConstructor constructor = decoder.readConstructor(true);
         return decodeNonPrimitive(decoder, constructor, count);
     }
 
@@ -1022,7 +1022,7 @@ public class ArrayType implements PrimitiveType<Object[]>
 
     private static Object decodeArrayAsObject(final DecoderImpl decoder, final int count)
     {
-        TypeConstructor constructor = decoder.readConstructor();
+        TypeConstructor constructor = decoder.readConstructor(true);
         if(constructor.encodesJavaPrimitive())
         {
             if (count > decoder.getByteBufferRemaining()) {

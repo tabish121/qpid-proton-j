@@ -38,33 +38,36 @@ public class AMQPDefinedTypes
         registerSecurityTypes(decoder, encoder);
     }
 
-
     public static void registerTransportTypes(Decoder decoder, EncoderImpl encoder)
     {
         OpenType.register(decoder, encoder);
         BeginType.register(decoder, encoder);
         AttachType.register(decoder, encoder);
-        FastPathFlowType.register(decoder, encoder);
-        FastPathTransferType.register(decoder, encoder);
-        FastPathDispositionType.register(decoder, encoder);
+        FlowType.register(decoder, encoder);
+        TransferType.register(decoder, encoder);
+        DispositionType.register(decoder, encoder);
         DetachType.register(decoder, encoder);
         EndType.register(decoder, encoder);
         CloseType.register(decoder, encoder);
         ErrorConditionType.register(decoder, encoder);
+
+        FastPathFlowType.register(decoder, encoder);
+        FastPathTransferType.register(decoder, encoder);
+        FastPathDispositionType.register(decoder, encoder);
     }
 
     public static void registerMessagingTypes(Decoder decoder, EncoderImpl encoder)
     {
-        FastPathHeaderType.register(decoder, encoder);
-        FastPathAcceptedType.register(decoder , encoder);
-        FastPathPropertiesType.register( decoder, encoder );
-        FastPathDeliveryAnnotationsType.register(decoder, encoder);
-        FastPathMessageAnnotationsType.register(decoder, encoder);
-        FastPathApplicationPropertiesType.register(decoder, encoder);
-        FastPathDataType.register(decoder, encoder);
-        FastPathAmqpSequenceType.register(decoder, encoder);
-        FastPathAmqpValueType.register(decoder, encoder);
-        FastPathFooterType.register(decoder, encoder);
+        HeaderType.register(decoder, encoder);
+        AcceptedType.register(decoder , encoder);
+        PropertiesType.register( decoder, encoder );
+        DeliveryAnnotationsType.register(decoder, encoder);
+        MessageAnnotationsType.register(decoder, encoder);
+        ApplicationPropertiesType.register(decoder, encoder);
+        DataType.register(decoder, encoder);
+        AmqpSequenceType.register(decoder, encoder);
+        AmqpValueType.register(decoder, encoder);
+        FooterType.register(decoder, encoder);
         ReceivedType.register(decoder, encoder);
         RejectedType.register(decoder, encoder);
         ReleasedType.register(decoder, encoder);
@@ -75,6 +78,17 @@ public class AMQPDefinedTypes
         DeleteOnNoLinksType.register(decoder, encoder);
         DeleteOnNoMessagesType.register(decoder, encoder);
         DeleteOnNoLinksOrMessagesType.register(decoder, encoder);
+
+        FastPathHeaderType.register(decoder, encoder);
+        FastPathAcceptedType.register(decoder , encoder);
+        FastPathPropertiesType.register( decoder, encoder );
+        FastPathDeliveryAnnotationsType.register(decoder, encoder);
+        FastPathMessageAnnotationsType.register(decoder, encoder);
+        FastPathApplicationPropertiesType.register(decoder, encoder);
+        FastPathDataType.register(decoder, encoder);
+        FastPathAmqpSequenceType.register(decoder, encoder);
+        FastPathAmqpValueType.register(decoder, encoder);
+        FastPathFooterType.register(decoder, encoder);
     }
 
     public static void registerTransactionTypes(Decoder decoder, EncoderImpl encoder)
@@ -94,5 +108,4 @@ public class AMQPDefinedTypes
         SaslResponseType.register(decoder, encoder);
         SaslOutcomeType.register(decoder, encoder);
     }
-
 }

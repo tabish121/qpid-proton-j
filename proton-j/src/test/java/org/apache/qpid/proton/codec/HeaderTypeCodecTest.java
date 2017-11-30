@@ -110,7 +110,6 @@ public class HeaderTypeCodecTest extends CodecTestSupport {
         assertTrue(decoded.getDurable().booleanValue());
     }
 
-    @Ignore
     @Test
     public void testDecodeHeaderArray() throws IOException {
         Header header = new Header();
@@ -131,13 +130,18 @@ public class HeaderTypeCodecTest extends CodecTestSupport {
 
         buffer.clear();
 
+        final Object result = decoder.readObject();
+
+        assertNotNull(result);
+        assertTrue(result.getClass().isArray());
+
+        final Object[] resultArray = (Object[]) result;
+
         for (int i = 0; i < source.length; ++i) {
-            final Object result = decoder.readObject();
 
-            assertNotNull(result);
-            assertTrue(result instanceof Header);
+            assertTrue(resultArray[i] instanceof Header);
 
-            Header decoded = (Header) result;
+            Header decoded = (Header) resultArray[i];
 
             assertEquals(3, decoded.getPriority().intValue());
             assertTrue(decoded.getDurable().booleanValue());
