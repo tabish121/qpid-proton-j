@@ -21,14 +21,13 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
 import org.junit.Test;
 
-public class ApplicationPropertiesTypeTest extends CodecTestSupport {
+public class ApplicationPropertiesCodecTest extends CodecTestSupport {
 
     private final int LARGE_SIZE = 1024;
     private final int SMALL_SIZE = 32;
@@ -48,12 +47,6 @@ public class ApplicationPropertiesTypeTest extends CodecTestSupport {
         Map<String, Object> propertiesMap = new LinkedHashMap<>();
         ApplicationProperties properties = new ApplicationProperties(propertiesMap);
 
-        long currentTime = System.currentTimeMillis();
-
-        propertiesMap.put("long-1", currentTime);
-        propertiesMap.put("date-1", new Date(currentTime));
-        propertiesMap.put("long-2", currentTime + 100);
-        propertiesMap.put("date-2", new Date(currentTime + 100));
         propertiesMap.put("key-1", "1");
         propertiesMap.put("key-2", "2");
         propertiesMap.put("key-3", "3");
@@ -77,13 +70,8 @@ public class ApplicationPropertiesTypeTest extends CodecTestSupport {
 
             ApplicationProperties decoded = (ApplicationProperties) result;
 
-            assertEquals(properties.getValue().size(), decoded.getValue().size());
+            assertEquals(8, decoded.getValue().size());
             assertTrue(decoded.getValue().equals(propertiesMap));
-
-            assertEquals(currentTime, decoded.getValue().get("long-1"));
-            assertEquals(new Date(currentTime), decoded.getValue().get("date-1"));
-            assertEquals(currentTime + 100, decoded.getValue().get("long-2"));
-            assertEquals(new Date(currentTime + 100), decoded.getValue().get("date-2"));
         }
     }
 }

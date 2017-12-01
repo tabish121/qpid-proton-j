@@ -25,7 +25,6 @@ import java.io.IOException;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.messaging.Header;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -35,11 +34,6 @@ public class HeaderTypeCodecTest extends CodecTestSupport {
 
     private final int LARGE_SIZE = 1024 * 10;
     private final int SMALL_SIZE = 32;
-
-    @Override
-    public int getMaxBufferSize() {
-        return DEFAULT_MAX_BUFFER * 10;
-    }
 
     @Test
     public void testDecodeHeader() throws IOException {

@@ -16,33 +16,31 @@
  */
 package org.apache.qpid.proton.codec;
 
-import java.nio.ByteBuffer;
-
-import org.junit.Before;
+import org.apache.qpid.proton.amqp.DescribedType;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 /**
- * Support class for tests of the type decoders
+ * A Described Type wrapper for JMS no local option for MessageConsumer.
  */
-public class CodecTestSupport {
+public class NoLocalType implements DescribedType {
 
-    public static final int DEFAULT_MAX_BUFFER = 256 * 1024;
+    public static final NoLocalType NO_LOCAL = new NoLocalType();
 
-    final DecoderImpl decoder = new DecoderImpl();
-    final EncoderImpl encoder = new EncoderImpl(decoder);
+    public static final UnsignedLong DESCRIPTOR_CODE = UnsignedLong.valueOf(0x0000468C00000003L);
 
-    ByteBuffer buffer;
+    private final String noLocal;
 
-    @Before
-    public void setUp() {
-        AMQPDefinedTypes.registerAllTypes(decoder, encoder);
-
-        buffer = ByteBuffer.allocate(getMaxBufferSize());
-
-        encoder.setByteBuffer(buffer);
-        decoder.setByteBuffer(buffer);
+    public NoLocalType() {
+        this.noLocal = "NoLocalFilter{}";
     }
 
-    public int getMaxBufferSize() {
-        return DEFAULT_MAX_BUFFER;
+    @Override
+    public Object getDescriptor() {
+        return DESCRIPTOR_CODE;
+    }
+
+    @Override
+    public String getDescribed() {
+        return this.noLocal;
     }
 }
