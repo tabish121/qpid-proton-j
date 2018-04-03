@@ -95,7 +95,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         return len;
     }
 
-    private static TypeConstructor<?> findNextDecoder(DecoderImpl decoder, ByteBuffer buffer, TypeConstructor<?> previousConstructor)
+    private static TypeConstructor<?> findNextDecoder(DecoderImpl decoder, ReadableBuffer buffer, TypeConstructor<?> previousConstructor)
     {
         if (previousConstructor == null)
         {
@@ -205,7 +205,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         public Map readValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
 
             int size = decoder.readRawInt();
             // todo - limit the decoder with size
@@ -264,7 +264,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         public void skipValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = decoder.readRawInt();
             buffer.position(buffer.position() + size);
         }
@@ -343,7 +343,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         public Map readValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
 
             int size = (decoder.readRawByte()) & 0xff;
             // todo - limit the decoder with size
@@ -398,7 +398,7 @@ public class MapType extends AbstractPrimitiveType<Map>
         public void skipValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = ((int)decoder.readRawByte()) & 0xff;
             buffer.position(buffer.position() + size);
         }

@@ -135,7 +135,7 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
         public void skipValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = decoder.readRawInt();
             buffer.position(buffer.position() + size);
         }
@@ -190,7 +190,8 @@ public class BinaryType extends AbstractPrimitiveType<Binary>
 
         public void skipValue()
         {
-            ByteBuffer buffer = getDecoder().getByteBuffer();
+            DecoderImpl decoder = getDecoder();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = ((int)getDecoder().readRawByte()) & 0xff;
             buffer.position(buffer.position() + size);
         }

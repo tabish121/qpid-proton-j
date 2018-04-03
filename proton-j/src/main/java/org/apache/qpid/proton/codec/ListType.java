@@ -151,7 +151,7 @@ public class ListType extends AbstractPrimitiveType<List>
         public List readValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
 
             int size = decoder.readRawInt();
             // todo - limit the decoder with size
@@ -228,7 +228,7 @@ public class ListType extends AbstractPrimitiveType<List>
         public void skipValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = decoder.readRawInt();
             buffer.position(buffer.position() + size);
         }
@@ -295,7 +295,7 @@ public class ListType extends AbstractPrimitiveType<List>
         public List readValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
 
             int size = ((int)decoder.readRawByte()) & 0xff;
             // todo - limit the decoder with size
@@ -367,7 +367,7 @@ public class ListType extends AbstractPrimitiveType<List>
         public void skipValue()
         {
             DecoderImpl decoder = getDecoder();
-            ByteBuffer buffer = decoder.getByteBuffer();
+            ReadableBuffer buffer = decoder.getBuffer();
             int size = ((int)decoder.readRawByte()) & 0xff;
             buffer.position(buffer.position() + size);
         }

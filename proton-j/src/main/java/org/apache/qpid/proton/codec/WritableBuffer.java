@@ -49,6 +49,8 @@ public interface WritableBuffer
 
     void put(ByteBuffer payload);
 
+    void put(ReadableBuffer payload);
+
     int limit();
 
     class ByteBufferWrapper implements WritableBuffer
@@ -133,9 +135,34 @@ public interface WritableBuffer
         }
 
         @Override
+        public void put(ReadableBuffer src)
+        {
+            if (src.hasArray())
+            {
+                int writeSize = src.remaining();
+                _buf.put(src.array(), src.arrayOffset(), src.remaining());
+                src.position(src.position() + writeSize);
+            }
+            else
+            {
+                src.get(this);
+            }
+        }
+
+        @Override
         public int limit()
         {
             return _buf.limit();
+        }
+
+        public ByteBuffer byteBuffer()
+        {
+            return _buf;
+        }
+
+        public ReadableBuffer toReadableBuffer()
+        {
+            return ReadableBuffer.ByteBufferReader.wrap((ByteBuffer) _buf.duplicate().flip());
         }
 
         @Override
@@ -148,6 +175,16 @@ public interface WritableBuffer
         {
             ByteBuffer allocated = ByteBuffer.allocate(size);
             return new ByteBufferWrapper(allocated);
+        }
+
+        public static ByteBufferWrapper wrap(ByteBuffer buffer)
+        {
+            return new ByteBufferWrapper(buffer);
+        }
+
+        public static ByteBufferWrapper wrap(byte[] bytes)
+        {
+            return new ByteBufferWrapper(ByteBuffer.wrap(bytes));
         }
     }
 }

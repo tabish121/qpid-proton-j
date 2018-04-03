@@ -19,17 +19,30 @@
 package org.apache.qpid.proton.codec;
 
 import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
-import java.nio.charset.Charset;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Interface to abstract a buffer, similar to {@link WritableBuffer}
  */
 public interface ReadableBuffer {
 
+    int capacity();
+
+    boolean hasArray();
+
+    byte[] array();
+
+    int arrayOffset();
+
+    ReadableBuffer compact();
+
     void put(ReadableBuffer other);
 
     byte get();
+
+    byte get(int index);
 
     int getInt();
 
@@ -41,11 +54,21 @@ public interface ReadableBuffer {
 
     double getDouble();
 
-    ReadableBuffer get(final byte[] data, final int offset, final int length);
+    ReadableBuffer get(final byte[] target, final int offset, final int length);
 
-    ReadableBuffer get(final byte[] data);
+    ReadableBuffer get(final byte[] target);
 
-    ReadableBuffer position(int position);
+    /**
+     * Copy data from this buffer to the target buffer starting from the current
+     * position and continuing until either this buffer's remaining bytes are
+     * consumed or the target is full.
+     *
+     * @param target
+     *      The WritableBuffer to transfer this buffer's data to.
+     *
+     * @return a reference to this ReadableBuffer instance.
+     */
+    ReadableBuffer get(WritableBuffer target);
 
     ReadableBuffer slice();
 
@@ -55,9 +78,19 @@ public interface ReadableBuffer {
 
     int limit();
 
-    int remaining();
+    ReadableBuffer position(int position);
 
     int position();
+
+    ReadableBuffer mark();
+
+    ReadableBuffer reset();
+
+    ReadableBuffer rewind();
+
+    ReadableBuffer clear();
+
+    int remaining();
 
     boolean hasRemaining();
 
@@ -65,11 +98,11 @@ public interface ReadableBuffer {
 
     ByteBuffer byteBuffer();
 
-    String readUTF8();
+    String readUTF8() throws CharacterCodingException;
+
+    String readString(CharsetDecoder decoder) throws CharacterCodingException;
 
     final class ByteBufferReader implements ReadableBuffer {
-
-        private static final Charset Charset_UTF8 = Charset.forName("UTF-8");
 
         private ByteBuffer buffer;
 
@@ -78,13 +111,31 @@ public interface ReadableBuffer {
             return new ByteBufferReader(allocated);
         }
 
+        public static ByteBufferReader wrap(ByteBuffer buffer) {
+            return new ByteBufferReader(buffer);
+        }
+
+        public static ByteBufferReader wrap(byte[] array) {
+            return new ByteBufferReader(ByteBuffer.wrap(array));
+        }
+
         public ByteBufferReader(ByteBuffer buffer) {
             this.buffer = buffer;
         }
 
         @Override
+        public int capacity() {
+            return buffer.capacity();
+        }
+
+        @Override
         public byte get() {
             return buffer.get();
+        }
+
+        @Override
+        public byte get(int index) {
+            return buffer.get(index);
         }
 
         @Override
@@ -179,13 +230,96 @@ public interface ReadableBuffer {
 
         @Override
         public String readUTF8() {
-            CharBuffer charBuf = Charset_UTF8.decode(buffer);
-            return charBuf.toString();
+            return StandardCharsets.UTF_8.decode(buffer).toString();
+        }
+
+        @Override
+        public String readString(CharsetDecoder decoder) throws CharacterCodingException {
+            return decoder.decode(buffer).toString();
         }
 
         @Override
         public void put(ReadableBuffer other) {
             this.buffer.put(other.byteBuffer());
+        }
+
+        @Override
+        public boolean hasArray() {
+            return buffer.hasArray();
+        }
+
+        @Override
+        public byte[] array() {
+            return buffer.array();
+        }
+
+        @Override
+        public int arrayOffset() {
+            return buffer.arrayOffset();
+        }
+
+        @Override
+        public ReadableBuffer compact() {
+            // Don't compact ByteBuffer due to the expense of the copy
+            return this;
+        }
+
+        @Override
+        public ReadableBuffer mark() {
+            buffer.mark();
+            return this;
+        }
+
+        @Override
+        public ReadableBuffer reset() {
+            buffer.reset();
+            return this;
+        }
+
+        @Override
+        public ReadableBuffer rewind() {
+            buffer.rewind();
+            return this;
+        }
+
+        @Override
+        public ReadableBuffer clear() {
+            buffer.clear();
+            return this;
+        }
+
+        @Override
+        public ReadableBuffer get(WritableBuffer target) {
+            target.put(buffer);
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return buffer.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            return buffer.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+
+            if (!(other instanceof ReadableBuffer)) {
+                return false;
+            }
+
+            ReadableBuffer readable = (ReadableBuffer) other;
+            if (this.remaining() != readable.remaining()) {
+                return false;
+            }
+
+            return buffer.equals(readable.byteBuffer());
         }
     }
 }

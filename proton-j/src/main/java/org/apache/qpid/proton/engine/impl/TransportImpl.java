@@ -45,8 +45,10 @@ import org.apache.qpid.proton.amqp.transport.Open;
 import org.apache.qpid.proton.amqp.transport.Role;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AMQPDefinedTypes;
+import org.apache.qpid.proton.codec.CompositeReadableBuffer;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
+import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.engine.Connection;
 import org.apache.qpid.proton.engine.EndpointState;
 import org.apache.qpid.proton.engine.Event;
@@ -589,9 +591,9 @@ public class TransportImpl extends EndpointImpl
                 transfer.setMessageFormat(UnsignedInteger.valueOf(messageFormat));
             }
 
-            ByteBuffer payload = delivery.getData() ==  null ? null :
-                ByteBuffer.wrap(delivery.getData(), delivery.getDataOffset(),
-                                delivery.getDataLength());
+            ReadableBuffer payload = delivery.getData();
+
+            int pending = payload.remaining();
 
             try {
                 writeFrame(tpSession.getLocalChannel(), transfer, payload, partialTransferHandler.setTransfer(transfer));
@@ -602,11 +604,9 @@ public class TransportImpl extends EndpointImpl
             tpSession.incrementOutgoingId();
             tpSession.decrementRemoteIncomingWindow();
 
-            if(payload == null || !payload.hasRemaining())
+            if (payload == null || !payload.hasRemaining())
             {
-                session.incrementOutgoingBytes(-delivery.pending());
-                delivery.setData(null);
-                delivery.setDataLength(0);
+                session.incrementOutgoingBytes(-pending);
 
                 if (!transfer.getMore()) {
                     // Clear the in-progress delivery marker
@@ -622,15 +622,14 @@ public class TransportImpl extends EndpointImpl
             }
             else
             {
-                int delta = delivery.getDataLength() - payload.remaining();
-                delivery.setDataOffset(delivery.getDataOffset() + delta);
-                delivery.setDataLength(payload.remaining());
-                session.incrementOutgoingBytes(-delta);
+                session.incrementOutgoingBytes(-(pending - payload.remaining()));
 
                 // Remember the delivery we are still processing
                 // the body transfer frames for
                 tpLink.setInProgressDelivery(delivery);
             }
+
+            payload.compact();  // Allow for freeing resources on partial writes if buffer supports it
 
             if (_emitFlowEventOnSend && snd.getLocalState() != EndpointState.CLOSED) {
                 getConnectionImpl().put(Event.Type.LINK_FLOW, snd);
@@ -1072,7 +1071,7 @@ public class TransportImpl extends EndpointImpl
     }
 
     protected void writeFrame(int channel, FrameBody frameBody,
-                            ByteBuffer payload, Runnable onPayloadTooLarge)
+                              ReadableBuffer payload, Runnable onPayloadTooLarge)
     {
         _frameWriter.writeFrame(channel, frameBody, payload, onPayloadTooLarge);
     }
