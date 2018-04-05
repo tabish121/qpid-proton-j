@@ -669,6 +669,13 @@ public class CompositeReadableBufferTest {
 
         for (int i = 0; i < buffer.capacity(); i++) {
             assertEquals(buffer.position(), i);
+            assertEquals(buffer.get(i), buffer.get());
+        }
+
+        buffer.rewind();
+
+        for (int i = 0; i < buffer.capacity(); i++) {
+            assertEquals(buffer.position(), i);
             assertEquals(buffer.get(), buffer.get(i));
         }
 

@@ -127,33 +127,53 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
         byte result = 0;
 
+        if (index == position) {
+            result = currentArray[currentOffset];
+        } else if (index < position) {
+            result = getBackwards(index);
+        } else {
+            result = getForward(index);
+        }
+
+        return result;
+    }
+
+    private byte getForward(int index) {
+        byte result = 0;
+
         int currentArrayIndex = this.currentArrayIndex;
         int currentOffset = this.currentOffset;
         byte[] currentArray = this.currentArray;
 
-        // Either we are going backwards or forwards, then we just need
-        // to move to the correct array if not the current one and read
-        if (index < position) {
-            for (int amount = position - index; amount >= 0;) {
-                if ((currentOffset - amount) >= 0) {
-                    result = currentArray[currentOffset - amount];
-                    break;
-                } else {
-                    amount -= currentOffset;
-                    currentArray = contents.get(--currentArrayIndex);
-                    currentOffset = currentArray.length;
-                }
+        for (int amount = index - position; amount >= 0;) {
+            if (amount < currentArray.length - currentOffset) {
+                result = currentArray[currentOffset + amount];
+                break;
+            } else {
+                amount -= currentArray.length - currentOffset;
+                currentArray = contents.get(++currentArrayIndex);
+                currentOffset = 0;
             }
-        } else {
-            for (int amount = index - position; amount >= 0;) {
-                if (amount < currentArray.length - currentOffset) {
-                    result = currentArray[currentOffset + amount];
-                    break;
-                } else {
-                    amount -= currentArray.length - currentOffset;
-                    currentArray = contents.get(++currentArrayIndex);
-                    currentOffset = 0;
-                }
+        }
+
+        return result;
+    }
+
+    private byte getBackwards(int index) {
+        byte result = 0;
+
+        int currentArrayIndex = this.currentArrayIndex;
+        int currentOffset = this.currentOffset;
+        byte[] currentArray = this.currentArray;
+
+        for (int amount = position - index; amount >= 0;) {
+            if ((currentOffset - amount) >= 0) {
+                result = currentArray[currentOffset - amount];
+                break;
+            } else {
+                amount -= currentOffset;
+                currentArray = contents.get(--currentArrayIndex);
+                currentOffset = currentArray.length;
             }
         }
 
