@@ -414,6 +414,18 @@ public class DeliveryImpl implements Delivery
         getOrCreateDataBuffer().append(data);
     }
 
+    void afterSend()
+    {
+        if (_dataView != null)
+        {
+            _dataView.compact();
+            if (!_dataView.hasRemaining())
+            {
+                _dataView = _dataBuffer;
+            }
+        }
+    }
+
     ReadableBuffer getData()
     {
         return _dataView == null ? EMPTY_BUFFER : _dataView;

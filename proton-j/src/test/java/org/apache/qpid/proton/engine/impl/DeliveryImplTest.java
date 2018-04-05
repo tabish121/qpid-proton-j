@@ -594,6 +594,88 @@ public class DeliveryImplTest
         assertArrayEquals(data3, composite.getArrays().get(2));
     }
 
+    //----- Tests for afterSend cleanup --------------------------------------//
+
+    @Test
+    public void testAfterSendOnEmptyDelivery() throws Exception
+    {
+        DeliveryImpl delivery = createSenderDelivery();
+
+        ReadableBuffer sendBuffer = delivery.getData();
+
+        delivery.afterSend();
+
+        assertSame(sendBuffer, delivery.getData());
+    }
+
+    @Test
+    public void testAfterSendPreservesInteralBufferWhenEmpty() throws Exception
+    {
+        DeliveryImpl delivery = createSenderDelivery();
+
+        byte[] data = new byte[] { 0, 1, 2, 3, 4, 5 };
+        ReadableBuffer buffer = ReadableBuffer.ByteBufferReader.wrap(data);
+
+        delivery.send(buffer);
+
+        assertEquals(data.length, delivery.pending());
+        assertEquals(data.length, delivery.getData().remaining());
+
+        CompositeReadableBuffer composite = (CompositeReadableBuffer) delivery.getData();
+
+        assertNotSame(data, composite.array());
+        assertArrayEquals(data, composite.array());
+
+        delivery.getData().position(delivery.getData().limit());
+        delivery.afterSend();
+
+        assertSame(composite, delivery.getData());
+    }
+
+    @Test
+    public void testAfterSendNoCopyClearsExternalReadableBuffer() throws Exception
+    {
+        DeliveryImpl delivery = createSenderDelivery();
+
+        byte[] data = new byte[] { 0, 1, 2, 3, 4, 5 };
+        ReadableBuffer buffer = ReadableBuffer.ByteBufferReader.wrap(data);
+
+        delivery.sendNoCopy(buffer);
+
+        ReadableBuffer sendBuffer = delivery.getData();
+
+        assertEquals(data.length, sendBuffer.remaining());
+        assertSame(buffer, sendBuffer);
+
+        sendBuffer.position(sendBuffer.limit());
+
+        delivery.afterSend();
+
+        assertNotSame(buffer, delivery.getData());
+    }
+
+    @Test
+    public void testAfterSendNoCopyPreservesExternalReadableBufferIfNotDrained() throws Exception
+    {
+        DeliveryImpl delivery = createSenderDelivery();
+
+        byte[] data = new byte[] { 0, 1, 2, 3, 4, 5 };
+        ReadableBuffer buffer = ReadableBuffer.ByteBufferReader.wrap(data);
+
+        delivery.sendNoCopy(buffer);
+
+        ReadableBuffer sendBuffer = delivery.getData();
+
+        assertEquals(data.length, sendBuffer.remaining());
+        assertSame(buffer, sendBuffer);
+
+        sendBuffer.position(sendBuffer.limit() - 1);
+
+        delivery.afterSend();
+
+        assertSame(buffer, delivery.getData());
+    }
+
     //------------------------------------------------------------------------//
 
     private DeliveryImpl createSenderDelivery() {

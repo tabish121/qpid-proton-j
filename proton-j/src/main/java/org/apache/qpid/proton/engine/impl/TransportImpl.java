@@ -598,6 +598,7 @@ public class TransportImpl extends EndpointImpl
             try {
                 writeFrame(tpSession.getLocalChannel(), transfer, payload, partialTransferHandler.setTransfer(transfer));
             } finally {
+                delivery.afterSend();  // Allow for freeing resources after write of buffered data
                 partialTransferHandler.setTransfer(null);
             }
 
@@ -628,8 +629,6 @@ public class TransportImpl extends EndpointImpl
                 // the body transfer frames for
                 tpLink.setInProgressDelivery(delivery);
             }
-
-            payload.compact();  // Allow for freeing resources on partial writes if buffer supports it
 
             if (_emitFlowEventOnSend && snd.getLocalState() != EndpointState.CLOSED) {
                 getConnectionImpl().put(Event.Type.LINK_FLOW, snd);
