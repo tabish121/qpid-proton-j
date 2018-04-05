@@ -18,7 +18,9 @@
  */
 package org.apache.qpid.proton.codec;
 
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.ReadOnlyBufferException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
@@ -28,16 +30,67 @@ import java.nio.charset.StandardCharsets;
  */
 public interface ReadableBuffer {
 
+    /**
+     * Returns the capacity of the backing buffer of this ReadableBuffer
+     * @return the capacity of the backing buffer of this ReadableBuffer
+     */
     int capacity();
 
+    /**
+     * Returns true if this ReadableBuffer is backed by an array which can be
+     * accessed by the {@link #array()} and {@link #arrayOffset()} methods.
+     *
+     * @return true if the buffer is backed by a primitive array.
+     */
     boolean hasArray();
 
+    /**
+     * Returns the primitive array that backs this buffer if one exists and the
+     * buffer is not read-only.  The caller should have checked the {@link #hasArray()}
+     * method before calling this method.
+     *
+     * @return the array that backs this buffer is available.
+     *
+     * @throws UnsupportedOperationException if this {@link ReadableBuffer} doesn't support array access.
+     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
+     */
     byte[] array();
 
+    /**
+     * Returns the offset into the backing array where data should be read from.  The caller
+     * should have checked the {@link #hasArray()} method before calling this method.
+     *
+     * @return the offset into the backing array to start reading from.
+     *
+     * @throws UnsupportedOperationException if this {@link ReadableBuffer} doesn't support array access.
+     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
+     */
     int arrayOffset();
 
+    /**
+     * Compact the backing buffer of this ReadableBuffer possibly freeing portions
+     * of pooled data or reducing the size of the backing array if present.
+     * <p>
+     * This is an optional operation and care should be taken in its implementation.
+     *
+     * @return a reference to this buffer
+     *
+     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
+     */
     ReadableBuffer compact();
 
+    /**
+     * Used to copy new data into this buffer, the contents of the given {@link ReadableBuffer}
+     * will be copied into the backing store.  If this buffer does not have sufficient capacity
+     * to hold the remaining bytes from the given buffer no data will be copied and a
+     * {@link BufferOverflowException} will be thrown.
+     *
+     * @param other
+     *      The ReadableBuffer whose contents will be copied into this buffer.
+     *
+     * @throws BufferOverflowException if this buffer cannot hold the remaining bytes from the source.
+     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
+     */
     void put(ReadableBuffer other);
 
     byte get();
