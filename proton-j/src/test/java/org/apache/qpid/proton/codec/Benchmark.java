@@ -101,6 +101,16 @@ public class Benchmark implements Runnable {
         warming = false;
     }
 
+    private CompositeReadableBuffer convertToComposite(WritableBuffer buffer) {
+        CompositeReadableBuffer composite = new CompositeReadableBuffer();
+        ReadableBuffer readableView = outputBuf.toReadableBuffer();
+
+        byte[] copy = new byte[readableView.remaining()];
+        readableView.get(copy);
+
+        return composite.append(copy);
+    }
+
     private void benchmarkListOfInts() throws IOException {
         ArrayList<Object> list = new ArrayList<>(10);
         for (int j = 0; j < 10; j++) {
@@ -114,8 +124,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -138,8 +147,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -164,8 +172,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -191,8 +198,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -222,8 +228,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -249,8 +254,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -276,8 +280,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -290,7 +293,6 @@ public class Benchmark implements Runnable {
         time("MessageAnnotations", resultSet);
     }
 
-    @SuppressWarnings("unchecked")
     private void benchmarkApplicationProperties() throws IOException {
         ApplicationProperties properties = new ApplicationProperties(new HashMap<String, Object>());
         properties.getValue().put("test1", UnsignedByte.valueOf((byte) 128));
@@ -304,8 +306,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -332,8 +333,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -363,8 +363,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -391,8 +390,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();
@@ -421,8 +419,7 @@ public class Benchmark implements Runnable {
         }
         resultSet.encodesComplete();
 
-        CompositeReadableBuffer inputBuf = new CompositeReadableBuffer();
-        inputBuf.put(outputBuf.toReadableBuffer());
+        CompositeReadableBuffer inputBuf = convertToComposite(outputBuf);
         decoder.setBuffer(inputBuf);
 
         resultSet.start();

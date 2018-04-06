@@ -18,7 +18,6 @@
  */
 package org.apache.qpid.proton.codec;
 
-import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.InvalidMarkException;
@@ -80,20 +79,6 @@ public interface ReadableBuffer {
      * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
      */
     ReadableBuffer compact();
-
-    /**
-     * Used to copy new data into this buffer, the contents of the given {@link ReadableBuffer}
-     * will be copied into the backing store.  If this buffer does not have sufficient capacity
-     * to hold the remaining bytes from the given buffer no data will be copied and a
-     * {@link BufferOverflowException} will be thrown.
-     *
-     * @param other
-     *      The ReadableBuffer whose contents will be copied into this buffer.
-     *
-     * @throws BufferOverflowException if this buffer cannot hold the remaining bytes from the source.
-     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
-     */
-    void put(ReadableBuffer other);
 
     /**
      * Reads the byte at the current position and advances the position by 1.
@@ -479,11 +464,6 @@ public interface ReadableBuffer {
         @Override
         public String readString(CharsetDecoder decoder) throws CharacterCodingException {
             return decoder.decode(buffer).toString();
-        }
-
-        @Override
-        public void put(ReadableBuffer other) {
-            this.buffer.put(other.byteBuffer());
         }
 
         @Override

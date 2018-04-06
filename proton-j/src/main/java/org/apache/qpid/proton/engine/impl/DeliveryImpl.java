@@ -341,7 +341,7 @@ public class DeliveryImpl implements Delivery
     int send(final ReadableBuffer buffer)
     {
         int length = buffer.remaining();
-        getOrCreateDataBuffer().put(buffer);
+        getOrCreateDataBuffer().append(copyContents(buffer));
         addToTransportWorkList();
         return length;
     }
@@ -363,19 +363,36 @@ public class DeliveryImpl implements Delivery
         return length;
     }
 
+    private byte[] copyContents(ReadableBuffer buffer)
+    {
+        byte[] copy = new byte[buffer.remaining()];
+
+        if (buffer.hasArray())
+        {
+            System.arraycopy(buffer.array(), buffer.arrayOffset(), copy, 0, buffer.remaining());
+            buffer.position(buffer.limit());
+        }
+        else
+        {
+            buffer.get(copy, 0, buffer.remaining());
+        }
+
+        return copy;
+    }
+
     private void consolidateSendBuffers(ReadableBuffer buffer)
     {
         if (_dataView == _dataBuffer)
         {
-            getOrCreateDataBuffer().put(buffer);
+            getOrCreateDataBuffer().append(copyContents(buffer));
         }
         else
         {
             ReadableBuffer oldView = _dataView;
 
             CompositeReadableBuffer dataBuffer = getOrCreateDataBuffer();
-            dataBuffer.put(oldView);
-            dataBuffer.put(buffer);
+            dataBuffer.append(copyContents(oldView));
+            dataBuffer.append(copyContents(buffer));
 
             oldView.compact();
         }

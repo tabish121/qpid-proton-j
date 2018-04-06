@@ -580,28 +580,6 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         return (CharBuffer) decoded.flip();
     }
 
-    @Override
-    public void put(ReadableBuffer other) {
-        if (!other.hasRemaining()) {
-            return;
-        }
-
-        if (readOnly) {
-            throw new ReadOnlyBufferException();
-        }
-
-        byte[] copy = new byte[other.remaining()];
-
-        if (other.hasArray()) {
-            System.arraycopy(other.array(), other.arrayOffset(), copy, 0, other.remaining());
-            other.position(other.limit());
-        } else {
-            other.get(copy, 0, other.remaining());
-        }
-
-        append(copy);
-    }
-
     /**
      * Compact the buffer dropping arrays that have been consumed by previous
      * reads from this Composite buffer.  The limit is reset to the new capacity
