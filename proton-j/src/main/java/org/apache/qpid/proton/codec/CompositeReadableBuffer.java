@@ -188,11 +188,19 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
         int result = 0;
 
-        for (int i = Integer.BYTES - 1; i >= 0; --i) {
-            position++;
-            result |= (int)(currentArray[currentOffset++] & 0xFF) << (i * Byte.SIZE);
-            maybeMoveToNextArray();
+        if (currentArray.length - currentOffset >= 4) {
+            result = (int)(currentArray[currentOffset++] & 0xFF) << 24 |
+                     (int)(currentArray[currentOffset++] & 0xFF) << 16 |
+                     (int)(currentArray[currentOffset++] & 0xFF) << 8 |
+                     (int)(currentArray[currentOffset++] & 0xFF) << 0;
+        } else {
+            for (int i = Integer.BYTES - 1; i >= 0; --i) {
+                result |= (int)(currentArray[currentOffset++] & 0xFF) << (i * Byte.SIZE);
+                maybeMoveToNextArray();
+            }
         }
+
+        position += 4;
 
         return result;
     }
@@ -205,11 +213,23 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
         long result = 0;
 
-        for (int i = Long.BYTES - 1; i >= 0; --i) {
-            position++;
-            result |= (long)(currentArray[currentOffset++] & 0xFF) << (i * Byte.SIZE);
-            maybeMoveToNextArray();
+        if (currentArray.length - currentOffset >= 8) {
+            result = (long)(currentArray[currentOffset++] & 0xFF) << 56 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 48 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 40 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 32 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 24 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 16 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 8 |
+                     (long)(currentArray[currentOffset++] & 0xFF) << 0;
+        } else {
+            for (int i = Long.BYTES - 1; i >= 0; --i) {
+                result |= (long)(currentArray[currentOffset++] & 0xFF) << (i * Byte.SIZE);
+                maybeMoveToNextArray();
+            }
         }
+
+        position += 8;
 
         return result;
     }
@@ -223,10 +243,11 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         short result = 0;
 
         for (int i = Short.BYTES - 1; i >= 0; --i) {
-            position++;
             result |= (currentArray[currentOffset++] & 0xFF) << (i * Byte.SIZE);
             maybeMoveToNextArray();
         }
+
+        position += 2;
 
         return result;
     }
