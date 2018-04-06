@@ -112,7 +112,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             throw new BufferUnderflowException();
         }
 
-        byte result = currentArray[currentOffset++];
+        final byte result = currentArray[currentOffset++];
         position++;
         maybeMoveToNextArray();
 
@@ -255,7 +255,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         }
 
         for (int copied = 0; length > 0; ) {
-            int chunk = Math.min((currentArray.length - currentOffset), length);
+            final int chunk = Math.min((currentArray.length - currentOffset), length);
             System.arraycopy(currentArray, currentOffset, data, offset + copied, chunk);
 
             currentOffset += chunk;
@@ -274,7 +274,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         int length = target.remaining();
 
         while (length > 0) {
-            int chunk = Math.min((currentArray.length - currentOffset), length);
+            final int chunk = Math.min((currentArray.length - currentOffset), length);
 
             if (chunk == 0) {
                 break;  // This buffer is out of data
@@ -488,7 +488,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
         while (copied < span) {
             byte[] next = contents.get(++arrayIndex);
-            int length = Math.min(span - copied, next.length);
+            final int length = Math.min(span - copied, next.length);
             System.arraycopy(next, 0, compactedView, copied, length);
             copied += length;
         }
@@ -523,7 +523,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         CharBuffer decoded = CharBuffer.allocate(size);
 
         int arrayIndex = currentArrayIndex;
-        int viewSpan = limit() - position();
+        final int viewSpan = limit() - position();
         int processed = Math.min(currentArray.length - currentOffset, viewSpan);
         ByteBuffer wrapper = ByteBuffer.wrap(currentArray, currentOffset, processed);
 
@@ -678,7 +678,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
                 hash = 31 * hash + currentArray[currentOffset + --span];
             }
         } else {
-            int currentPos = position();
+            final int currentPos = position();
             for (int i = limit() - 1; i >= currentPos; i--) {
                 hash = 31 * hash + (int)get(i);
             }
@@ -702,7 +702,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             return false;
         }
 
-        int currentPos = position();
+        final int currentPos = position();
 
         for (int i = buffer.position(); hasRemaining(); i++) {
             if (!equals(this.get(), buffer.get(i))) {
