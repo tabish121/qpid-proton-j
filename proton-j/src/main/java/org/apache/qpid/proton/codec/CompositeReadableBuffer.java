@@ -20,7 +20,6 @@ import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.InvalidMarkException;
-import java.nio.ReadOnlyBufferException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CoderResult;
@@ -52,7 +51,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
     private int limit;
     private int capacity;
     private int mark = -1;
-    private boolean readOnly;
+    private boolean compactable = true;
 
     /**
      * Creates a default empty composite buffer
@@ -67,12 +66,12 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         this.limit = capacity;
     }
 
-    private CompositeReadableBuffer(boolean readOnly) {
-        this.readOnly = readOnly;
+    private CompositeReadableBuffer(boolean compactable) {
+        this.compactable = compactable;
     }
 
     public List<byte[]> getArrays() {
-        return contents == null ? EMPTY_LIST : contents;
+        return contents == null ? EMPTY_LIST : Collections.unmodifiableList(contents);
     }
 
     public int getCurrentIndex() {
@@ -94,7 +93,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             return currentArray;
         }
 
-        throw new UnsupportedOperationException("Buffer not backed by an array");
+        throw new UnsupportedOperationException("Buffer not backed by a single array");
     }
 
     @Override
@@ -103,12 +102,12 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             return currentOffset;
         }
 
-        throw new UnsupportedOperationException("Buffer not backed by an array");
+        throw new UnsupportedOperationException("Buffer not backed by a single array");
     }
 
     @Override
     public byte get() {
-        if (remaining() == 0) {
+        if (position == limit) {
             throw new BufferUnderflowException();
         }
 
@@ -275,17 +274,19 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             throw new BufferUnderflowException();
         }
 
-        for (int copied = 0; length > 0; ) {
+        int copied = 0;
+        while (length > 0) {
             final int chunk = Math.min((currentArray.length - currentOffset), length);
             System.arraycopy(currentArray, currentOffset, data, offset + copied, chunk);
 
             currentOffset += chunk;
-            position += chunk;
             length -= chunk;
             copied += chunk;
 
             maybeMoveToNextArray();
         }
+
+        position += copied;
 
         return this;
     }
@@ -319,35 +320,11 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             throw new IllegalArgumentException("position must be non-negative and no greater than the limit");
         }
 
-        // Either we are going backwards or forwards and in either case we should leave
-        // the state in a valid read point or when going forwards the state should reflect
-        // the fact that we are at the end.
-        if (position < this.position) {
-            for (int amount = this.position - position; amount > 0;) {
-                if ((currentOffset - amount) >= 0) {
-                    currentOffset -= amount;
-                    break;
-                } else {
-                    amount -= currentOffset;
-                    currentArray = contents.get(--currentArrayIndex);
-                    currentOffset = currentArray.length;
-                }
-            }
+        int moveBy = position - this.position;
+        if (moveBy >= 0) {
+            moveForward(moveBy);
         } else {
-            for (int amount = position - this.position; amount > 0;) {
-                if (amount < currentArray.length - currentOffset) {
-                    currentOffset += amount;
-                    break;
-                } else {
-                    amount -= currentArray.length - currentOffset;
-                    if (currentArrayIndex != -1 && currentArrayIndex < contents.size() - 1) {
-                        currentArray = contents.get(++currentArrayIndex);
-                        currentOffset = 0;
-                    } else {
-                        currentOffset = currentArray.length;
-                    }
-                }
-            }
+            moveBackwards(Math.abs(moveBy));
         }
 
         this.position = position;
@@ -357,6 +334,36 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         }
 
         return this;
+    }
+
+    private void moveForward(int moveBy) {
+        while (moveBy > 0) {
+            if (moveBy < currentArray.length - currentOffset) {
+                currentOffset += moveBy;
+                break;
+            } else {
+                moveBy -= currentArray.length - currentOffset;
+                if (currentArrayIndex != -1 && currentArrayIndex < contents.size() - 1) {
+                    currentArray = contents.get(++currentArrayIndex);
+                    currentOffset = 0;
+                } else {
+                    currentOffset = currentArray.length;
+                }
+            }
+        }
+    }
+
+    private void moveBackwards(int moveBy) {
+        while (moveBy > 0) {
+            if ((currentOffset - moveBy) >= 0) {
+                currentOffset -= moveBy;
+                break;
+            } else {
+                moveBy -= currentOffset;
+                currentArray = contents.get(--currentArrayIndex);
+                currentOffset = currentArray.length;
+            }
+        }
     }
 
     @Override
@@ -379,7 +386,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             result.capacity = newCapacity;
             result.limit = newCapacity;
             result.position = 0;
-            result.readOnly = true;
+            result.compactable = false;
         }
 
         return result;
@@ -388,12 +395,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
     @Override
     public CompositeReadableBuffer flip() {
         limit = position;
-
-        if (currentArrayIndex > 0) {
-            currentArray = contents.get(0);
-        }
-
-        position = currentOffset = 0;
+        position(0); // Move by index to avoid corrupting a slice.
         mark = UNSET_MARK;
 
         return this;
@@ -477,7 +479,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         duplicated.limit = limit;
         duplicated.position = position;
         duplicated.mark = mark;
-        duplicated.readOnly = readOnly;   // A slice duplicated should not allow compaction.
+        duplicated.compactable = compactable;   // A slice duplicated should not allow compaction.
 
         return duplicated;
     }
@@ -491,7 +493,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         if (viewSpan == 0) {
             result = EMPTY_BUFFER;
         } else if (viewSpan <= currentArray.length - currentOffset) {
-            result = ByteBuffer.wrap(currentArray, currentOffset, viewSpan).asReadOnlyBuffer();
+            result = ByteBuffer.wrap(currentArray, currentOffset, viewSpan);
         } else {
             result = buildByteBuffer(viewSpan);
         }
@@ -585,7 +587,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
      * reads from this Composite buffer.  The limit is reset to the new capacity
      */
     public CompositeReadableBuffer compact() {
-        if (readOnly || (currentArray == null && contents == null)) {
+        if (!compactable || (currentArray == null && contents == null)) {
             return this;
         }
 
@@ -618,8 +620,8 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         position -= totalCompaction;
         limit = capacity -= totalCompaction;
 
-        if (mark > limit) {
-            mark = UNSET_MARK;
+        if (mark != UNSET_MARK) {
+            mark -= totalCompaction;
         }
 
         return this;
@@ -639,10 +641,11 @@ public class CompositeReadableBuffer implements ReadableBuffer {
      *
      * @throws IllegalArgumentException if the array is null or zero size.
      * @throws IllegalStateException if the buffer does not allow appends.
+     *
      */
     public CompositeReadableBuffer append(byte[] array) {
-        if (readOnly) {
-            throw new ReadOnlyBufferException();
+        if (!compactable) {
+            throw new IllegalStateException();
         }
 
         if (array == null || array.length == 0) {
@@ -733,7 +736,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
         }
 
         if (((long) offset + (long) length) > destSize) {
-            throw new IndexOutOfBoundsException("target is to small for speicied read size");
+            throw new IndexOutOfBoundsException("target is to small for specified read size");
         }
     }
 }

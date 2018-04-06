@@ -21,7 +21,6 @@ import static org.junit.Assert.*;
 import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
 import java.nio.InvalidMarkException;
-import java.nio.ReadOnlyBufferException;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.StandardCharsets;
 
@@ -1172,7 +1171,7 @@ public class CompositeReadableBufferTest {
     }
 
     @Test
-    public void testCompactResetsMark() {
+    public void testCompactUpdatesMark() {
         CompositeReadableBuffer buffer = new CompositeReadableBuffer();
 
         byte[] source1 = new byte[] { 0, 1, 2, 3 };
@@ -1184,18 +1183,18 @@ public class CompositeReadableBufferTest {
         assertEquals(2, buffer.getArrays().size());
         assertEquals(0, buffer.getCurrentIndex());
 
-        buffer.position(7);
+        buffer.position(5);
         buffer.mark();
+        assertEquals(5, buffer.get());
         buffer.position(8);
         buffer.reset();
-        assertEquals(7, buffer.position());
+        assertEquals(5, buffer.position());
         buffer.mark();
 
         buffer.compact();
-        try {
-            buffer.reset();
-            fail("Should throw InvalidMarkException");
-        } catch (InvalidMarkException ime) {}
+        buffer.position(buffer.limit());
+        buffer.reset();
+        assertEquals(5, buffer.get());
 
         assertFalse(buffer.getArrays().isEmpty());
     }
@@ -1467,6 +1466,65 @@ public class CompositeReadableBufferTest {
         }
     }
 
+    @Test
+    public void testFlipSliceWithOneArray() {
+        CompositeReadableBuffer buffer = new CompositeReadableBuffer();
+        buffer.append(new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9});
+
+        buffer.mark();
+        buffer.position(1);
+        buffer.limit(buffer.remaining() - 1);
+
+        ReadableBuffer slice = buffer.slice();
+
+        assertEquals(1, slice.get(0));
+        slice.position(1);
+        slice.mark();
+        slice.flip();
+
+        assertEquals(1, slice.get(0));
+        assertEquals(1, slice.limit());
+
+        try {
+            slice.reset();
+            fail("Should throw InvalidMarkException");
+        } catch (InvalidMarkException e) {
+        }
+
+        buffer.reset();
+        assertEquals(0, buffer.position());
+        assertEquals(buffer.remaining(), buffer.limit());
+    }
+
+    @Test
+    public void testFlipSliceWithMultipleArrays() {
+        CompositeReadableBuffer buffer = new CompositeReadableBuffer();
+        buffer.append(new byte[] {0, 1, 2, 3, 4}).append(new byte[] {5, 6, 7, 8, 9});
+
+        buffer.mark();
+        buffer.position(5);
+
+        ReadableBuffer slice = buffer.slice();
+
+        assertEquals(5, slice.get(0));
+        slice.position(1);
+        slice.mark();
+        slice.flip();
+
+        assertEquals(5, slice.get(0));
+        assertEquals(1, slice.limit());
+
+        try {
+            slice.reset();
+            fail("Should throw InvalidMarkException");
+        } catch (InvalidMarkException e) {
+        }
+
+        buffer.reset();
+        assertEquals(0, buffer.position());
+        assertEquals(buffer.remaining(), buffer.limit());
+    }
+
     //----- Tests on Clear --------------------------------------------------//
 
     @Test
@@ -1685,7 +1743,7 @@ public class CompositeReadableBufferTest {
         try {
             slice.append(new byte[] { 10 });
             fail("Should not be allowed to append to a slice, must throw ReadOnlyBufferException");
-        } catch (ReadOnlyBufferException roe) {}
+        } catch (IllegalStateException ise) {}
     }
 
     @Test
