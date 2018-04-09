@@ -295,7 +295,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
     public CompositeReadableBuffer get(WritableBuffer target) {
         int length = target.remaining();
 
-        while (length > 0) {
+        do {
             final int chunk = Math.min((currentArray.length - currentOffset), length);
 
             if (chunk == 0) {
@@ -309,7 +309,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
             length -= chunk;
 
             maybeMoveToNextArray();
-        }
+        } while (length > 0);
 
         return this;
     }
