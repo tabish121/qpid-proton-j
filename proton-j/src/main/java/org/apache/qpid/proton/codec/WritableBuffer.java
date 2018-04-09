@@ -137,16 +137,7 @@ public interface WritableBuffer
         @Override
         public void put(ReadableBuffer src)
         {
-            if (src.hasArray())
-            {
-                int writeSize = src.remaining();
-                _buf.put(src.array(), src.arrayOffset(), src.remaining());
-                src.position(src.position() + writeSize);
-            }
-            else
-            {
-                src.get(this);
-            }
+            src.get(this);
         }
 
         @Override

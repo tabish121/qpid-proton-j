@@ -660,6 +660,26 @@ public class CompositeReadableBufferTest {
     }
 
     @Test
+    public void testGetWritableBufferRespectsOwnLimit() {
+        CompositeReadableBuffer buffer = new CompositeReadableBuffer();
+
+        byte[] data = new byte[] {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+        buffer.append(data);
+        buffer.limit(5);
+
+        ByteBuffer destination = ByteBuffer.allocate(data.length);
+        WritableBuffer target = WritableBuffer.ByteBufferWrapper.wrap(destination);
+
+        buffer.get(target);
+
+        assertEquals(5, buffer.position());
+        assertEquals(0, buffer.remaining());
+
+        assertEquals(5, target.position());
+        assertEquals(5, target.remaining());
+    }
+
+    @Test
     public void testGetintWithContentsInSingleArray() {
         CompositeReadableBuffer buffer = new CompositeReadableBuffer();
 

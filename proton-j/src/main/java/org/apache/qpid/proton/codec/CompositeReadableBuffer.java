@@ -293,7 +293,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
     @Override
     public CompositeReadableBuffer get(WritableBuffer target) {
-        int length = target.remaining();
+        int length = Math.min(target.remaining(), remaining());
 
         do {
             final int chunk = Math.min((currentArray.length - currentOffset), length);
