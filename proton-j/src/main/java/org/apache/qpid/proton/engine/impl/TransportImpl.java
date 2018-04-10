@@ -45,7 +45,6 @@ import org.apache.qpid.proton.amqp.transport.Open;
 import org.apache.qpid.proton.amqp.transport.Role;
 import org.apache.qpid.proton.amqp.transport.Transfer;
 import org.apache.qpid.proton.codec.AMQPDefinedTypes;
-import org.apache.qpid.proton.codec.CompositeReadableBuffer;
 import org.apache.qpid.proton.codec.DecoderImpl;
 import org.apache.qpid.proton.codec.EncoderImpl;
 import org.apache.qpid.proton.codec.ReadableBuffer;
@@ -598,8 +597,8 @@ public class TransportImpl extends EndpointImpl
             try {
                 writeFrame(tpSession.getLocalChannel(), transfer, payload, partialTransferHandler.setTransfer(transfer));
             } finally {
-                delivery.afterSend();  // Allow for freeing resources after write of buffered data
                 partialTransferHandler.setTransfer(null);
+                delivery.afterSend();  // Allow for freeing resources after write of buffered data
             }
 
             tpSession.incrementOutgoingId();

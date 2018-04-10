@@ -69,16 +69,14 @@ public interface ReadableBuffer {
     int arrayOffset();
 
     /**
-     * Compact the backing buffer of this ReadableBuffer possibly freeing portions
-     * of pooled data or reducing the size of the backing array if present.
+     * Compact the backing storage of this ReadableBuffer, possibly freeing previously-read
+     * portions of pooled data or reducing the number of backing arrays if present.
      * <p>
      * This is an optional operation and care should be taken in its implementation.
      *
      * @return a reference to this buffer
-     *
-     * @throws ReadOnlyBufferException if the ReadableBuffer is read-only.
      */
-    ReadableBuffer compact();
+    ReadableBuffer reclaimRead();
 
     /**
      * Reads the byte at the current position and advances the position by 1.
@@ -482,7 +480,7 @@ public interface ReadableBuffer {
         }
 
         @Override
-        public ReadableBuffer compact() {
+        public ReadableBuffer reclaimRead() {
             // Don't compact ByteBuffer due to the expense of the copy
             return this;
         }

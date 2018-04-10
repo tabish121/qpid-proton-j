@@ -234,7 +234,7 @@ public class DeliveryImpl implements Delivery
             consumed = Math.min(size, _dataBuffer.remaining());
 
             _dataBuffer.get(bytes, offset, consumed);
-            _dataBuffer.compact();
+            _dataBuffer.reclaimRead();
         }
         else
         {
@@ -251,7 +251,7 @@ public class DeliveryImpl implements Delivery
         {
             consumed = Math.min(buffer.remaining(), _dataBuffer.remaining());
             buffer.put(_dataBuffer);
-            _dataBuffer.compact();
+            _dataBuffer.reclaimRead();
         }
         else
         {
@@ -394,10 +394,10 @@ public class DeliveryImpl implements Delivery
             dataBuffer.append(copyContents(oldView));
             dataBuffer.append(copyContents(buffer));
 
-            oldView.compact();
+            oldView.reclaimRead();
         }
 
-        buffer.compact();  // A pooled buffer could release now.
+        buffer.reclaimRead();  // A pooled buffer could release now.
     }
 
     void append(Binary payload)
@@ -435,7 +435,7 @@ public class DeliveryImpl implements Delivery
     {
         if (_dataView != null)
         {
-            _dataView.compact();
+            _dataView.reclaimRead();
             if (!_dataView.hasRemaining())
             {
                 _dataView = _dataBuffer;
@@ -528,7 +528,12 @@ public class DeliveryImpl implements Delivery
             if (isDone()) {
                 return false;
             } else {
-                return _complete || _dataView.hasRemaining();
+                boolean hasRemaining = false;
+                if (_dataView != null) {
+                    hasRemaining = _dataView.hasRemaining();
+                }
+
+                return _complete || hasRemaining;
             }
         } else {
             return false;

@@ -963,7 +963,7 @@ public class CompositeReadableBufferTest {
         assertArrayEquals(data1, result1);
         assertFalse(buffer.hasArray());
 
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertTrue(buffer.hasArray());
         assertNotNull(buffer.array());
@@ -974,7 +974,7 @@ public class CompositeReadableBufferTest {
         assertArrayEquals(data2, result2);
         assertTrue(buffer.hasArray());
 
-        buffer.compact();
+        buffer.reclaimRead();
         assertFalse(buffer.hasArray());
 
         try {
@@ -1061,7 +1061,7 @@ public class CompositeReadableBufferTest {
         CompositeReadableBuffer buffer = new CompositeReadableBuffer();
 
         try {
-            buffer.compact();
+            buffer.reclaimRead();
         } catch (Throwable t) {
             fail("Should not fail to compact empty buffer");
         }
@@ -1069,7 +1069,7 @@ public class CompositeReadableBufferTest {
         CompositeReadableBuffer slice = buffer.slice();
 
         try {
-            slice.compact();
+            slice.reclaimRead();
         } catch (Throwable t) {
             fail("Should not fail to compact empty slice");
         }
@@ -1091,7 +1091,7 @@ public class CompositeReadableBufferTest {
         assertEquals(0, buffer.getArrays().size());
 
         // Should not have any affect on buffer that is not consumed
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertEquals(4, buffer.remaining());
         assertTrue(buffer.hasRemaining());
@@ -1101,7 +1101,7 @@ public class CompositeReadableBufferTest {
 
         // Should not have any affect on buffer that is not consumed
         buffer.position(1);
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertEquals(3, buffer.remaining());
         assertTrue(buffer.hasRemaining());
@@ -1111,7 +1111,7 @@ public class CompositeReadableBufferTest {
 
         // Should clear array from buffer as it is now consumed.
         buffer.position(source.length);
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertEquals(0, buffer.remaining());
         assertFalse(buffer.hasRemaining());
@@ -1142,7 +1142,7 @@ public class CompositeReadableBufferTest {
 
         for (int i = 0; i < 10; ++i) {
             assertEquals(i, buffer.get());
-            buffer.compact();
+            buffer.reclaimRead();
             assertEquals(0, buffer.position());
         }
 
@@ -1176,7 +1176,7 @@ public class CompositeReadableBufferTest {
 
         for (int i = 0; i < 10; ++i) {
             assertEquals(i, buffer.get());
-            buffer.compact();
+            buffer.reclaimRead();
         }
 
         assertTrue(buffer.getArrays().isEmpty());
@@ -1211,7 +1211,7 @@ public class CompositeReadableBufferTest {
         assertEquals(5, buffer.position());
         buffer.mark();
 
-        buffer.compact();
+        buffer.reclaimRead();
         buffer.position(buffer.limit());
         buffer.reset();
         assertEquals(5, buffer.get());
@@ -1236,7 +1236,7 @@ public class CompositeReadableBufferTest {
         assertEquals(12, buffer.capacity());
 
         buffer.position(4);
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertFalse(buffer.hasArray());
         assertEquals(2, buffer.getArrays().size());
@@ -1245,7 +1245,7 @@ public class CompositeReadableBufferTest {
         assertEquals(8, buffer.capacity());
 
         buffer.position(4);
-        buffer.compact();
+        buffer.reclaimRead();
 
         // TODO - Right now we hold off purging the array list until everything is consumed.
         assertTrue(buffer.hasArray());
@@ -1255,7 +1255,7 @@ public class CompositeReadableBufferTest {
         assertEquals(4, buffer.capacity());
 
         buffer.position(4);
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertFalse(buffer.hasArray());
         assertEquals(0, buffer.getArrays().size());
@@ -1284,7 +1284,7 @@ public class CompositeReadableBufferTest {
         assertEquals(size, buffer.capacity());
 
         buffer.position(buffer.limit());
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertFalse(buffer.hasArray());
         assertEquals(0, buffer.getArrays().size());
@@ -1307,7 +1307,7 @@ public class CompositeReadableBufferTest {
         assertEquals(0, buffer.getCurrentIndex());
 
         buffer.position(4);
-        buffer.compact();
+        buffer.reclaimRead();
 
         assertEquals(0, buffer.position());
         assertEquals(4, buffer.limit());
@@ -1325,7 +1325,7 @@ public class CompositeReadableBufferTest {
         }
 
         assertFalse(buffer.getArrays().isEmpty());
-        buffer.compact();
+        buffer.reclaimRead();
         assertTrue(buffer.getArrays().isEmpty());
     }
 
@@ -1617,11 +1617,11 @@ public class CompositeReadableBufferTest {
         assertEquals(10, buffer.capacity());
         assertEquals(buffer.capacity(), duplicate.capacity());
 
-        buffer.compact();
+        buffer.reclaimRead();
         assertEquals(10, buffer.capacity());
         assertEquals(buffer.capacity(), duplicate.capacity());
 
-        duplicate.compact();
+        duplicate.reclaimRead();
         assertEquals(10, buffer.capacity());
         assertEquals(buffer.capacity(), duplicate.capacity());
     }
@@ -1640,7 +1640,7 @@ public class CompositeReadableBufferTest {
         assertFalse(duplicate.hasRemaining());
 
         assertTrue(duplicate.hasArray());
-        duplicate.compact();
+        duplicate.reclaimRead();
         assertFalse(duplicate.hasArray());
         assertEquals(0, duplicate.capacity());
 
@@ -1695,7 +1695,7 @@ public class CompositeReadableBufferTest {
         assertFalse(duplicate.hasRemaining());
 
         assertFalse(duplicate.hasArray());
-        duplicate.compact();
+        duplicate.reclaimRead();
         assertFalse(duplicate.hasArray());
         assertEquals(0, duplicate.capacity());
         assertEquals(0, duplicate.getArrays().size());
@@ -1745,7 +1745,7 @@ public class CompositeReadableBufferTest {
         assertContentEquals(buffer, slice);
 
         try {
-            slice.compact();
+            slice.reclaimRead();
         } catch (Throwable t) {
             fail("Compacting an empty slice should not fail");
         }

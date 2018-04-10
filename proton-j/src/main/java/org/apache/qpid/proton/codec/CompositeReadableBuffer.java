@@ -554,7 +554,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
         do {
             boolean endOfInput = processed == viewSpan;
-            step = decoder.decode(wrapper, decoded, processed == viewSpan);
+            step = decoder.decode(wrapper, decoded, endOfInput);
             if (step.isUnderflow() && endOfInput) {
                 step = decoder.flush(decoded);
                 break;
@@ -586,7 +586,8 @@ public class CompositeReadableBuffer implements ReadableBuffer {
      * Compact the buffer dropping arrays that have been consumed by previous
      * reads from this Composite buffer.  The limit is reset to the new capacity
      */
-    public CompositeReadableBuffer compact() {
+    @Override
+    public CompositeReadableBuffer reclaimRead() {
         if (!compactable || (currentArray == null && contents == null)) {
             return this;
         }
@@ -642,6 +643,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
      * @throws IllegalArgumentException if the array is null or zero size.
      * @throws IllegalStateException if the buffer does not allow appends.
      *
+     * @return a reference to this {@link CompositeReadableBuffer}.
      */
     public CompositeReadableBuffer append(byte[] array) {
         if (!compactable) {
