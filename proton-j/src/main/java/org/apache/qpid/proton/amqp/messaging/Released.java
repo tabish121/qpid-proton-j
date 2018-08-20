@@ -25,10 +25,11 @@ package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.DeliveryStateListener;
+import org.apache.qpid.proton.engine.Delivery;
 
 
-public final class Released
-      implements DeliveryState, Outcome
+public final class Released implements DeliveryState, Outcome
 {
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:released:list");
 
@@ -44,5 +45,9 @@ public final class Released
     {
         return INSTANCE;
     }
+
+    @Override
+    public void updateDeliveryState(DeliveryStateListener listener, Delivery delivery) throws Exception {
+        listener.handleReleased(this, this, delivery);
+    }
 }
-  

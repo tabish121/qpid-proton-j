@@ -25,15 +25,16 @@ import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.DeliveryStateListener;
+import org.apache.qpid.proton.engine.Delivery;
 
-public final class Modified
-      implements DeliveryState, Outcome
+public final class Modified implements DeliveryState, Outcome
 {
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:modified:list");
 
     private Boolean _deliveryFailed;
     private Boolean _undeliverableHere;
-    private Map _messageAnnotations;
+    private Map<Symbol, Object> _messageAnnotations;
 
     public Boolean getDeliveryFailed()
     {
@@ -74,5 +75,9 @@ public final class Modified
                ", messageAnnotations=" + _messageAnnotations +
                '}';
     }
+
+    @Override
+    public void updateDeliveryState(DeliveryStateListener listener, Delivery delivery) throws Exception {
+        listener.handleModified(this, this, delivery);
+    }
 }
-  

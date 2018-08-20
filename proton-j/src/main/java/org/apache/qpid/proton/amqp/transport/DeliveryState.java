@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.proton.amqp.transport;
 
+import org.apache.qpid.proton.engine.Delivery;
+
 /**
  * Describes the state of a delivery at a link end-point.
  *
@@ -29,5 +31,14 @@ package org.apache.qpid.proton.amqp.transport;
  */
 public interface DeliveryState
 {
+    /**
+     * Called when the delivery state of a Delivery has been updated and action is required.
+     *
+     * @param listener
+     *      The new Delivery State listener that will act upon the state change event.
+     * @param delivery
+     *      The Delivery whose state has been updated.
+     */
+    void updateDeliveryState(DeliveryStateListener listener, Delivery delivery) throws Exception;
 
 }

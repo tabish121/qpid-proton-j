@@ -26,13 +26,13 @@ package org.apache.qpid.proton.amqp.messaging;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.DeliveryStateListener;
+import org.apache.qpid.proton.engine.Delivery;
 
 
 
-public final class Received
-      implements DeliveryState
+public final class Received implements DeliveryState
 {
-
     private UnsignedInteger _sectionNumber;
     private UnsignedLong _sectionOffset;
 
@@ -65,5 +65,9 @@ public final class Received
                ", sectionOffset=" + _sectionOffset +
                '}';
     }
+
+    @Override
+    public void updateDeliveryState(DeliveryStateListener listener, Delivery delivery) throws Exception {
+        // Conceptual
+    }
 }
-  

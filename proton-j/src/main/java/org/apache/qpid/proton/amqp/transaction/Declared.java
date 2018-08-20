@@ -27,10 +27,11 @@ import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.DeliveryStateListener;
+import org.apache.qpid.proton.engine.Delivery;
 
 
-public final class Declared
-      implements DeliveryState, Outcome
+public final class Declared implements DeliveryState, Outcome
 {
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:declared:list");
 
@@ -58,5 +59,9 @@ public final class Declared
                "txnId=" + _txnId +
                '}';
     }
+
+    @Override
+    public void updateDeliveryState(DeliveryStateListener listener, Delivery delivery) throws Exception {
+        listener.handleDeclared(this, this, delivery);
+    }
 }
-  
