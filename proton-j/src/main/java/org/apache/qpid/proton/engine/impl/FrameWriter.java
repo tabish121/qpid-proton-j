@@ -20,6 +20,9 @@
  */
 package org.apache.qpid.proton.engine.impl;
 
+import java.nio.BufferOverflowException;
+import java.nio.ByteBuffer;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.transport.EmptyFrame;
 import org.apache.qpid.proton.amqp.transport.FrameBody;
@@ -28,14 +31,11 @@ import org.apache.qpid.proton.codec.ReadableBuffer;
 import org.apache.qpid.proton.codec.WritableBuffer;
 import org.apache.qpid.proton.framing.TransportFrame;
 
-import java.nio.BufferOverflowException;
-import java.nio.ByteBuffer;
-
 /**
  * FrameWriter
  *
  */
-class FrameWriter
+public class FrameWriter
 {
 
     static final byte AMQP_FRAME_TYPE = 0;
@@ -54,7 +54,7 @@ class FrameWriter
     private int _performativeSize;
     private long _framesOutput = 0;
 
-    FrameWriter(EncoderImpl encoder, int maxFrameSize, byte frameType,
+    public FrameWriter(EncoderImpl encoder, int maxFrameSize, byte frameType,
                 Ref<ProtocolTracer> protocolTracer, TransportImpl transport)
     {
         _encoder = encoder;
@@ -147,7 +147,7 @@ class FrameWriter
         _buffer.position(limit);
     }
 
-    void writeFrame(int channel, Object frameBody, ReadableBuffer payload,
+    public void writeFrame(int channel, Object frameBody, ReadableBuffer payload,
                     Runnable onPayloadTooLarge)
     {
         startFrame();
@@ -229,7 +229,7 @@ class FrameWriter
         return _bbuf.position() > 64*1024;
     }
 
-    int readBytes(ByteBuffer dst)
+    public int readBytes(ByteBuffer dst)
     {
         ByteBuffer src = _bbuf.duplicate();
         src.flip();
