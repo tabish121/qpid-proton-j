@@ -470,9 +470,10 @@ public class TransportImpl extends EndpointImpl
         }
     }
 
+    Flow flow = new Flow();
+
     private void writeFlow(TransportSession ssn, TransportLink link)
     {
-        Flow flow = new Flow();
         flow.setNextIncomingId(ssn.getNextIncomingId());
         flow.setNextOutgoingId(ssn.getNextOutgoingId());
         ssn.updateIncomingWindow();
@@ -483,6 +484,11 @@ public class TransportImpl extends EndpointImpl
             flow.setDeliveryCount(link.getDeliveryCount());
             flow.setLinkCredit(link.getLinkCredit());
             flow.setDrain(link.getLink().getDrain());
+        } else {
+            flow.setHandle(null);
+            flow.setDeliveryCount(null);
+            flow.setLinkCredit(null);
+            flow.setDrain(false);
         }
         writeFrame(ssn.getLocalChannel(), flow, null, null);
     }
@@ -655,7 +661,6 @@ public class TransportImpl extends EndpointImpl
         if(wasDone && delivery.getLocalState() != null)
         {
             TransportDelivery tpDelivery = delivery.getTransportDelivery();
-            Disposition disposition = new Disposition();
             disposition.setFirst(tpDelivery.getDeliveryId());
             disposition.setLast(tpDelivery.getDeliveryId());
             disposition.setRole(Role.SENDER);
@@ -666,12 +671,13 @@ public class TransportImpl extends EndpointImpl
             }
             disposition.setState(delivery.getLocalState());
 
-            writeFrame(tpSession.getLocalChannel(), disposition, null,
-                       null);
+            writeFrame(tpSession.getLocalChannel(), disposition, null, null);
         }
 
         return !delivery.isBuffered();
     }
+
+    Disposition disposition = new Disposition();
 
     private boolean processTransportWorkReceiver(DeliveryImpl delivery,
                                                  ReceiverImpl rcv)
@@ -685,7 +691,6 @@ public class TransportImpl extends EndpointImpl
             boolean settled = delivery.isSettled();
             DeliveryState localState = delivery.getLocalState();
 
-            Disposition disposition = new Disposition();
             disposition.setFirst(tpDelivery.getDeliveryId());
             disposition.setLast(tpDelivery.getDeliveryId());
             disposition.setRole(Role.RECEIVER);
