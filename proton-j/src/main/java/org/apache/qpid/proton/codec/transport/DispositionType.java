@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -52,6 +53,7 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -74,6 +76,7 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
             _disposition = disposition;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -97,6 +100,7 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
 
         }
 
+        @Override
         public int size()
         {
             return _disposition.getBatchable()
@@ -112,6 +116,7 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
         }
     }
 
+        @Override
         public Disposition newInstance(Object described)
         {
             List l = (List) described;
@@ -146,13 +151,11 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
             return o;
         }
 
+        @Override
         public Class<Disposition> getTypeClass()
         {
             return Disposition.class;
         }
-
-
-
 
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
@@ -161,8 +164,7 @@ public final class DispositionType extends AbstractDescribedType<Disposition,Lis
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
-
-
 }

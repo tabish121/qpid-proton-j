@@ -24,6 +24,7 @@
 package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.ApplicationProperties;
@@ -47,6 +48,7 @@ public class ApplicationPropertiesType  extends AbstractDescribedType<Applicatio
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -59,17 +61,19 @@ public class ApplicationPropertiesType  extends AbstractDescribedType<Applicatio
     }
 
 
+    @Override
     public ApplicationProperties newInstance(Object described)
     {
         return new ApplicationProperties( (Map) described );
     }
 
+    @Override
     public Class<ApplicationProperties> getTypeClass()
     {
         return ApplicationProperties.class;
     }
 
-      
+
 
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
@@ -78,7 +82,7 @@ public class ApplicationPropertiesType  extends AbstractDescribedType<Applicatio
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }
-  

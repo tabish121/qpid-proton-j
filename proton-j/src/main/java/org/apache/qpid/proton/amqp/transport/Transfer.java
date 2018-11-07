@@ -25,9 +25,12 @@ package org.apache.qpid.proton.amqp.transport;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Transfer implements FrameBody
+public final class Transfer implements FrameBody, ProtonType
 {
+    private static final Byte DESCRIPTOR = 0x14;
+
     private UnsignedInteger _handle;
     private UnsignedInteger _deliveryId;
     private Binary _deliveryTag;
@@ -39,6 +42,12 @@ public final class Transfer implements FrameBody
     private boolean _resume;
     private boolean _aborted;
     private boolean _batchable;
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR;
+    }
 
     public UnsignedInteger getHandle()
     {
@@ -155,6 +164,7 @@ public final class Transfer implements FrameBody
         _batchable = batchable;
     }
 
+    @Override
     public <E> void invoke(FrameBodyHandler<E> handler, Binary payload, E context)
     {
         handler.handleTransfer(this, payload, context);
@@ -178,4 +188,3 @@ public final class Transfer implements FrameBody
                '}';
     }
 }
-  

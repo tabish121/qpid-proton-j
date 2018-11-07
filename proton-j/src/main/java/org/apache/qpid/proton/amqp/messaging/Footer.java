@@ -25,8 +25,12 @@ package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Map;
 
-public final class Footer implements  Section
+import org.apache.qpid.proton.codec.ProtonType;
+
+public final class Footer implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x78;
+
     private final Map _value;
 
     public Footer(Map value)
@@ -43,6 +47,11 @@ public final class Footer implements  Section
     public String toString()
     {
         return "Footer{" + _value + '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

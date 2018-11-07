@@ -27,9 +27,12 @@ import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Flow implements FrameBody
+public final class Flow implements FrameBody, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x13;
+
     private UnsignedInteger _nextIncomingId;
     private UnsignedInteger _incomingWindow;
     private UnsignedInteger _nextOutgoingId;
@@ -41,6 +44,12 @@ public final class Flow implements FrameBody
     private boolean _drain;
     private boolean _echo;
     private Map _properties;
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR_CODE;
+    }
 
     public UnsignedInteger getNextIncomingId()
     {
@@ -167,6 +176,7 @@ public final class Flow implements FrameBody
         _properties = properties;
     }
 
+    @Override
     public <E> void invoke(FrameBodyHandler<E> handler, Binary payload, E context)
     {
         handler.handleFlow(this, payload, context);
@@ -190,4 +200,3 @@ public final class Flow implements FrameBody
                '}';
     }
 }
-  

@@ -25,9 +25,12 @@ package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Header implements Section
+public final class Header implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x70;
+
     private Boolean _durable;
     private UnsignedByte _priority;
     private UnsignedInteger _ttl;
@@ -108,6 +111,11 @@ public final class Header implements Section
                ", firstAcquirer=" + _firstAcquirer +
                ", deliveryCount=" + _deliveryCount +
                '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

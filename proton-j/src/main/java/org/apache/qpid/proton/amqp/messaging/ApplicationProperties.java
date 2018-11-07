@@ -25,8 +25,12 @@ package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Map;
 
-public final class ApplicationProperties implements Section
+import org.apache.qpid.proton.codec.ProtonType;
+
+public final class ApplicationProperties implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x74;
+
     private final Map<String, Object> _value;
 
     public ApplicationProperties(Map<String, Object> value)
@@ -43,6 +47,11 @@ public final class ApplicationProperties implements Section
     public String toString()
     {
         return "ApplicationProperties{" + _value + '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

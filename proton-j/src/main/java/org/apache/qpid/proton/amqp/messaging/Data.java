@@ -24,9 +24,12 @@
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Data implements Section
+public final class Data implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x75;
+
     private final Binary _value;
 
     public Data(Binary value)
@@ -43,6 +46,11 @@ public final class Data implements Section
     public String toString()
     {
         return "Data{" + _value + '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

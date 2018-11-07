@@ -28,9 +28,12 @@ import java.util.Date;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Properties implements Section
+public final class Properties implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x73;
+
     private Object _messageId;
     private Binary _userId;
     private String _to;
@@ -214,6 +217,11 @@ public final class Properties implements Section
                ", groupSequence=" + _groupSequence +
                ", replyToGroupId='" + _replyToGroupId + '\'' +
                '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

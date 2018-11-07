@@ -23,8 +23,12 @@
 
 package org.apache.qpid.proton.amqp.messaging;
 
-public final class AmqpValue implements Section
+import org.apache.qpid.proton.codec.ProtonType;
+
+public final class AmqpValue implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x77;
+
     private final Object _value;
 
     public AmqpValue(Object value)
@@ -41,6 +45,11 @@ public final class AmqpValue implements Section
     public String toString()
     {
         return "AmqpValue{" + _value + '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

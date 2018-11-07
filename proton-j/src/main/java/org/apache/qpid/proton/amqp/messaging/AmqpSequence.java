@@ -25,8 +25,12 @@ package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.List;
 
-public final class AmqpSequence implements Section
+import org.apache.qpid.proton.codec.ProtonType;
+
+public final class AmqpSequence implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x76;
+
     private final List _value;
 
     public AmqpSequence(List value)
@@ -45,6 +49,11 @@ public final class AmqpSequence implements Section
         return "AmqpSequence{" +
                _value +
                '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

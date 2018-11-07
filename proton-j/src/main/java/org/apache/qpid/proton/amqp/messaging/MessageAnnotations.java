@@ -26,10 +26,13 @@ package org.apache.qpid.proton.amqp.messaging;
 import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.codec.ProtonType;
 
 
-public final class MessageAnnotations implements Section
+public final class MessageAnnotations implements Section, ProtonType
 {
+    private static final byte DESCRIPTOR_CODE = 0x72;
+
     private final Map<Symbol, Object> _value;
 
     public MessageAnnotations(Map<Symbol, Object> value)
@@ -46,6 +49,11 @@ public final class MessageAnnotations implements Section
     public String toString()
     {
         return "MessageAnnotations{" + _value + '}';
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR_CODE;
     }
 
     @Override

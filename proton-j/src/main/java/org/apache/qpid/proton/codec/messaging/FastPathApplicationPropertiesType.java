@@ -110,6 +110,7 @@ public class FastPathApplicationPropertiesType implements AMQPType<ApplicationPr
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR_CODE, type);
         encoder.register(type);
     }
 }

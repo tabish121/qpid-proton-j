@@ -90,19 +90,19 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
         for (int index = 0; index < count; ++index) {
             switch (index) {
                 case 0:
-                    transfer.setHandle(decoder.readUnsignedInteger());
+                    transfer.setHandle(decoder.readUnsignedInteger(null));
                     break;
                 case 1:
-                    transfer.setDeliveryId(decoder.readUnsignedInteger());
+                    transfer.setDeliveryId(decoder.readUnsignedInteger(null));
                     break;
                 case 2:
-                    transfer.setDeliveryTag(decoder.readBinary());
+                    transfer.setDeliveryTag(decoder.readBinary(null));
                     break;
                 case 3:
-                    transfer.setMessageFormat(decoder.readUnsignedInteger());
+                    transfer.setMessageFormat(decoder.readUnsignedInteger(null));
                     break;
                 case 4:
-                    transfer.setSettled(decoder.readBoolean());
+                    transfer.setSettled(decoder.readBoolean(null));
                     break;
                 case 5:
                     transfer.setMore(decoder.readBoolean(false));
@@ -292,6 +292,7 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
         {
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR_CODE, type);
         encoder.register(type);
     }
 }

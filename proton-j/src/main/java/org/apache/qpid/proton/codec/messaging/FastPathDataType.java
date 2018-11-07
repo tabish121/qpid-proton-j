@@ -80,7 +80,7 @@ public class FastPathDataType implements AMQPType<Data>, FastPathDescribedTypeCo
 
     @Override
     public Data readValue() {
-        return new Data(getDecoder().readBinary());
+        return new Data(getDecoder().readBinary(null));
     }
 
     @Override
@@ -102,6 +102,7 @@ public class FastPathDataType implements AMQPType<Data>, FastPathDescribedTypeCo
         for(Object descriptor : DESCRIPTORS) {
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR_CODE, type);
         encoder.register(type);
     }
 }

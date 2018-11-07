@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -41,19 +42,19 @@ import org.apache.qpid.proton.codec.EncoderImpl;
 
 public final class TransferType extends AbstractDescribedType<Transfer,List> implements DescribedTypeConstructor<Transfer>
 {
+    private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000014L);
+
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000014L), Symbol.valueOf("amqp:transfer:list"),
+        DESCRIPTOR, Symbol.valueOf("amqp:transfer:list"),
     };
-
-    private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000014L);
 
     TransferType(EncoderImpl encoder)
     {
         super(encoder);
     }
 
-
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -65,10 +66,8 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
         return new TransferWrapper(val);
     }
 
-
     public static class TransferWrapper extends AbstractList
     {
-
         private Transfer _transfer;
 
         public TransferWrapper(Transfer transfer)
@@ -76,9 +75,9 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             _transfer = transfer;
         }
 
+        @Override
         public Object get(final int index)
         {
-
             switch(index)
             {
                 case 0:
@@ -106,9 +105,9 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             }
 
             throw new IllegalStateException("Unknown index " + index);
-
         }
 
+        @Override
         public int size()
         {
             return _transfer.getBatchable()
@@ -132,62 +131,60 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
                       : _transfer.getDeliveryId() != null
                       ? 2
                       : 1;
-
         }
-
     }
 
-        public Transfer newInstance(Object described)
+    @Override
+    public Transfer newInstance(Object described)
+    {
+        List l = (List) described;
+
+        Transfer o = new Transfer();
+
+        if(l.isEmpty())
         {
-            List l = (List) described;
-
-            Transfer o = new Transfer();
-
-            if(l.isEmpty())
-            {
-                throw new DecodeException("The handle field cannot be omitted");
-            }
-
-            switch(11 - l.size())
-            {
-
-                case 0:
-                    Boolean batchable = (Boolean) l.get(10);
-                    o.setBatchable(batchable == null ? false : batchable);
-                case 1:
-                    Boolean aborted = (Boolean) l.get(9);
-                    o.setAborted(aborted == null ? false : aborted);
-                case 2:
-                    Boolean resume = (Boolean) l.get(8);
-                    o.setResume(resume == null ? false : resume);
-                case 3:
-                    o.setState( (DeliveryState) l.get( 7 ) );
-                case 4:
-                    UnsignedByte receiverSettleMode = (UnsignedByte) l.get(6);
-                    o.setRcvSettleMode(receiverSettleMode == null ? null : ReceiverSettleMode.values()[receiverSettleMode.intValue()]);
-                case 5:
-                    Boolean more = (Boolean) l.get(5);
-                    o.setMore(more == null ? false : more );
-                case 6:
-                    o.setSettled( (Boolean) l.get( 4 ) );
-                case 7:
-                    o.setMessageFormat( (UnsignedInteger) l.get( 3 ) );
-                case 8:
-                    o.setDeliveryTag( (Binary) l.get( 2 ) );
-                case 9:
-                    o.setDeliveryId( (UnsignedInteger) l.get( 1 ) );
-                case 10:
-                    o.setHandle( (UnsignedInteger) l.get( 0 ) );
-            }
-
-
-            return o;
+            throw new DecodeException("The handle field cannot be omitted");
         }
 
-        public Class<Transfer> getTypeClass()
+        switch(11 - l.size())
         {
-            return Transfer.class;
+            case 0:
+                Boolean batchable = (Boolean) l.get(10);
+                o.setBatchable(batchable == null ? false : batchable);
+            case 1:
+                Boolean aborted = (Boolean) l.get(9);
+                o.setAborted(aborted == null ? false : aborted);
+            case 2:
+                Boolean resume = (Boolean) l.get(8);
+                o.setResume(resume == null ? false : resume);
+            case 3:
+                o.setState( (DeliveryState) l.get( 7 ) );
+            case 4:
+                UnsignedByte receiverSettleMode = (UnsignedByte) l.get(6);
+                o.setRcvSettleMode(receiverSettleMode == null ? null : ReceiverSettleMode.values()[receiverSettleMode.intValue()]);
+            case 5:
+                Boolean more = (Boolean) l.get(5);
+                o.setMore(more == null ? false : more );
+            case 6:
+                o.setSettled( (Boolean) l.get( 4 ) );
+            case 7:
+                o.setMessageFormat( (UnsignedInteger) l.get( 3 ) );
+            case 8:
+                o.setDeliveryTag( (Binary) l.get( 2 ) );
+            case 9:
+                o.setDeliveryId( (UnsignedInteger) l.get( 1 ) );
+            case 10:
+                o.setHandle( (UnsignedInteger) l.get( 0 ) );
         }
+
+        return o;
+    }
+
+    @Override
+    public Class<Transfer> getTypeClass()
+    {
+        return Transfer.class;
+    }
 
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
@@ -196,6 +193,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }

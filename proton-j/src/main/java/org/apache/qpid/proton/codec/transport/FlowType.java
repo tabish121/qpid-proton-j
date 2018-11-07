@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.transport;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -50,6 +51,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -72,6 +74,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
             _flow = flow;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -105,6 +108,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
 
         }
 
+        @Override
         public int size()
         {
             return _flow.getProperties() != null
@@ -126,6 +130,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
         }
     }
 
+    @Override
     public Flow newInstance(Object described)
     {
         List l = (List) described;
@@ -170,6 +175,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
         return o;
     }
 
+    @Override
     public Class<Flow> getTypeClass()
     {
         return Flow.class;
@@ -182,6 +188,7 @@ public final class FlowType extends AbstractDescribedType<Flow,List> implements 
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }

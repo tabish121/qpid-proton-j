@@ -111,6 +111,7 @@ public class FastPathMessageAnnotationsType implements AMQPType<MessageAnnotatio
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR_CODE, type);
         encoder.register(type);
     }
 }

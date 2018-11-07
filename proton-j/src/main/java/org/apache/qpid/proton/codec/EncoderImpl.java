@@ -49,6 +49,8 @@ public final class EncoderImpl implements ByteBufferEncoder
     private Map<Object, AMQPType> _describedDescriptorRegistry = new HashMap<Object, AMQPType>();
     private Map<Class, AMQPType>  _describedTypesClassRegistry = new HashMap<Class, AMQPType>();
 
+    private AMQPType<?>[] _protonTypeRegistry = new AMQPType<?>[255];
+
     private final NullType              _nullType;
     private final BooleanType           _booleanType;
     private final ByteType              _byteType;
@@ -210,9 +212,14 @@ public final class EncoderImpl implements ByteBufferEncoder
         _typeRegistry.put(clazz, type);
     }
 
+    public <V> void registerProtonTypeEncoder(Byte descriptor, AMQPType<V> type)
+    {
+        this._protonTypeRegistry[descriptor] = type;
+    }
+
     public void registerDescribedType(Class clazz, Object descriptor)
     {
-        AMQPType type = _describedDescriptorRegistry.get(descriptor);
+        AMQPType<?> type = _describedDescriptorRegistry.get(descriptor);
         if(type == null)
         {
             type = new DynamicDescribedType(this, descriptor);
@@ -712,6 +719,22 @@ public final class EncoderImpl implements ByteBufferEncoder
         else
         {
             _arrayType.write(a);
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public void writeObject(ProtonType protonType) {
+        if (protonType == null) {
+            getBuffer().put(EncodingCodes.NULL);
+            return;
+        }
+
+        byte index = protonType.getDescriptorCode();
+        AMQPType typeEncdoer = _protonTypeRegistry[index];
+        if (typeEncdoer != null) {
+            typeEncdoer.write(protonType);
+        } else {
+            writeObject(protonType);
         }
     }
 

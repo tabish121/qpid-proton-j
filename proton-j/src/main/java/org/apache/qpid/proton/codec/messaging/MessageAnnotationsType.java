@@ -24,7 +24,6 @@
 package org.apache.qpid.proton.codec.messaging;
 import java.util.Map;
 
-
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.MessageAnnotations;
@@ -49,6 +48,7 @@ public class MessageAnnotationsType extends AbstractDescribedType<MessageAnnotat
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -61,11 +61,13 @@ public class MessageAnnotationsType extends AbstractDescribedType<MessageAnnotat
     }
 
 
+    @Override
     public MessageAnnotations newInstance(Object described)
     {
         return new MessageAnnotations( (Map) described );
     }
 
+    @Override
     public Class<MessageAnnotations> getTypeClass()
     {
         return MessageAnnotations.class;
@@ -80,7 +82,7 @@ public class MessageAnnotationsType extends AbstractDescribedType<MessageAnnotat
         {
             decoder.register(descriptor, constructor);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), constructor);
         encoder.register(constructor);
     }
 }
-  

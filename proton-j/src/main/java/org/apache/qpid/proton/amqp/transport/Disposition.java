@@ -25,15 +25,24 @@ package org.apache.qpid.proton.amqp.transport;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.codec.ProtonType;
 
-public final class Disposition implements FrameBody
+public final class Disposition implements FrameBody, ProtonType
 {
+    private static final byte DESCRIPTOR = 0x15;
+
     private Role _role = Role.SENDER;
     private UnsignedInteger _first;
     private UnsignedInteger _last;
     private boolean _settled;
     private DeliveryState _state;
     private boolean _batchable;
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR;
+    }
 
     public Role getRole()
     {
@@ -104,6 +113,7 @@ public final class Disposition implements FrameBody
         _batchable = batchable;
     }
 
+    @Override
     public <E> void invoke(FrameBodyHandler<E> handler, Binary payload, E context)
     {
         handler.handleDisposition(this, payload, context);

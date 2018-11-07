@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
@@ -94,6 +95,7 @@ public class HeaderType extends AbstractDescribedType<Header,List> implements De
 
             }
 
+            @Override
             public int size()
             {
                 return _impl.getDeliveryCount() != null
@@ -113,6 +115,7 @@ public class HeaderType extends AbstractDescribedType<Header,List> implements De
 
     }
 
+    @Override
     public Header newInstance(Object described)
     {
         List l = (List) described;
@@ -139,6 +142,7 @@ public class HeaderType extends AbstractDescribedType<Header,List> implements De
         return o;
     }
 
+    @Override
     public Class<Header> getTypeClass()
     {
         return Header.class;
@@ -151,6 +155,7 @@ public class HeaderType extends AbstractDescribedType<Header,List> implements De
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }

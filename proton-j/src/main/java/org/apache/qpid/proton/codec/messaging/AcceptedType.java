@@ -22,6 +22,7 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Accepted;
@@ -64,6 +65,7 @@ public final class AcceptedType extends AbstractDescribedType<Accepted,List> imp
         return Accepted.class;
     }
 
+    @Override
     public Accepted newInstance(Object described)
     {
         return Accepted.getInstance();
@@ -76,6 +78,7 @@ public final class AcceptedType extends AbstractDescribedType<Accepted,List> imp
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }

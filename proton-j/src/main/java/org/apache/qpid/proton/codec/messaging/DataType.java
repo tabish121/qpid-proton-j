@@ -48,6 +48,7 @@ public class DataType extends AbstractDescribedType<Data,Binary> implements Desc
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -59,11 +60,13 @@ public class DataType extends AbstractDescribedType<Data,Binary> implements Desc
         return val.getValue();
     }
 
+    @Override
     public Data newInstance(Object described)
     {
         return new Data( (Binary) described );
     }
 
+    @Override
     public Class<Data> getTypeClass()
     {
         return Data.class;
@@ -78,6 +81,7 @@ public class DataType extends AbstractDescribedType<Data,Binary> implements Desc
         {
             decoder.register(descriptor, type);
         }
+        encoder.registerProtonTypeEncoder(DESCRIPTOR.byteValue(), type);
         encoder.register(type);
     }
 }
