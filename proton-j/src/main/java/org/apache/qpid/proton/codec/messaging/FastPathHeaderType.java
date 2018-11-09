@@ -83,19 +83,19 @@ public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTy
         for (int index = 0; index < count; ++index) {
             switch (index) {
                 case 0:
-                    header.setDurable(decoder.readBoolean());
+                    header.setDurable(decoder.readBoolean(null));
                     break;
                 case 1:
-                    header.setPriority(decoder.readUnsignedByte());
+                    header.setPriority(decoder.readUnsignedByte(null));
                     break;
                 case 2:
-                    header.setTtl(decoder.readUnsignedInteger());
+                    header.setTtl(decoder.readUnsignedInteger(null));
                     break;
                 case 3:
-                    header.setFirstAcquirer(decoder.readBoolean());
+                    header.setFirstAcquirer(decoder.readBoolean(null));
                     break;
                 case 4:
-                    header.setDeliveryCount(decoder.readUnsignedInteger());
+                    header.setDeliveryCount(decoder.readUnsignedInteger(null));
                     break;
                 default:
                     throw new IllegalStateException("To many entries in Header encoding");
