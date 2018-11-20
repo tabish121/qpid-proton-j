@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -51,6 +52,7 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -72,6 +74,7 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
             _detach = detach;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -89,6 +92,7 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
 
         }
 
+        @Override
         public int size()
         {
             return _detach.getError() != null
@@ -100,6 +104,7 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
         }
     }
 
+    @Override
     public Detach newInstance(Object described)
     {
         List l = (List) described;
@@ -127,6 +132,7 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
         return o;
     }
 
+    @Override
     public Class<Detach> getTypeClass()
     {
         return Detach.class;
@@ -141,7 +147,6 @@ public final class DetachType extends AbstractDescribedType<Detach,List> impleme
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

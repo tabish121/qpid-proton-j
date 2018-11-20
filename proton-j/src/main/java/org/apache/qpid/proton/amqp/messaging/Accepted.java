@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,40 +18,37 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
-
 
 public final class Accepted implements DeliveryState, Outcome
 {
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:accepted:list");
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000024L);
 
     private static final Accepted INSTANCE = new Accepted();
 
-    /**
-     *  TODO should this (and other DeliveryStates) have a private constructor??
-     */
-    public Accepted()
-    {
-    }
+    public Accepted() {}
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Accepted{}";
     }
 
-    public static Accepted getInstance()
-    {
+    public static Accepted getInstance() {
         return INSTANCE;
     }
 
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Accepted;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

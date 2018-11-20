@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.messaging;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Modified;
@@ -49,6 +50,7 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -70,6 +72,7 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
             _impl = impl;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -87,6 +90,7 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getMessageAnnotations() != null
@@ -101,6 +105,7 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
 
     }
 
+    @Override
     public Modified newInstance(Object described)
     {
         List l = (List) described;
@@ -123,6 +128,7 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
         return o;
     }
 
+    @Override
     public Class<Modified> getTypeClass()
     {
         return Modified.class;
@@ -138,6 +144,6 @@ public class ModifiedType  extends AbstractDescribedType<Modified,List> implemen
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

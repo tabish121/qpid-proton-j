@@ -44,4 +44,9 @@ public interface DeliveryState
      */
     DeliveryStateType getType();
 
+    /**
+     * @return the Descriptor code used to identify this AMQP {@link DeliveryState}
+     */
+    byte getDescriptorCode();
+
 }

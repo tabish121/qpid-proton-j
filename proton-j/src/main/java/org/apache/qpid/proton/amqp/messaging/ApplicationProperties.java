@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,34 +18,38 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Map;
 
+import org.apache.qpid.proton.amqp.UnsignedLong;
+
 public final class ApplicationProperties implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000074L);
+
     private final Map<String, Object> _value;
 
-    public ApplicationProperties(Map<String, Object> value)
-    {
+    public ApplicationProperties(Map<String, Object> value) {
         _value = value;
     }
 
-    public Map<String, Object> getValue()
-    {
+    public Map<String, Object> getValue() {
         return _value;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "ApplicationProperties{" + _value + '}';
     }
 
     @Override
     public SectionType getType() {
         return SectionType.ApplicationProperties;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

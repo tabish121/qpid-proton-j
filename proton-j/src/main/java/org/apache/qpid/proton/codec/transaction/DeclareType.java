@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transaction;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transaction.Declare;
@@ -49,6 +50,7 @@ public class DeclareType extends AbstractDescribedType<Declare,List> implements 
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -61,6 +63,7 @@ public class DeclareType extends AbstractDescribedType<Declare,List> implements 
         return globalId == null ? Collections.EMPTY_LIST : Collections.singletonList(globalId);
     }
 
+    @Override
     public Declare newInstance(Object described)
     {
         List l = (List) described;
@@ -75,6 +78,7 @@ public class DeclareType extends AbstractDescribedType<Declare,List> implements 
         return o;
     }
 
+    @Override
     public Class<Declare> getTypeClass()
     {
         return Declare.class;
@@ -90,6 +94,6 @@ public class DeclareType extends AbstractDescribedType<Declare,List> implements 
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,47 +18,42 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transaction;
 
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 
-public final class TransactionalState implements DeliveryState
-{
+public final class TransactionalState implements DeliveryState {
+
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000034L);
+
     private Binary _txnId;
     private Outcome _outcome;
 
-    public Binary getTxnId()
-    {
+    public Binary getTxnId() {
         return _txnId;
     }
 
-    public void setTxnId(Binary txnId)
-    {
-        if( txnId == null )
-        {
+    public void setTxnId(Binary txnId) {
+        if (txnId == null) {
             throw new NullPointerException("the txn-id field is mandatory");
         }
 
         _txnId = txnId;
     }
 
-    public Outcome getOutcome()
-    {
+    public Outcome getOutcome() {
         return _outcome;
     }
 
-    public void setOutcome(Outcome outcome)
-    {
+    public void setOutcome(Outcome outcome) {
         _outcome = outcome;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "TransactionalState{" +
                "txnId=" + _txnId +
                ", outcome=" + _outcome +
@@ -69,5 +63,10 @@ public final class TransactionalState implements DeliveryState
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Transactional;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

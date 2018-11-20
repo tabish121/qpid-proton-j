@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,27 +18,25 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class Header implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000070L);
+
     private Boolean _durable;
     private UnsignedByte _priority;
     private UnsignedInteger _ttl;
     private Boolean _firstAcquirer;
     private UnsignedInteger _deliveryCount;
 
-    public Header()
-    {
-    }
+    public Header() {}
 
-    public Header(Header other)
-    {
+    public Header(Header other) {
         this._durable = other._durable;
         this._priority = other._priority;
         this._ttl = other._ttl;
@@ -47,60 +44,48 @@ public final class Header implements Section
         this._deliveryCount = other._deliveryCount;
     }
 
-    public Boolean getDurable()
-    {
+    public Boolean getDurable() {
         return _durable;
     }
 
-    public void setDurable(Boolean durable)
-    {
+    public void setDurable(Boolean durable) {
         _durable = durable;
     }
 
-    public UnsignedByte getPriority()
-    {
+    public UnsignedByte getPriority() {
         return _priority;
     }
 
-    public void setPriority(UnsignedByte priority)
-    {
+    public void setPriority(UnsignedByte priority) {
         _priority = priority;
     }
 
-    public UnsignedInteger getTtl()
-    {
+    public UnsignedInteger getTtl() {
         return _ttl;
     }
 
-    public void setTtl(UnsignedInteger ttl)
-    {
+    public void setTtl(UnsignedInteger ttl) {
         _ttl = ttl;
     }
 
-    public Boolean getFirstAcquirer()
-    {
+    public Boolean getFirstAcquirer() {
         return _firstAcquirer;
     }
 
-    public void setFirstAcquirer(Boolean firstAcquirer)
-    {
+    public void setFirstAcquirer(Boolean firstAcquirer) {
         _firstAcquirer = firstAcquirer;
     }
 
-    public UnsignedInteger getDeliveryCount()
-    {
+    public UnsignedInteger getDeliveryCount() {
         return _deliveryCount;
     }
 
-    public void setDeliveryCount(UnsignedInteger deliveryCount)
-    {
+    public void setDeliveryCount(UnsignedInteger deliveryCount) {
         _deliveryCount = deliveryCount;
     }
 
-
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Header{" +
                "durable=" + _durable +
                ", priority=" + _priority +
@@ -113,5 +98,10 @@ public final class Header implements Section
     @Override
     public SectionType getType() {
         return SectionType.Header;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

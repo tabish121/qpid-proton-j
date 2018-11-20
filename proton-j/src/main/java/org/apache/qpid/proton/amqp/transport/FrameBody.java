@@ -1,4 +1,3 @@
-package org.apache.qpid.proton.amqp.transport;
 /*
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,14 +18,14 @@ package org.apache.qpid.proton.amqp.transport;
  * under the License.
  *
 */
-
+package org.apache.qpid.proton.amqp.transport;
 
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.DescribedType;
 
 public interface FrameBody
 {
-    interface FrameBodyHandler<E>
-    {
+    interface FrameBodyHandler<E> {
         void handleOpen(Open open, Binary payload, E context);
         void handleBegin(Begin begin, Binary payload, E context);
         void handleAttach(Attach attach, Binary payload, E context);
@@ -36,7 +35,6 @@ public interface FrameBody
         void handleDetach(Detach detach, Binary payload, E context);
         void handleEnd(End end, Binary payload, E context);
         void handleClose(Close close, Binary payload, E context);
-
     }
 
     <E> void invoke(FrameBodyHandler<E> handler, Binary payload, E context);
@@ -45,5 +43,10 @@ public interface FrameBody
      * @return a deep copy of this FrameBody.
      */
     FrameBody copy();
+
+    /**
+     * @return the Descriptor code used to identify this AMQP {@link DescribedType}
+     */
+    byte getDescriptorCode();
 
 }

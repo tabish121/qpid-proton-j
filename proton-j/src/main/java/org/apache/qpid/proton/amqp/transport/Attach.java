@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,8 +18,6 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transport;
 
 import java.util.Arrays;
@@ -32,9 +29,10 @@ import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 
-@SuppressWarnings("rawtypes")
 public final class Attach implements FrameBody
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000012L);
+
     private String _name;
     private UnsignedInteger _handle;
     private Role _role = Role.SENDER;
@@ -268,5 +266,11 @@ public final class Attach implements FrameBody
     public Attach copy()
     {
         return new Attach(this);
+    }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR.byteValue();
     }
 }

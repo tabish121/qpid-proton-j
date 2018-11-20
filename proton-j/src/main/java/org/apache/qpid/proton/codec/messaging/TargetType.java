@@ -26,23 +26,24 @@ package org.apache.qpid.proton.codec.messaging;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Target;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
-import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 
 
 public class TargetType extends AbstractDescribedType<Target,List> implements DescribedTypeConstructor<Target>
 {
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000029L), Symbol.valueOf("amqp:target:list"), 
+        UnsignedLong.valueOf(0x0000000000000029L), Symbol.valueOf("amqp:target:list"),
     };
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000029L);
@@ -52,6 +53,7 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -73,6 +75,7 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
             _impl = impl;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -98,6 +101,7 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getCapabilities() != null
@@ -119,6 +123,7 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
         }
     }
 
+    @Override
     public Target newInstance(Object described)
     {
         List l = (List) described;
@@ -161,6 +166,7 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
         return o;
     }
 
+    @Override
     public Class<Target> getTypeClass()
     {
         return Target.class;
@@ -176,7 +182,6 @@ public class TargetType extends AbstractDescribedType<Target,List> implements De
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

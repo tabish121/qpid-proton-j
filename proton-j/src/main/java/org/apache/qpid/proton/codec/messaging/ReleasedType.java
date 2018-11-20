@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Released;
@@ -48,6 +49,7 @@ public class ReleasedType extends AbstractDescribedType<Released,List> implement
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -60,11 +62,13 @@ public class ReleasedType extends AbstractDescribedType<Released,List> implement
     }
 
 
+    @Override
     public Released newInstance(Object described)
     {
         return Released.getInstance();
     }
 
+    @Override
     public Class<Released> getTypeClass()
     {
         return Released.class;
@@ -78,6 +82,6 @@ public class ReleasedType extends AbstractDescribedType<Released,List> implement
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

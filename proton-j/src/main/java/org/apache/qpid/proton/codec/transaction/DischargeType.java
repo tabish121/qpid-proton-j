@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transaction;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -50,6 +51,7 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -72,6 +74,7 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
             _discharge = discharge;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -87,6 +90,7 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
 
         }
 
+        @Override
         public int size()
         {
             return _discharge.getFail() != null
@@ -97,6 +101,7 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
 
     }
 
+    @Override
     public Discharge newInstance(Object described)
     {
         List l = (List) described;
@@ -121,6 +126,7 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
         return o;
     }
 
+    @Override
     public Class<Discharge> getTypeClass()
     {
         return Discharge.class;
@@ -136,6 +142,6 @@ public class DischargeType extends AbstractDescribedType<Discharge,List> impleme
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

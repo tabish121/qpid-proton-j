@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.security;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -50,6 +51,7 @@ public class SaslChallengeType extends AbstractDescribedType<SaslChallenge,List>
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -63,6 +65,7 @@ public class SaslChallengeType extends AbstractDescribedType<SaslChallenge,List>
 
 
 
+    @Override
     public SaslChallenge newInstance(Object described)
     {
         List l = (List) described;
@@ -81,6 +84,7 @@ public class SaslChallengeType extends AbstractDescribedType<SaslChallenge,List>
         return o;
     }
 
+    @Override
     public Class<SaslChallenge> getTypeClass()
     {
         return SaslChallenge.class;
@@ -96,7 +100,6 @@ public class SaslChallengeType extends AbstractDescribedType<SaslChallenge,List>
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
-
 }

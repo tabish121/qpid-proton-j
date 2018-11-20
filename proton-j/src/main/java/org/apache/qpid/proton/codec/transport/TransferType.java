@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -54,6 +55,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
     }
 
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -76,6 +78,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             _transfer = transfer;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -109,6 +112,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
 
         }
 
+        @Override
         public int size()
         {
             return _transfer.getBatchable()
@@ -137,6 +141,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
 
     }
 
+        @Override
         public Transfer newInstance(Object described)
         {
             List l = (List) described;
@@ -184,6 +189,7 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             return o;
         }
 
+        @Override
         public Class<Transfer> getTypeClass()
         {
             return Transfer.class;
@@ -197,5 +203,6 @@ public final class TransferType extends AbstractDescribedType<Transfer,List> imp
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }

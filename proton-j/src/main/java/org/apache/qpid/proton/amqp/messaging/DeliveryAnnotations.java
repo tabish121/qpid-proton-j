@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,36 +18,39 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class DeliveryAnnotations implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000071L);
+
     private final Map<Symbol, Object> _value;
 
-    public DeliveryAnnotations(Map<Symbol, Object> value)
-    {
+    public DeliveryAnnotations(Map<Symbol, Object> value) {
         _value = value;
     }
 
-    public Map<Symbol, Object> getValue()
-    {
+    public Map<Symbol, Object> getValue() {
         return _value;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "DeliveryAnnotations{" + _value + '}';
     }
 
     @Override
     public SectionType getType() {
         return SectionType.DeliveryAnnotations;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

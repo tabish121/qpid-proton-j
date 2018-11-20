@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.transport;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
@@ -50,6 +51,7 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -71,6 +73,7 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
             _errorCondition = errorCondition;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -88,6 +91,7 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
 
         }
 
+        @Override
         public int size()
         {
             return _errorCondition.getInfo() != null
@@ -100,6 +104,7 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
 
     }
 
+    @Override
     public ErrorCondition newInstance(Object described)
     {
         List l = (List) described;
@@ -126,6 +131,7 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
         return o;
     }
 
+    @Override
     public Class<ErrorCondition> getTypeClass()
     {
         return ErrorCondition.class;
@@ -141,7 +147,6 @@ public final class ErrorConditionType extends AbstractDescribedType<ErrorConditi
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

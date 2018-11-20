@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,32 +18,35 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 
-public final class Released implements DeliveryState, Outcome
-{
+public final class Released implements DeliveryState, Outcome {
+
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:released:list");
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000026L);
 
     private static final Released INSTANCE = new Released();
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Released{}";
     }
 
-    public static Released getInstance()
-    {
+    public static Released getInstance() {
         return INSTANCE;
     }
 
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Released;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

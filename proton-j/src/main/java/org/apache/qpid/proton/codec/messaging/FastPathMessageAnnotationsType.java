@@ -179,6 +179,7 @@ public class FastPathMessageAnnotationsType implements AMQPType<MessageAnnotatio
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 
     private static TypeConstructor<?> findNextDecoder(DecoderImpl decoder, ReadableBuffer buffer, TypeConstructor<?> previousConstructor) {

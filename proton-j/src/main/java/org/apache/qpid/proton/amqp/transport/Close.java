@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,14 +18,15 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transport;
 
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class Close implements FrameBody
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000018L);
+
     private ErrorCondition _error;
 
     public Close() {}
@@ -68,5 +68,11 @@ public final class Close implements FrameBody
     public Close copy()
     {
         return new Close(this);
+    }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR.byteValue();
     }
 }

@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,15 +18,16 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transport;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class Disposition implements FrameBody
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000015L);
+
     private Role _role = Role.SENDER;
     private UnsignedInteger _first;
     private UnsignedInteger _last;
@@ -139,5 +139,11 @@ public final class Disposition implements FrameBody
     public Disposition copy()
     {
         return new Disposition(this);
+    }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR.byteValue();
     }
 }

@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,42 +18,37 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 
-public final class Received implements DeliveryState
-{
+public final class Received implements DeliveryState {
+
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000023L);
+
     private UnsignedInteger _sectionNumber;
     private UnsignedLong _sectionOffset;
 
-    public UnsignedInteger getSectionNumber()
-    {
+    public UnsignedInteger getSectionNumber() {
         return _sectionNumber;
     }
 
-    public void setSectionNumber(UnsignedInteger sectionNumber)
-    {
+    public void setSectionNumber(UnsignedInteger sectionNumber) {
         _sectionNumber = sectionNumber;
     }
 
-    public UnsignedLong getSectionOffset()
-    {
+    public UnsignedLong getSectionOffset() {
         return _sectionOffset;
     }
 
-    public void setSectionOffset(UnsignedLong sectionOffset)
-    {
+    public void setSectionOffset(UnsignedLong sectionOffset) {
         _sectionOffset = sectionOffset;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Received{" +
                "sectionNumber=" + _sectionNumber +
                ", sectionOffset=" + _sectionOffset +
@@ -64,5 +58,10 @@ public final class Received implements DeliveryState
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Received;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

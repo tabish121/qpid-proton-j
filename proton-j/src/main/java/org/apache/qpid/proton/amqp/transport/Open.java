@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,8 +18,6 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transport;
 
 import java.util.Arrays;
@@ -30,11 +27,13 @@ import java.util.Map;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
 
-@SuppressWarnings("rawtypes")
 public final class Open implements FrameBody
 {
+    private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000010L);
+
     private String _containerId;
     private String _hostname;
     private UnsignedInteger _maxFrameSize = UnsignedInteger.valueOf(0xffffffff);
@@ -205,5 +204,11 @@ public final class Open implements FrameBody
     public Open copy()
     {
         return new Open(this);
+    }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR.byteValue();
     }
 }

@@ -103,5 +103,6 @@ public class FastPathAmqpSequenceType implements AMQPType<AmqpSequence>, FastPat
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

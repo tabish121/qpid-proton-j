@@ -18,55 +18,49 @@
 * under the License.
 *
 */
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 
-public final class Modified implements DeliveryState, Outcome
-{
+public final class Modified implements DeliveryState, Outcome {
+
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:modified:list");
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000027L);
 
     private Boolean _deliveryFailed;
     private Boolean _undeliverableHere;
     private Map<Symbol, Object> _messageAnnotations;
 
-    public Boolean getDeliveryFailed()
-    {
+    public Boolean getDeliveryFailed() {
         return _deliveryFailed;
     }
 
-    public void setDeliveryFailed(Boolean deliveryFailed)
-    {
+    public void setDeliveryFailed(Boolean deliveryFailed) {
         _deliveryFailed = deliveryFailed;
     }
 
-    public Boolean getUndeliverableHere()
-    {
+    public Boolean getUndeliverableHere() {
         return _undeliverableHere;
     }
 
-    public void setUndeliverableHere(Boolean undeliverableHere)
-    {
+    public void setUndeliverableHere(Boolean undeliverableHere) {
         _undeliverableHere = undeliverableHere;
     }
 
-    public Map getMessageAnnotations()
-    {
+    public Map getMessageAnnotations() {
         return _messageAnnotations;
     }
 
-    public void setMessageAnnotations(Map messageAnnotations)
-    {
+    public void setMessageAnnotations(Map messageAnnotations) {
         _messageAnnotations = messageAnnotations;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Modified{" +
                "deliveryFailed=" + _deliveryFailed +
                ", undeliverableHere=" + _undeliverableHere +
@@ -77,5 +71,10 @@ public final class Modified implements DeliveryState, Outcome
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Modified;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

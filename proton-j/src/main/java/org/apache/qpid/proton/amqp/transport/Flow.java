@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,8 +18,6 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transport;
 
 import java.util.LinkedHashMap;
@@ -28,10 +25,13 @@ import java.util.Map;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 @SuppressWarnings("rawtypes")
 public final class Flow implements FrameBody
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000013L);
+
     private UnsignedInteger _nextIncomingId;
     private UnsignedInteger _incomingWindow;
     private UnsignedInteger _nextOutgoingId;
@@ -218,5 +218,11 @@ public final class Flow implements FrameBody
     public Flow copy()
     {
         return new Flow(this);
+    }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        return DESCRIPTOR.byteValue();
     }
 }

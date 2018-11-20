@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,40 +18,34 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
-public final class Rejected implements DeliveryState, Outcome
-{
+public final class Rejected implements DeliveryState, Outcome {
+
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:rejected:list");
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000025L);
 
     private ErrorCondition _error;
 
-    public ErrorCondition getError()
-    {
+    public ErrorCondition getError() {
         return _error;
     }
 
-    public void setError(ErrorCondition error)
-    {
+    public void setError(ErrorCondition error) {
         _error = error;
     }
 
-    public int size()
-    {
-        return _error != null
-                  ? 1
-                  : 0;
+    public int size() {
+        return _error != null ? 1 : 0;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Rejected{" +
                "error=" + _error +
                '}';
@@ -61,5 +54,10 @@ public final class Rejected implements DeliveryState, Outcome
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Rejected;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.DeleteOnClose;
@@ -49,6 +50,7 @@ public class DeleteOnCloseType extends AbstractDescribedType<DeleteOnClose,List>
     }
 
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -60,11 +62,13 @@ public class DeleteOnCloseType extends AbstractDescribedType<DeleteOnClose,List>
         return Collections.EMPTY_LIST;
     }
 
+    @Override
     public DeleteOnClose newInstance(Object described)
     {
         return DeleteOnClose.getInstance();
     }
 
+    @Override
     public Class<DeleteOnClose> getTypeClass()
     {
         return DeleteOnClose.class;
@@ -79,6 +83,6 @@ public class DeleteOnCloseType extends AbstractDescribedType<DeleteOnClose,List>
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

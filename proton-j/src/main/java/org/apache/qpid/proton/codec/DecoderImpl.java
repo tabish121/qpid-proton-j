@@ -89,7 +89,7 @@ public class DecoderImpl implements ByteBufferDecoder
     public TypeConstructor readConstructor(boolean excludeFastPathConstructors)
     {
         int code = ((int)readRawByte()) & 0xff;
-        if(code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
+        if (code == EncodingCodes.DESCRIBED_TYPE_INDICATOR)
         {
             final byte encoding = _buffer.get(_buffer.position());
             final Object descriptor;
@@ -116,32 +116,39 @@ public class DecoderImpl implements ByteBufferDecoder
                 }
             }
 
-            TypeConstructor<?> nestedEncoding = readConstructor(false);
-            DescribedTypeConstructor<?> dtc = _dynamicTypeConstructors.get(descriptor);
-            if(dtc == null)
-            {
-                dtc = new DescribedTypeConstructor()
-                {
-                    @Override
-                    public DescribedType newInstance(final Object described)
-                    {
-                        return new UnknownDescribedType(descriptor, described);
-                    }
-
-                    @Override
-                    public Class<?> getTypeClass()
-                    {
-                        return UnknownDescribedType.class;
-                    }
-                };
-                register(descriptor, dtc);
-            }
-            return new DynamicTypeConstructor(dtc, nestedEncoding);
+            return readDynamicTypeConstructor(descriptor);
         }
         else
         {
             return _constructors[code];
         }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private DynamicTypeConstructor readDynamicTypeConstructor(Object descriptor)
+    {
+        TypeConstructor<?> nestedEncoding = readConstructor(false);
+        DescribedTypeConstructor<?> dtc = _dynamicTypeConstructors.get(descriptor);
+        if (dtc == null)
+        {
+            dtc = new DescribedTypeConstructor()
+            {
+                @Override
+                public DescribedType newInstance(final Object described)
+                {
+                    return new UnknownDescribedType(descriptor, described);
+                }
+
+                @Override
+                public Class<?> getTypeClass()
+                {
+                    return UnknownDescribedType.class;
+                }
+            };
+            register(descriptor, dtc);
+        }
+
+        return new DynamicTypeConstructor(dtc, nestedEncoding);
     }
 
     @Override

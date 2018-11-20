@@ -306,5 +306,6 @@ public class FastPathPropertiesType implements AMQPType<Properties>, FastPathDes
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

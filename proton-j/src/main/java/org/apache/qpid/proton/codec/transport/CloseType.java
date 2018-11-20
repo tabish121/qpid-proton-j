@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.Close;
@@ -49,6 +50,7 @@ public final class CloseType extends AbstractDescribedType<Close,List> implement
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -61,6 +63,7 @@ public final class CloseType extends AbstractDescribedType<Close,List> implement
         return error == null ? Collections.EMPTY_LIST : Collections.singletonList(error);
     }
 
+    @Override
     public Close newInstance(Object described)
     {
         List l = (List) described;
@@ -75,6 +78,7 @@ public final class CloseType extends AbstractDescribedType<Close,List> implement
         return o;
     }
 
+    @Override
     public Class<Close> getTypeClass()
     {
         return Close.class;
@@ -88,7 +92,6 @@ public final class CloseType extends AbstractDescribedType<Close,List> implement
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

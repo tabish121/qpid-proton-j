@@ -47,6 +47,7 @@ public class AmqpValueType extends AbstractDescribedType<AmqpValue,Object> imple
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -58,11 +59,13 @@ public class AmqpValueType extends AbstractDescribedType<AmqpValue,Object> imple
         return val.getValue();
     }
 
+    @Override
     public AmqpValue newInstance(Object described)
     {
         return new AmqpValue( described );
     }
 
+    @Override
     public Class<AmqpValue> getTypeClass()
     {
         return AmqpValue.class;
@@ -78,5 +81,6 @@ public class AmqpValueType extends AbstractDescribedType<AmqpValue,Object> imple
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }

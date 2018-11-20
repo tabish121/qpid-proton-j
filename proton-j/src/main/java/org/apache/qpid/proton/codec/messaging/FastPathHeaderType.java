@@ -243,5 +243,6 @@ public class FastPathHeaderType implements AMQPType<Header>, FastPathDescribedTy
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

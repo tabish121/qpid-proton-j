@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transaction;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -50,6 +51,7 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -71,6 +73,7 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
             _transactionalState = transactionalState;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -86,6 +89,7 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
 
         }
 
+        @Override
         public int size()
         {
             return _transactionalState.getOutcome() != null
@@ -97,6 +101,7 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
 
     }
 
+    @Override
     public TransactionalState newInstance(Object described)
     {
         List l = (List) described;
@@ -121,6 +126,7 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
         return o;
     }
 
+    @Override
     public Class<TransactionalState> getTypeClass()
     {
         return TransactionalState.class;
@@ -136,6 +142,6 @@ public class TransactionalStateType extends AbstractDescribedType<TransactionalS
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

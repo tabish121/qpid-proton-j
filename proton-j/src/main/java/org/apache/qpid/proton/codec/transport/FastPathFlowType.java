@@ -277,5 +277,6 @@ public class FastPathFlowType implements AMQPType<Flow>, FastPathDescribedTypeCo
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

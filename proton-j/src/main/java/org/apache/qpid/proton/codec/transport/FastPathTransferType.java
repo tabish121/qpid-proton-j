@@ -234,7 +234,7 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
                 getEncoder().writeObject(rcvSettleMode == null ? null : rcvSettleMode.getValue());
                 break;
             case 7:
-                getEncoder().writeObject(transfer.getState());
+                getEncoder().writeDeliveryState(transfer.getState());
                 break;
             case 8:
                 getEncoder().writeBoolean(transfer.getResume());
@@ -293,5 +293,6 @@ public class FastPathTransferType implements AMQPType<Transfer>, FastPathDescrib
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

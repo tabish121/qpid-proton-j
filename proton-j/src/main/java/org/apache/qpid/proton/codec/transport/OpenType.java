@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.transport;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -42,7 +43,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
 {
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000010L), Symbol.valueOf("amqp:open:list"), 
+        UnsignedLong.valueOf(0x0000000000000010L), Symbol.valueOf("amqp:open:list"),
     };
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000010L);
@@ -53,6 +54,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
     }
 
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -75,6 +77,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
             _open = open;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -106,6 +109,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
 
         }
 
+        @Override
         public int size()
         {
             return _open.getProperties() != null
@@ -132,6 +136,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
 
     }
 
+    @Override
     public Open newInstance(Object described)
     {
         List l = (List) described;
@@ -206,6 +211,7 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
         return o;
     }
 
+    @Override
     public Class<Open> getTypeClass()
     {
         return Open.class;
@@ -220,7 +226,6 @@ public final class OpenType extends AbstractDescribedType<Open,List> implements 
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

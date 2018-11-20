@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.security;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedByte;
@@ -52,6 +53,7 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -74,6 +76,7 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
         }
 
 
+        @Override
         public Object get(final int index)
         {
 
@@ -89,6 +92,7 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getAdditionalData() != null
@@ -97,6 +101,7 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
         }
     }
 
+    @Override
     public SaslOutcome newInstance(Object described)
     {
         List l = (List) described;
@@ -121,6 +126,7 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
         return o;
     }
 
+    @Override
     public Class<SaslOutcome> getTypeClass()
     {
         return SaslOutcome.class;
@@ -136,5 +142,6 @@ public class SaslOutcomeType  extends AbstractDescribedType<SaslOutcome,List> im
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }

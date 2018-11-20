@@ -126,5 +126,6 @@ public class FastPathAcceptedType implements AMQPType<Accepted>, FastPathDescrib
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

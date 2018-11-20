@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,8 +18,6 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import java.util.Date;
@@ -28,9 +25,12 @@ import java.util.Date;
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class Properties implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000073L);
+
     private Object _messageId;
     private Binary _userId;
     private String _to;
@@ -45,12 +45,9 @@ public final class Properties implements Section
     private UnsignedInteger _groupSequence;
     private String _replyToGroupId;
 
-    public Properties()
-    {
-    }
+    public Properties() {}
 
-    public Properties(Properties other)
-    {
+    public Properties(Properties other) {
         this._messageId = other._messageId;
         this._userId = other._userId;
         this._to = other._to;
@@ -66,139 +63,112 @@ public final class Properties implements Section
         this._replyToGroupId = other._replyToGroupId;
     }
 
-    public Object getMessageId()
-    {
+    public Object getMessageId() {
         return _messageId;
     }
 
-    public void setMessageId(Object messageId)
-    {
+    public void setMessageId(Object messageId) {
         _messageId = messageId;
     }
 
-    public Binary getUserId()
-    {
+    public Binary getUserId() {
         return _userId;
     }
 
-    public void setUserId(Binary userId)
-    {
+    public void setUserId(Binary userId) {
         _userId = userId;
     }
 
-    public String getTo()
-    {
+    public String getTo() {
         return _to;
     }
 
-    public void setTo(String to)
-    {
+    public void setTo(String to) {
         _to = to;
     }
 
-    public String getSubject()
-    {
+    public String getSubject() {
         return _subject;
     }
 
-    public void setSubject(String subject)
-    {
+    public void setSubject(String subject) {
         _subject = subject;
     }
 
-    public String getReplyTo()
-    {
+    public String getReplyTo() {
         return _replyTo;
     }
 
-    public void setReplyTo(String replyTo)
-    {
+    public void setReplyTo(String replyTo) {
         _replyTo = replyTo;
     }
 
-    public Object getCorrelationId()
-    {
+    public Object getCorrelationId() {
         return _correlationId;
     }
 
-    public void setCorrelationId(Object correlationId)
-    {
+    public void setCorrelationId(Object correlationId) {
         _correlationId = correlationId;
     }
 
-    public Symbol getContentType()
-    {
+    public Symbol getContentType() {
         return _contentType;
     }
 
-    public void setContentType(Symbol contentType)
-    {
+    public void setContentType(Symbol contentType) {
         _contentType = contentType;
     }
 
-    public Symbol getContentEncoding()
-    {
+    public Symbol getContentEncoding() {
         return _contentEncoding;
     }
 
-    public void setContentEncoding(Symbol contentEncoding)
-    {
+    public void setContentEncoding(Symbol contentEncoding) {
         _contentEncoding = contentEncoding;
     }
 
-    public Date getAbsoluteExpiryTime()
-    {
+    public Date getAbsoluteExpiryTime() {
         return _absoluteExpiryTime;
     }
 
-    public void setAbsoluteExpiryTime(Date absoluteExpiryTime)
-    {
+    public void setAbsoluteExpiryTime(Date absoluteExpiryTime) {
         _absoluteExpiryTime = absoluteExpiryTime;
     }
 
-    public Date getCreationTime()
-    {
+    public Date getCreationTime() {
         return _creationTime;
     }
 
-    public void setCreationTime(Date creationTime)
-    {
+    public void setCreationTime(Date creationTime) {
         _creationTime = creationTime;
     }
 
-    public String getGroupId()
-    {
+    public String getGroupId() {
         return _groupId;
     }
 
-    public void setGroupId(String groupId)
-    {
+    public void setGroupId(String groupId) {
         _groupId = groupId;
     }
 
-    public UnsignedInteger getGroupSequence()
-    {
+    public UnsignedInteger getGroupSequence() {
         return _groupSequence;
     }
 
-    public void setGroupSequence(UnsignedInteger groupSequence)
-    {
+    public void setGroupSequence(UnsignedInteger groupSequence) {
         _groupSequence = groupSequence;
     }
 
-    public String getReplyToGroupId()
-    {
+    public String getReplyToGroupId() {
         return _replyToGroupId;
     }
 
-    public void setReplyToGroupId(String replyToGroupId)
-    {
+    public void setReplyToGroupId(String replyToGroupId) {
         _replyToGroupId = replyToGroupId;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Properties{" +
                "messageId=" + _messageId +
                ", userId=" + _userId +
@@ -219,5 +189,10 @@ public final class Properties implements Section
     @Override
     public SectionType getType() {
         return SectionType.Properties;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

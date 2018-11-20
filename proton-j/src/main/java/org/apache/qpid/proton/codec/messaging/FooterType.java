@@ -24,6 +24,7 @@
 package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Footer;
@@ -47,6 +48,7 @@ public class FooterType extends AbstractDescribedType<Footer,Map> implements Des
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -58,16 +60,18 @@ public class FooterType extends AbstractDescribedType<Footer,Map> implements Des
         return val.getValue();
     }
 
+    @Override
     public Footer newInstance(Object described)
     {
         return new Footer( (Map) described );
     }
 
+    @Override
     public Class<Footer> getTypeClass()
     {
         return Footer.class;
     }
-      
+
 
     public static void register(Decoder decoder, EncoderImpl encoder)
     {
@@ -77,6 +81,6 @@ public class FooterType extends AbstractDescribedType<Footer,Map> implements Des
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

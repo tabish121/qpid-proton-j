@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.messaging;
 import java.util.AbstractList;
 import java.util.Date;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
@@ -50,6 +51,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -71,6 +73,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
             _impl = propertiesType;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -108,6 +111,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getReplyToGroupId() != null
@@ -142,6 +146,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
 
     }
 
+        @Override
         public Properties newInstance(Object described)
         {
             List l = (List) described;
@@ -184,6 +189,7 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
             return o;
         }
 
+        @Override
         public Class<Properties> getTypeClass()
         {
             return Properties.class;
@@ -197,5 +203,6 @@ public class PropertiesType  extends AbstractDescribedType<Properties,List> impl
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }

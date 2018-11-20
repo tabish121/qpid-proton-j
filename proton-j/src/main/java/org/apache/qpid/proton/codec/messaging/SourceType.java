@@ -26,24 +26,25 @@ package org.apache.qpid.proton.codec.messaging;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.messaging.Source;
+import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
+import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.apache.qpid.proton.amqp.messaging.TerminusDurability;
-import org.apache.qpid.proton.amqp.messaging.TerminusExpiryPolicy;
 
 
 public class SourceType extends AbstractDescribedType<Source,List> implements DescribedTypeConstructor<Source>
 {
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000028L), Symbol.valueOf("amqp:source:list"), 
+        UnsignedLong.valueOf(0x0000000000000028L), Symbol.valueOf("amqp:source:list"),
     };
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000028L);
@@ -53,6 +54,7 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -74,6 +76,7 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
             _impl = impl;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -107,6 +110,7 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getCapabilities() != null
@@ -137,6 +141,7 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
 
     }
 
+    @Override
     public Source newInstance(Object described)
     {
         List l = (List) described;
@@ -195,6 +200,7 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
         return o;
     }
 
+    @Override
     public Class<Source> getTypeClass()
     {
         return Source.class;
@@ -210,8 +216,6 @@ public class SourceType extends AbstractDescribedType<Source,List> implements De
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
-
 }
-  

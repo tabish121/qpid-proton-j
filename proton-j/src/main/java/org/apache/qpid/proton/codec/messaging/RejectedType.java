@@ -25,14 +25,15 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.AbstractList;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Rejected;
+import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 import org.apache.qpid.proton.codec.AbstractDescribedType;
 import org.apache.qpid.proton.codec.Decoder;
 import org.apache.qpid.proton.codec.DescribedTypeConstructor;
 import org.apache.qpid.proton.codec.EncoderImpl;
-import org.apache.qpid.proton.amqp.transport.ErrorCondition;
 
 
 public class RejectedType  extends AbstractDescribedType<Rejected,List> implements DescribedTypeConstructor<Rejected>
@@ -49,6 +50,7 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -70,6 +72,7 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
             _impl = impl;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -83,6 +86,7 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
 
         }
 
+        @Override
         public int size()
         {
             return _impl.getError() != null
@@ -92,6 +96,7 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
         }
     }
 
+    @Override
     public Rejected newInstance(Object described)
     {
         List l = (List) described;
@@ -108,6 +113,7 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
         return o;
     }
 
+    @Override
     public Class<Rejected> getTypeClass()
     {
         return Rejected.class;
@@ -122,6 +128,6 @@ public class RejectedType  extends AbstractDescribedType<Rejected,List> implemen
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

@@ -168,7 +168,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(header);
+            encoder.writeSection(header);
         }
         resultSet.encodesComplete();
 
@@ -194,7 +194,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(transfer);
+            encoder.writeFrameBody(transfer);
         }
         resultSet.encodesComplete();
 
@@ -224,7 +224,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(flow);
+            encoder.writeFrameBody(flow);
         }
         resultSet.encodesComplete();
 
@@ -251,7 +251,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(properties);
+            encoder.writeSection(properties);
         }
         resultSet.encodesComplete();
 
@@ -277,7 +277,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(annotations);
+            encoder.writeSection(annotations);
         }
         resultSet.encodesComplete();
 
@@ -303,7 +303,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(properties);
+            encoder.writeSection(properties);
         }
         resultSet.encodesComplete();
 
@@ -360,7 +360,7 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(disposition);
+            encoder.writeFrameBody(disposition);
         }
         resultSet.encodesComplete();
 
@@ -414,9 +414,9 @@ public class Benchmark implements Runnable {
         resultSet.start();
         for (int i = 0; i < ITERATIONS; i++) {
             outputBuf.byteBuffer().clear();
-            encoder.writeObject(data1);
-            encoder.writeObject(data2);
-            encoder.writeObject(data3);
+            encoder.writeSection(data1);
+            encoder.writeSection(data2);
+            encoder.writeSection(data3);
         }
         resultSet.encodesComplete();
 

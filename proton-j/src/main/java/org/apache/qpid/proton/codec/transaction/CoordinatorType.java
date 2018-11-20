@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transaction;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transaction.Coordinator;
@@ -48,6 +49,7 @@ public class CoordinatorType extends AbstractDescribedType<Coordinator,List> imp
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -63,6 +65,7 @@ public class CoordinatorType extends AbstractDescribedType<Coordinator,List> imp
     }
 
 
+    @Override
     public Coordinator newInstance(Object described)
     {
         List l = (List) described;
@@ -89,6 +92,7 @@ public class CoordinatorType extends AbstractDescribedType<Coordinator,List> imp
         return o;
     }
 
+    @Override
     public Class<Coordinator> getTypeClass()
     {
         return Coordinator.class;
@@ -104,6 +108,6 @@ public class CoordinatorType extends AbstractDescribedType<Coordinator,List> imp
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

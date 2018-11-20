@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,32 +18,36 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
+
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class AmqpValue implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000077L);
+
     private final Object _value;
 
-    public AmqpValue(Object value)
-    {
+    public AmqpValue(Object value) {
         _value = value;
     }
 
-    public Object getValue()
-    {
+    public Object getValue() {
         return _value;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "AmqpValue{" + _value + '}';
     }
 
     @Override
     public SectionType getType() {
         return SectionType.AmqpValue;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

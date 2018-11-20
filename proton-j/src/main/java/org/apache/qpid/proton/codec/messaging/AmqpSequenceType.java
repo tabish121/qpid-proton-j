@@ -24,6 +24,7 @@
 package org.apache.qpid.proton.codec.messaging;
 
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.AmqpSequence;
@@ -47,6 +48,7 @@ public class AmqpSequenceType extends AbstractDescribedType<AmqpSequence,List> i
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -58,11 +60,13 @@ public class AmqpSequenceType extends AbstractDescribedType<AmqpSequence,List> i
         return val.getValue();
     }
 
+    @Override
     public AmqpSequence newInstance(Object described)
     {
         return new AmqpSequence( (List) described );
     }
 
+    @Override
     public Class<AmqpSequence> getTypeClass()
     {
         return AmqpSequence.class;
@@ -78,5 +82,6 @@ public class AmqpSequenceType extends AbstractDescribedType<AmqpSequence,List> i
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }

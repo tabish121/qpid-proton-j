@@ -217,7 +217,7 @@ public class FastPathDispositionType implements AMQPType<Disposition>, FastPathD
                 if (Accepted.getInstance().equals(disposition.getState())) {
                     getEncoder().getBuffer().put(ACCEPTED_ENCODED_BYTES, 0, ACCEPTED_ENCODED_BYTES.length);
                 } else {
-                    getEncoder().writeObject(disposition.getState());
+                    getEncoder().writeDeliveryState(disposition.getState());
                 }
                 break;
             case 5:
@@ -258,5 +258,6 @@ public class FastPathDispositionType implements AMQPType<Disposition>, FastPathD
             decoder.register(descriptor, (FastPathDescribedTypeConstructor<?>) type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

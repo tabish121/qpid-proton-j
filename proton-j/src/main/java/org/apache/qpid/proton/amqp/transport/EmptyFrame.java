@@ -43,4 +43,10 @@ public final class EmptyFrame implements FrameBody
     {
         return new EmptyFrame();
     }
+
+    @Override
+    public byte getDescriptorCode()
+    {
+        throw new UnsupportedOperationException();
+    }
 }

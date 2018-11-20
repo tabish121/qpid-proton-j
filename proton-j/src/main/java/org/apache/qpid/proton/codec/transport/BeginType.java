@@ -26,6 +26,7 @@ package org.apache.qpid.proton.codec.transport;
 import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
@@ -42,7 +43,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
 {
     private static final Object[] DESCRIPTORS =
     {
-        UnsignedLong.valueOf(0x0000000000000011L), Symbol.valueOf("amqp:begin:list"), 
+        UnsignedLong.valueOf(0x0000000000000011L), Symbol.valueOf("amqp:begin:list"),
     };
 
     private static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000011L);
@@ -52,6 +53,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -73,6 +75,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
             _begin = begin;
         }
 
+        @Override
         public Object get(final int index)
         {
 
@@ -100,6 +103,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
 
         }
 
+        @Override
         public int size()
         {
             return _begin.getProperties() != null
@@ -115,6 +119,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
         }
     }
 
+    @Override
     public Begin newInstance(Object described)
     {
         List l = (List) described;
@@ -168,6 +173,7 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
         return o;
     }
 
+    @Override
     public Class<Begin> getTypeClass()
     {
         return Begin.class;
@@ -182,7 +188,6 @@ public final class BeginType extends AbstractDescribedType<Begin,List> implement
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

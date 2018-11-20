@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,31 +18,27 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.transaction;
 
 import org.apache.qpid.proton.amqp.Binary;
 import org.apache.qpid.proton.amqp.Symbol;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.Outcome;
 import org.apache.qpid.proton.amqp.transport.DeliveryState;
 
+public final class Declared implements DeliveryState, Outcome {
 
-public final class Declared implements DeliveryState, Outcome
-{
     public static final Symbol DESCRIPTOR_SYMBOL = Symbol.valueOf("amqp:declared:list");
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000033L);
 
     private Binary _txnId;
 
-    public Binary getTxnId()
-    {
+    public Binary getTxnId() {
         return _txnId;
     }
 
-    public void setTxnId(Binary txnId)
-    {
-        if( txnId == null )
-        {
+    public void setTxnId(Binary txnId) {
+        if (txnId == null) {
             throw new NullPointerException("the txn-id field is mandatory");
         }
 
@@ -51,8 +46,7 @@ public final class Declared implements DeliveryState, Outcome
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Declared{" +
                "txnId=" + _txnId +
                '}';
@@ -61,5 +55,10 @@ public final class Declared implements DeliveryState, Outcome
     @Override
     public DeliveryStateType getType() {
         return DeliveryStateType.Declared;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }

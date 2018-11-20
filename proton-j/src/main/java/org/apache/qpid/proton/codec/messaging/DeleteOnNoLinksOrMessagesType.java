@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.messaging;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.messaging.DeleteOnNoLinksOrMessages;
@@ -48,6 +49,7 @@ public class DeleteOnNoLinksOrMessagesType extends AbstractDescribedType<DeleteO
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -59,11 +61,13 @@ public class DeleteOnNoLinksOrMessagesType extends AbstractDescribedType<DeleteO
         return Collections.EMPTY_LIST;
     }
 
+    @Override
     public DeleteOnNoLinksOrMessages newInstance(Object described)
     {
         return DeleteOnNoLinksOrMessages.getInstance();
     }
 
+    @Override
     public Class<DeleteOnNoLinksOrMessages> getTypeClass()
     {
         return DeleteOnNoLinksOrMessages.class;
@@ -78,6 +82,6 @@ public class DeleteOnNoLinksOrMessagesType extends AbstractDescribedType<DeleteO
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
 }
-  

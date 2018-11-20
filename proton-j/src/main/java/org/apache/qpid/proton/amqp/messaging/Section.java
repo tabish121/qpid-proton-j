@@ -20,6 +20,8 @@
  */
 package org.apache.qpid.proton.amqp.messaging;
 
+import org.apache.qpid.proton.amqp.DescribedType;
+
 public interface Section {
 
     enum SectionType {
@@ -38,5 +40,10 @@ public interface Section {
      * @return the {@link SectionType} that describes this instance.
      */
     SectionType getType();
+
+    /**
+     * @return the Descriptor code used to identify this AMQP {@link DescribedType}
+     */
+    byte getDescriptorCode();
 
 }

@@ -25,6 +25,7 @@ package org.apache.qpid.proton.codec.transport;
 
 import java.util.Collections;
 import java.util.List;
+
 import org.apache.qpid.proton.amqp.Symbol;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.transport.End;
@@ -49,6 +50,7 @@ public final class EndType extends AbstractDescribedType<End,List> implements De
         super(encoder);
     }
 
+    @Override
     public UnsignedLong getDescriptor()
     {
         return DESCRIPTOR;
@@ -62,6 +64,7 @@ public final class EndType extends AbstractDescribedType<End,List> implements De
     }
 
 
+    @Override
     public End newInstance(Object described)
     {
         List l = (List) described;
@@ -77,6 +80,7 @@ public final class EndType extends AbstractDescribedType<End,List> implements De
         return o;
     }
 
+    @Override
     public Class<End> getTypeClass()
     {
         return End.class;
@@ -91,7 +95,6 @@ public final class EndType extends AbstractDescribedType<End,List> implements De
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR.byteValue(), type);
     }
-
 }
-  

@@ -109,5 +109,6 @@ public class FastPathFooterType implements AMQPType<Footer>, FastPathDescribedTy
             decoder.register(descriptor, type);
         }
         encoder.register(type);
+        encoder.register(DESCRIPTOR_CODE, type);
     }
 }

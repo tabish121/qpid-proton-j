@@ -37,6 +37,9 @@ import org.apache.qpid.proton.amqp.UnsignedByte;
 import org.apache.qpid.proton.amqp.UnsignedInteger;
 import org.apache.qpid.proton.amqp.UnsignedLong;
 import org.apache.qpid.proton.amqp.UnsignedShort;
+import org.apache.qpid.proton.amqp.messaging.Section;
+import org.apache.qpid.proton.amqp.transport.DeliveryState;
+import org.apache.qpid.proton.amqp.transport.FrameBody;
 
 public final class EncoderImpl implements ByteBufferEncoder
 {
@@ -48,6 +51,8 @@ public final class EncoderImpl implements ByteBufferEncoder
     private final Map<Class, AMQPType> _typeRegistry = new HashMap<Class, AMQPType>();
     private Map<Object, AMQPType> _describedDescriptorRegistry = new HashMap<Object, AMQPType>();
     private Map<Class, AMQPType>  _describedTypesClassRegistry = new HashMap<Class, AMQPType>();
+
+    private final AMQPType[] _describedTypesByIndex = new AMQPType<?>[256];
 
     private final NullType              _nullType;
     private final BooleanType           _booleanType;
@@ -216,6 +221,11 @@ public final class EncoderImpl implements ByteBufferEncoder
     <T> void register(Class<T> clazz, AMQPType<T> type)
     {
         _typeRegistry.put(clazz, type);
+    }
+
+    public <T> void register(byte descriptorCode, AMQPType<T> type)
+    {
+        _describedTypesByIndex[descriptorCode] = type;
     }
 
     public void registerDescribedType(Class clazz, Object descriptor)
@@ -741,6 +751,45 @@ public final class EncoderImpl implements ByteBufferEncoder
         else
         {
             _buffer.put(EncodingCodes.NULL);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void writeSection(final Section section)
+    {
+        try
+        {
+            _describedTypesByIndex[section.getDescriptorCode() & 0xFF].write(section);;
+        }
+        catch (IndexOutOfBoundsException | NullPointerException ex)
+        {
+            writeObject((Object) section);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void writeFrameBody(final FrameBody frameBody)
+    {
+        try
+        {
+            _describedTypesByIndex[frameBody.getDescriptorCode() & 0xFF].write(frameBody);;
+        }
+        catch (IndexOutOfBoundsException | NullPointerException ex)
+        {
+            writeObject((Object) frameBody);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void writeDeliveryState(final DeliveryState state)
+    {
+        try
+        {
+            _describedTypesByIndex[state.getDescriptorCode() & 0xFF].write(state);;
+        }
+        catch (IndexOutOfBoundsException | NullPointerException ex)
+        {
+            writeObject((Object) state);
         }
     }
 

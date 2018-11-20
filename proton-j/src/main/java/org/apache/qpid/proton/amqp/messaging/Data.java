@@ -1,4 +1,3 @@
-
 /*
 *
 * Licensed to the Apache Software Foundation (ASF) under one
@@ -19,34 +18,37 @@
 * under the License.
 *
 */
-
-
 package org.apache.qpid.proton.amqp.messaging;
 
 import org.apache.qpid.proton.amqp.Binary;
+import org.apache.qpid.proton.amqp.UnsignedLong;
 
 public final class Data implements Section
 {
+    public static final UnsignedLong DESCRIPTOR = UnsignedLong.valueOf(0x0000000000000075L);
+
     private final Binary _value;
 
-    public Data(Binary value)
-    {
+    public Data(Binary value) {
         _value = value;
     }
 
-    public Binary getValue()
-    {
+    public Binary getValue() {
         return _value;
     }
 
     @Override
-    public String toString()
-    {
+    public String toString() {
         return "Data{" + _value + '}';
     }
 
     @Override
     public SectionType getType() {
         return SectionType.Data;
+    }
+
+    @Override
+    public byte getDescriptorCode() {
+        return DESCRIPTOR.byteValue();
     }
 }
