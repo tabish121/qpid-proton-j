@@ -547,60 +547,68 @@ public class CompositeReadableBuffer implements ReadableBuffer {
 
     @Override
     public String readString(CharsetDecoder decoder) throws CharacterCodingException {
-        if (!hasRemaining()) {
+        final int remaining = remaining();
+        if (remaining == 0) {
             return "";
         }
 
-        CharBuffer decoded = null;
+        final char[] chars = new char[remaining];
 
-        if (hasArray()) {
-            decoded = decoder.decode(ByteBuffer.wrap(currentArray, currentOffset, remaining()));
-        } else {
-            decoded = readStringFromComponents(decoder);
+        int processed = 0;
+        for (; processed < remaining; processed++, currentOffset++) {
+            maybeMoveToNextArray();
+            byte value = currentArray[currentOffset];
+            if (value < 0) {
+                break;  // Non-ASCII data encountered
+            }
+            chars[processed] = (char) value;
         }
 
-        return decoded.toString();
+        position += processed;
+
+        if (processed == remaining) {
+            return new String(chars, 0, remaining);
+        } else {
+            return readStringFromComponents(chars, processed, decoder);
+        }
     }
 
-    private CharBuffer readStringFromComponents(CharsetDecoder decoder) throws CharacterCodingException {
-        int size = (int)(remaining() * decoder.averageCharsPerByte());
-        CharBuffer decoded = CharBuffer.allocate(size);
+    private String readStringFromComponents(final char[] chars, final int offset, CharsetDecoder decoder) throws CharacterCodingException {
+        final CharBuffer decoded = CharBuffer.wrap(chars);
+        decoded.position(offset);
 
         int arrayIndex = currentArrayIndex;
-        final int viewSpan = limit() - position();
+        final int viewSpan = remaining();
         int processed = Math.min(currentArray.length - currentOffset, viewSpan);
         ByteBuffer wrapper = ByteBuffer.wrap(currentArray, currentOffset, processed);
 
         CoderResult step = CoderResult.OVERFLOW;
 
-        do {
-            boolean endOfInput = processed == viewSpan;
-            step = decoder.decode(wrapper, decoded, endOfInput);
-            if (step.isUnderflow() && endOfInput) {
-                step = decoder.flush(decoded);
-                break;
+        try {
+            for (;;) {
+                boolean endOfInput = processed == viewSpan;
+                step = decoder.decode(wrapper, decoded, endOfInput);
+                if (step.isUnderflow() && endOfInput) {
+                    step = decoder.flush(decoded);
+                    break;
+                }
+
+                if (step.isOverflow() || step.isError() || arrayIndex < 0) {
+                    // The char buffer should have been sufficient here but wasn't so we know
+                    // that there was some encoding issue on the other end.
+                    step.throwException();
+                }
+
+                byte[] next = contents.get(++arrayIndex);
+                int wrapSize = Math.min(next.length, viewSpan - processed);
+                wrapper = ByteBuffer.wrap(next, 0, wrapSize);
+                processed += wrapSize;
             }
 
-            if (step.isOverflow()) {
-                size = 2 * size + 1;
-                CharBuffer upsized = CharBuffer.allocate(size);
-                decoded.flip();
-                upsized.put(decoded);
-                decoded = upsized;
-                continue;
-            }
-
-            byte[] next = contents.get(++arrayIndex);
-            int wrapSize = Math.min(next.length, viewSpan - processed);
-            wrapper = ByteBuffer.wrap(next, 0, wrapSize);
-            processed += wrapSize;
-        } while (!step.isError());
-
-        if (step.isError()) {
-            step.throwException();
+            return decoded.flip().toString();
+        } finally {
+            decoder.reset();
         }
-
-        return (CharBuffer) decoded.flip();
     }
 
     /**
@@ -776,7 +784,7 @@ public class CompositeReadableBuffer implements ReadableBuffer {
      * @return a reference to this {@link CompositeReadableBuffer}.
      */
     public CompositeReadableBuffer append(ReadableBuffer buffer) {
-        if(buffer instanceof CompositeReadableBuffer) {
+        if (buffer instanceof CompositeReadableBuffer) {
             append((CompositeReadableBuffer) buffer);
         } else {
             validateAppendable();
