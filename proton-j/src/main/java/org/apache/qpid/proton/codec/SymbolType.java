@@ -44,13 +44,17 @@ public class SymbolType extends AbstractPrimitiveType<Symbol>
                 Symbol symbol = _symbolCache.get(buffer);
                 if (symbol == null)
                 {
-                    byte[] bytes = new byte[buffer.limit()];
+                    byte[] bytes = new byte[buffer.remaining()];
                     buffer.get(bytes);
 
                     String str = new String(bytes, ASCII_CHARSET);
                     symbol = Symbol.getSymbol(str);
 
                     _symbolCache.put(ReadableBuffer.ByteBufferReader.wrap(bytes), symbol);
+                }
+                else
+                {
+                    buffer.position(buffer.limit());
                 }
                 return symbol;
             }

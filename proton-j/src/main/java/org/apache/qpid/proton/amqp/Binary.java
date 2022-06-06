@@ -167,15 +167,22 @@ public final class Binary
 
     public static Binary create(ReadableBuffer buffer)
     {
+        return create(buffer, buffer.remaining());
+    }
+
+    public static Binary create(ReadableBuffer buffer, int length)
+    {
         if (buffer == null)
         {
             return null;
         }
         else if (!buffer.hasArray())
         {
-            byte data[] = new byte [buffer.remaining()];
-            ReadableBuffer dup = buffer.duplicate();
-            dup.get(data);
+            byte data[] = new byte [length];
+            int oldPos = buffer.position();
+            buffer.get(data, 0, length);
+            buffer.position(oldPos);
+
             return new Binary(data);
         }
         else
